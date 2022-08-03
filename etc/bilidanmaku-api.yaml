@@ -1,0 +1,7 @@
+RoomId: 3
+DanmuLen: 30
+EntryMsg: 弹幕机器人已进入直播间
+#Log:
+#  Mode: file
+#  Encoding: plain
+#  Path: ./logs

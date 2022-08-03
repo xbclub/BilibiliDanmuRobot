@@ -1,0 +1,27 @@
+module bili_danmaku
+
+go 1.18
+
+require (
+	github.com/go-resty/resty/v2 v2.7.0
+	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
+	github.com/gorilla/websocket v1.4.2
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
+	github.com/zeromicro/go-zero v1.3.5
+	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63
+)
+
+require (
+	github.com/fatih/color v1.13.0 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
+	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	go.opentelemetry.io/otel v1.8.0 // indirect
+	go.opentelemetry.io/otel/trace v1.8.0 // indirect
+	go.uber.org/automaxprocs v1.5.1 // indirect
+	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
