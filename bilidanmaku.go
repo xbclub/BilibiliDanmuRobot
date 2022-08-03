@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 	rand.Seed(time.Now().UnixMicro())
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
 	ctx := svc.NewServiceContext(c)
