@@ -1,6 +1,6 @@
-RoomId: ${RoomId}
-DanmuLen: ${Danmulen}
-EntryMsg: ${EntryMsg}
+RoomId: ${roomid}
+DanmuLen: ${danmulen}
+EntryMsg: ${entrymsg}
 #Log:
 #  Mode: file
 #  Encoding: plain
