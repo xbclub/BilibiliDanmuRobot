@@ -75,14 +75,14 @@ func GetLoginInfo(oauthKey string) (*entity.LoginInfoData, error) {
 		CookieStr += pair[0] + ";"
 	}
 	//使用追加模式打开文件
-	file, err = os.OpenFile("etc/bili_token.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	file, err = os.OpenFile("token/bili_token.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		logx.Errorf("打开文件错误：", err)
 	}
 	file.WriteString(CookieStr)
 	file.Close()
 	//使用追加模式打开文件
-	file, err = os.OpenFile("etc/bili_token.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	file, err = os.OpenFile("token/bili_token.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		logx.Errorf("打开文件错误：", err)
 	}
@@ -104,13 +104,13 @@ func FileExists(path string) bool {
 func SetHistoryCookie() error {
 	var cookie []byte
 	var err error
-	cookie, err = os.ReadFile("etc/bili_token.txt")
+	cookie, err = os.ReadFile("token/bili_token.txt")
 	if err != nil {
 		logx.Errorf("打开文件错误：", err)
 		return err
 	}
 	CookieStr = string(cookie)
-	cookie, err = os.ReadFile("etc/bili_token.json")
+	cookie, err = os.ReadFile("token/bili_token.json")
 	if err != nil {
 		logx.Errorf("打开文件错误：", err)
 		return err

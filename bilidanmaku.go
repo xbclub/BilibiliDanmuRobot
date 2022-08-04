@@ -8,15 +8,12 @@ import (
 	"flag"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
-	"math/rand"
-	"time"
 )
 
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
-	rand.Seed(time.Now().UnixMicro())
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)

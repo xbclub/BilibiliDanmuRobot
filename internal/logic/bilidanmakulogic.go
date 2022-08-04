@@ -50,7 +50,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	var err error
 	http.InitHttpClient()
 	// 判断是否存在历史cookie
-	if http.FileExists("etc/bili_token.txt") && http.FileExists("etc/bili_token.json") {
+	if http.FileExists("token/bili_token.txt") && http.FileExists("token/bili_token.json") {
 		err = http.SetHistoryCookie()
 		if err != nil {
 			if err = l.userlogin(); err != nil {
