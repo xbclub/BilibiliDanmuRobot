@@ -14,4 +14,5 @@ type Config struct {
 	RobotName    string `json:",default=花花"`
 	DanmuLen     int    `json:",default=20"`
 	EntryMsg     string `json:",default=off"`
+	InteractWord bool   `json:",default=false"`
 }

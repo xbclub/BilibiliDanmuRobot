@@ -1,6 +1,8 @@
 RoomId: ${roomid}
 DanmuLen: ${danmulen}
 EntryMsg: ${entrymsg}
+# 欢迎弹幕 true:开 false：关
+InteractWord: ${interactword}
 #Log:
 #  Mode: file
 #  Encoding: plain

@@ -102,9 +102,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
 				case interactWord:
-					interact := &entity.InteractWordText{}
-					_ = json.Unmarshal(body, interact)
-					pushToInterractChan(welcomeInteract(interact.Data.Uname))
+					if svcCtx.Config.InteractWord {
+						interact := &entity.InteractWordText{}
+						_ = json.Unmarshal(body, interact)
+						pushToInterractChan(welcomeInteract(interact.Data.Uname))
+					}
 
 				// 感谢礼物
 				case sendGift:
