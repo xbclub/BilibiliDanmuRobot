@@ -8,8 +8,10 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -102,10 +104,13 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
 				case interactWord:
+					interact := &entity.InteractWordText{}
+					_ = json.Unmarshal(body, interact)
+					fmt.Println(interact.Data.Uid, interact.Data.Uname)
 					if svcCtx.Config.InteractWord {
-						interact := &entity.InteractWordText{}
-						_ = json.Unmarshal(body, interact)
 						pushToInterractChan(welcomeInteract(interact.Data.Uname))
+					} else if v, ok := svcCtx.Config.WelcomeString[strconv.Itoa(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
+						PushToBulletSender(v)
 					}
 
 				// 感谢礼物

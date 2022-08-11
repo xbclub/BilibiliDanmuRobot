@@ -80,7 +80,7 @@ func summarizeGift() {
 		PushToBulletSender(msg)
 		//fmt.Println("礼物-----", name, giftstring)
 		// 总打赏高于x元，加一句大气
-		if sumCost >= 50000 { // 2元
+		if sumCost >= 50000 { // 50元
 			PushToBulletSender(name + "老板大气大气")
 		}
 		delete(thanksGiver.giftTable, name)

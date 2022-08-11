@@ -17,6 +17,7 @@ type EntryEffectText struct {
 type InteractWordText struct {
 	Data struct {
 		Uname string `json:"uname"`
+		Uid   int    `json:"uid"`
 	} `json:"data"`
 }
 

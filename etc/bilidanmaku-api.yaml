@@ -7,3 +7,7 @@ InteractWord: ${interactword}
 #  Mode: file
 #  Encoding: plain
 #  Path: ./logs
+WelcomeString: {
+  123456: "欢迎宇宙无敌最帅的xxx进入直播间"
+}
+WelcomeSwitch: true
