@@ -61,27 +61,27 @@ func splitRobotReply(content string, svcCtx *svc.ServiceContext) []string {
 	// 将机器人回复中的菲菲替换为橘子
 	content = strings.ReplaceAll(content, "菲菲", svcCtx.Config.RobotName)
 
-	var res []string
+	//var res []string
 	reply := strings.Split(content, "{br}")
 
-	for _, r := range reply {
-		// 长度大于20再分割
-		zh := []rune(r)
-		if len(zh) > 20 {
-			i := 0
-			for i < len(zh) {
-				if i+20 > len(zh) {
-					res = append(res, string(zh[i:]))
-				} else {
-					res = append(res, string(zh[i:i+20]))
-				}
-				i += 20
-			}
-		} else {
-			res = append(res, string(zh))
-		}
-	}
-	return res
+	//for _, r := range reply {
+	//	// 长度大于20再分割
+	//	zh := []rune(r)
+	//	if len(zh) > 20 {
+	//		i := 0
+	//		for i < len(zh) {
+	//			if i+20 > len(zh) {
+	//				res = append(res, string(zh[i:]))
+	//			} else {
+	//				res = append(res, string(zh[i:i+20]))
+	//			}
+	//			i += 20
+	//		}
+	//	} else {
+	//		res = append(res, string(zh))
+	//	}
+	//}
+	return reply
 }
 
 // 检查弹幕是否在@我，返回bool和@我要说的内容
