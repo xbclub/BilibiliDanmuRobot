@@ -27,5 +27,6 @@ type SendGiftText struct {
 		GiftName string `json:"giftName"`
 		Uname    string `json:"uname"`
 		Price    int    `json:"price"`
+		Num      int    `json:"num"`
 	} `json:"data"`
 }

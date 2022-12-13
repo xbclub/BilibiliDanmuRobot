@@ -51,7 +51,7 @@ func ThanksGift(ctx context.Context) {
 				thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName] = make(map[string]int)
 			}
 			thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName]["cost"] += g.Data.Price
-			thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName]["count"] += 1
+			thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName]["count"] += g.Data.Num
 		}
 	}
 END:

@@ -1,13 +1,22 @@
+# 房间号
 RoomId: ${roomid}
-DanmuLen: ${danmulen}
-EntryMsg: ${entrymsg}
+# 弹幕长度
+DanmuLen: 20
+EntryMsg: "花花机器人进入直播间"
 # 欢迎弹幕 true:开 false：关
-InteractWord: ${interactword}
+InteractWord: false
+#日志输出
 #Log:
 #  Mode: file
 #  Encoding: plain
 #  Path: ./logs
+# 指定人欢迎 与 欢迎弹幕冲突 在关闭欢迎弹幕时有效
 WelcomeString: {
   123456: "欢迎宇宙无敌最帅的xxx进入直播间"
 }
+# 指定欢迎是否启用 true:开 false：关
 WelcomeSwitch: true
+# 机器人的名字
+RobotName: "花花"
+#直播间调用机器人的昵称：例如 "花花今天你吃了吗"，此处填花花
+TalkRobotCmd: "花花"

@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"strconv"
@@ -106,7 +105,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 				case interactWord:
 					interact := &entity.InteractWordText{}
 					_ = json.Unmarshal(body, interact)
-					fmt.Println(interact.Data.Uid, interact.Data.Uname)
+					//fmt.Println(interact.Data.Uid, interact.Data.Uname)
 					if svcCtx.Config.InteractWord {
 						pushToInterractChan(welcomeInteract(interact.Data.Uname))
 					} else if v, ok := svcCtx.Config.WelcomeString[strconv.Itoa(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {

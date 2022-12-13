@@ -55,7 +55,7 @@ func StartSendBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 					logx.Infof("弹幕发送成功：", msg)
 				}
 				//fmt.Println(msgs)
-				time.Sleep(3 * time.Second) // 防止弹幕发送过快
+				time.Sleep(1 * time.Second) // 防止弹幕发送过快
 			}
 		}
 
