@@ -4,7 +4,7 @@ RoomId: ${roomid}
 DanmuLen: ${danmulen}
 EntryMsg: "花花机器人进入直播间"
 # 欢迎弹幕 true:开 false：关
-InteractWord: false
+InteractWord: ${interactword}
 #日志输出
 #Log:
 #  Mode: file
