@@ -1,7 +1,7 @@
 # 房间号
 RoomId: ${roomid}
 # 弹幕长度
-DanmuLen: 20
+DanmuLen: ${danmulen}
 EntryMsg: "花花机器人进入直播间"
 # 欢迎弹幕 true:开 false：关
 InteractWord: false
