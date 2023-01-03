@@ -106,10 +106,10 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					interact := &entity.InteractWordText{}
 					_ = json.Unmarshal(body, interact)
 					//fmt.Println(interact.Data.Uid, interact.Data.Uname)
-					if svcCtx.Config.InteractWord {
-						pushToInterractChan(welcomeInteract(interact.Data.Uname))
-					} else if v, ok := svcCtx.Config.WelcomeString[strconv.Itoa(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
+					if v, ok := svcCtx.Config.WelcomeString[strconv.Itoa(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 						PushToBulletSender(v)
+					} else if svcCtx.Config.InteractWord {
+						pushToInterractChan(welcomeInteract(interact.Data.Uname))
 					}
 
 				// 感谢礼物
