@@ -13,6 +13,7 @@ import (
 )
 
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
+var Version string
 
 func main() {
 	flag.Parse()
@@ -20,6 +21,7 @@ func main() {
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
+	logx.Infof("version: %s", Version)
 	dir := "./token"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// Directory does not exist, create it
