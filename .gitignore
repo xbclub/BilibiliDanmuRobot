@@ -16,3 +16,8 @@ token/bili_token*
 # Dependency directories (remove the comment below to include it)
 # vendor/
 .idea/
+dist/
+.goreleaser.yml.bak
+.goreleaser.yaml
+.DS_Store
+.gitignore
