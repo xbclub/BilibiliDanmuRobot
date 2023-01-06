@@ -10,6 +10,7 @@ type DanmuMsgText struct {
 
 type EntryEffectText struct {
 	Data struct {
+		Uid         int64  `json:"uid"`
 		CopyWriting string `json:"copy_writing"`
 	} `json:"data"`
 }
@@ -17,7 +18,7 @@ type EntryEffectText struct {
 type InteractWordText struct {
 	Data struct {
 		Uname string `json:"uname"`
-		Uid   int    `json:"uid"`
+		Uid   int64  `json:"uid"`
 	} `json:"data"`
 }
 

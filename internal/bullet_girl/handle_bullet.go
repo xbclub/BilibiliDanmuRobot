@@ -8,9 +8,9 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
-	"strconv"
 	"strings"
 )
 
@@ -77,7 +77,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 		case normalJson:
 			text := &entity.CmdText{}
 			_ = json.Unmarshal(body, text)
-			logx.Infof("普通json包：%s,%v,%v", text.Cmd, ver, op)
+			//logx.Infof("普通json包：%s,%v,%v", text.Cmd, ver, op)
 			if op == command {
 				switch Cmd(text.Cmd) {
 
@@ -93,22 +93,32 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						PushToBulletRobot(content)
 					}
 
-					logx.Infof("%f %v:%v", from[0].(float64), from[1], danmu.Info[1])
+					logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
 
 				// 欢迎舰长
 				//case entryEffect:
 				//	entry := &entity.EntryEffectText{}
 				//	_ = json.Unmarshal(body, entry)
-				//	PushToBulletSender(welcomeCaptain(entry.Data.CopyWriting))
+				//	//if err != nil {
+				//	//	fmt.Println(err)
+				//	//}
+				//	if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(entry.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
+				//		PushToBulletSender(v)
+				//	} else if svcCtx.Config.InteractWord {
+				//		pushToInterractChan(welcomeCaptain(entry.Data.CopyWriting))
+				//	}
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
 				case interactWord:
 					interact := &entity.InteractWordText{}
 					_ = json.Unmarshal(body, interact)
-					//fmt.Println(interact.Data.Uid, interact.Data.Uname)
-					if v, ok := svcCtx.Config.WelcomeString[strconv.Itoa(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
+					//if err != nil {
+					//	fmt.Println(err)
+					//}
+					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 						PushToBulletSender(v)
 					} else if svcCtx.Config.InteractWord {
+						fmt.Println(interact.Data.Uid)
 						pushToInterractChan(welcomeInteract(interact.Data.Uname))
 					}
 
@@ -133,11 +143,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 }
 
 // 欢迎舰长语句
-func welcomeCaptain(s string) string {
+func welcomeCaptain(s string) *string {
 	s = strings.Replace(s, "\u003c%", "", 1)
 	s = strings.Replace(s, "%\u003e", "", 1)
 
-	return s
+	return &s
 }
 
 func welcomeInteract(name string) *string {

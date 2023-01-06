@@ -1,14 +1,14 @@
 # 房间号
-RoomId: ${roomid}
+RoomId: 3
 # 弹幕长度
-DanmuLen: ${danmulen}
+DanmuLen: 30
 EntryMsg: "花花机器人进入直播间"
 # 欢迎弹幕 true:开 false：关
-InteractWord: ${interactword}
+InteractWord: true
 #日志输出
-#Log:
+Log:
 #  Mode: file
-#  Encoding: plain
+  Encoding: plain
 #  Path: ./logs
 # 指定人欢迎
 WelcomeString: {

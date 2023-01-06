@@ -15,7 +15,7 @@ type BulletRobot struct {
 }
 
 func PushToBulletRobot(content string) {
-	logx.Infof("PushToBulletRobot成功", content)
+	logx.Infof("PushToBulletRobot成功：%s", content)
 	robot.bulletRobotChan <- content
 }
 
@@ -46,7 +46,7 @@ func handleRobotBullet(content string, svcCtx *svc.ServiceContext) {
 		return
 	}
 
-	logx.Infof("机器人回复：", reply)
+	logx.Infof("机器人回复：%s", reply)
 
 	bulltes := splitRobotReply(reply, svcCtx)
 	for _, v := range bulltes {
