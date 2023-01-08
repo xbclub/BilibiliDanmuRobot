@@ -89,24 +89,24 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 
 					// 如果发现弹幕在@我，那么调用机器人进行回复
 					y, content := checkIsAtMe(danmu.Info[1].(string), svcCtx)
-					if y {
+					if y && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
 
 					logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
 
-				// 欢迎舰长
-				//case entryEffect:
-				//	entry := &entity.EntryEffectText{}
-				//	_ = json.Unmarshal(body, entry)
-				//	//if err != nil {
-				//	//	fmt.Println(err)
-				//	//}
-				//	if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(entry.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
-				//		PushToBulletSender(v)
-				//	} else if svcCtx.Config.InteractWord {
-				//		pushToInterractChan(welcomeCaptain(entry.Data.CopyWriting))
-				//	}
+				// 进场特效欢迎
+				case entryEffect:
+					entry := &entity.EntryEffectText{}
+					_ = json.Unmarshal(body, entry)
+					//if err != nil {
+					//	fmt.Println(err)
+					//}
+					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(entry.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok && svcCtx.Config.EntryEffect {
+						PushToBulletSender(v)
+					} else if svcCtx.Config.EntryEffect {
+						PushToBulletSender(welcomeCaptain(entry.Data.CopyWriting))
+					}
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
 				case interactWord:
@@ -118,7 +118,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 						PushToBulletSender(v)
 					} else if svcCtx.Config.InteractWord {
-						fmt.Println(interact.Data.Uid)
+						//fmt.Println(interact.Data.Uid)
 						pushToInterractChan(welcomeInteract(interact.Data.Uname))
 					}
 
@@ -143,11 +143,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 }
 
 // 欢迎舰长语句
-func welcomeCaptain(s string) *string {
+func welcomeCaptain(s string) string {
 	s = strings.Replace(s, "\u003c%", "", 1)
 	s = strings.Replace(s, "%\u003e", "", 1)
 
-	return &s
+	return s
 }
 
 func welcomeInteract(name string) *string {

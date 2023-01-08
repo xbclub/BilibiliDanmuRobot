@@ -21,7 +21,8 @@ func main() {
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
-	logx.Infof("version: %s", Version)
+	logx.Infof("当前版本: %s", Version)
+	logx.Infof("监听直播间: %d", c.RoomId)
 	dir := "./token"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// Directory does not exist, create it

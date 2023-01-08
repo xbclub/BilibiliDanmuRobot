@@ -9,7 +9,6 @@ import (
 	"bili_danmaku/internal/utiles"
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,7 +17,8 @@ import (
 
 var sendBulletCtx context.Context
 var sendBulletCancel context.CancelFunc
-var timingBulletCtx context.Context
+
+// var timingBulletCtx context.Context
 var timingBulletCancel context.CancelFunc
 var robotBulletCtx context.Context
 var robotBulletCancel context.CancelFunc
@@ -54,7 +54,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 		err = http.SetHistoryCookie()
 		if err != nil {
 			if err = l.userlogin(); err != nil {
-				logx.Errorf("用户登录失败：", err)
+				logx.Errorf("用户登录失败：%v", err)
 				return
 			}
 		}
@@ -76,7 +76,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	var info *entity.RoomInitInfo
 	var preStatus int
 
-	log.Println("正在检测直播间是否开播...")
+	logx.Info("正在检测直播间是否开播...")
 
 	// 循环监听直播间情况
 	for {
@@ -90,23 +90,25 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 		case <-t.C:
 			t.Reset(interval)
 			if info, err = http.RoomInit(l.svcCtx); err != nil || err == errs.RoomIdNotExistErr {
-				log.Println("RoomInit错误：", err)
+				logx.Infof("RoomInit错误：%v", err)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
-				log.Println("开播啦！", l.svcCtx.Config.RoomId)
+				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
 				preStatus = entity.Live
 				// 弹幕姬各goroutine上下文
 				sendBulletCtx, sendBulletCancel = context.WithCancel(context.Background())
-				timingBulletCtx, timingBulletCancel = context.WithCancel(context.Background())
+				//timingBulletCtx, timingBulletCancel = context.WithCancel(context.Background())
 				robotBulletCtx, robotBulletCancel = context.WithCancel(context.Background())
 				catchBulletCtx, catchBulletCancel = context.WithCancel(context.Background())
 				handleBulletCtx, handleBulletCancel = context.WithCancel(context.Background())
 				thanksGiftCtx, thankGiftCancel = context.WithCancel(context.Background())
 				ineterractCtx, ineterractCancel = context.WithCancel(context.Background())
-				l.StartBulletGirl(sendBulletCtx, timingBulletCtx, robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx) // 开启弹幕姬
+				l.StartBulletGirl(sendBulletCtx,
+					//timingBulletCtx,
+					robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx) // 开启弹幕姬
 			} else if info.Data.LiveStatus == entity.NotStarted && preStatus == entity.Live { // 由Live到NotStarted是下播
-				log.Println("下播啦！")
+				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
 				sendBulletCancel()
 				timingBulletCancel()
@@ -169,9 +171,14 @@ func (l *Bili_danmakuLogic) userlogin() error {
 
 	return err
 }
-func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx, timingBulletCtx, robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx context.Context) {
+func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
+	//timingBulletCtx,
+	robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx context.Context) {
 	if l.svcCtx.Config.EntryMsg != "off" {
-		http.Send(l.svcCtx.Config.EntryMsg, l.svcCtx)
+		err := http.Send(l.svcCtx.Config.EntryMsg, l.svcCtx)
+		if err != nil {
+			logx.Error(err)
+		}
 	}
 	// 开启弹幕推送
 	go bullet_girl.StartSendBullet(sendBulletCtx, l.svcCtx)

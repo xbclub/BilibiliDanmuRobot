@@ -16,20 +16,20 @@ type Version uint16 // 正文类型及压缩方式
 type Cmd string     // 命令类型
 
 const (
-	normalJson           Version = 0               // 正文为json格式的弹幕
-	heartOrCertification Version = 1               // 心跳或认证包正文不压缩，客户端发送的心跳包无正文，服务队发送的心跳包正文为4字节数据，表示人气值
-	normalZlib           Version = 2               // 普通包正文使用zlib压缩
-	normalBrotli         Version = 3               // 普通包正文使用brotli压缩，解压后为一个普通包（头部协议为0），需要再次解析出正文
-	heartBeat            Opcode  = 2               // 心跳包
-	command              Opcode  = 5               // 命令包
-	certification        Opcode  = 7               // 认证包
-	enterRoom            Opcode  = 8               // 进入房间
-	DanmuMsg             Cmd     = "DANMU_MSG"     // 弹幕消息
-	welcomeGuard         Cmd     = "WELCOME_GUARD" // 欢迎xxx老爷
-	entryEffect          Cmd     = "ENTRY_EFFECT"  // 欢迎舰长进入房间
-	welcome              Cmd     = "WELCOME"       // 欢迎xxx进入房间
-	interactWord         Cmd     = "INTERACT_WORD" // 进入房间
-	sendGift             Cmd     = "SEND_GIFT"     // 发现送礼物
+	normalJson           Version = 0 // 正文为json格式的弹幕
+	heartOrCertification Version = 1 // 心跳或认证包正文不压缩，客户端发送的心跳包无正文，服务队发送的心跳包正文为4字节数据，表示人气值
+	normalZlib           Version = 2 // 普通包正文使用zlib压缩
+	//normalBrotli         Version = 3               // 普通包正文使用brotli压缩，解压后为一个普通包（头部协议为0），需要再次解析出正文
+	heartBeat     Opcode = 2 // 心跳包
+	command       Opcode = 5 // 命令包
+	certification Opcode = 7 // 认证包
+	//enterRoom            Opcode  = 8               // 进入房间
+	DanmuMsg Cmd = "DANMU_MSG" // 弹幕消息
+	//welcomeGuard         Cmd     = "WELCOME_GUARD" // 欢迎xxx老爷
+	entryEffect Cmd = "ENTRY_EFFECT" // 欢迎舰长进入房间
+	//welcome              Cmd     = "WELCOME"       // 欢迎xxx进入房间
+	interactWord Cmd = "INTERACT_WORD" // 进入房间
+	sendGift     Cmd = "SEND_GIFT"     // 发现送礼物
 )
 
 // 关于数据包格式的常量
@@ -131,7 +131,12 @@ func StartCatchBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 		logx.Errorf("websocket连接失败：", err)
 		return
 	}
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			logx.Error(err)
+		}
+	}(conn)
 
 	// 组装认证包
 	if cert, err = GenerateCertificationPackage(svcCtx); err != nil {
@@ -158,7 +163,7 @@ func StartCatchBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 			goto END
 		default:
 			if _, message, err = conn.ReadMessage(); err != nil {
-				logx.Errorf("websocket读取消息失败", err)
+				logx.Errorf("websocket读取消息失败：%v", err)
 				continue
 			}
 			pushToBulletHandler(message)

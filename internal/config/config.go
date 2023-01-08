@@ -13,6 +13,7 @@ type Config struct {
 	TalkRobotCmd  string            `json:",default=test"`
 	RobotName     string            `json:",default=花花"`
 	DanmuLen      int               `json:",default=20"`
+	EntryEffect   bool              `json:",default=false"`
 	EntryMsg      string            `json:",default=off"`
 	InteractWord  bool              `json:",default=false"`
 	WelcomeSwitch bool              `json:",default=false"`
