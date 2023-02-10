@@ -7,6 +7,7 @@ import (
 	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"bili_danmaku/internal/utiles"
+	"bufio"
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
@@ -45,6 +46,14 @@ func NewBili_danmakuLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Bili
 	}
 }
 
+func getTerminalInput(input chan string) {
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		scanner.Scan()
+		input <- scanner.Text()
+	}
+}
+
 func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	// todo: add your logic here and delete this line
 	var err error
@@ -76,6 +85,10 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	var info *entity.RoomInitInfo
 	var preStatus int
 
+	logx.Info("启动命令行输入线程...")
+	input := make(chan string)
+	go getTerminalInput(input)
+
 	logx.Info("正在检测直播间是否开播...")
 
 	// 循环监听直播间情况
@@ -85,6 +98,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 		// 程序退出
 		case <-sig:
 			goto END
+
+		case ta := <-input:
+			bullet_girl.PushToBulletSender(ta)
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
@@ -110,13 +126,29 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 			} else if info.Data.LiveStatus == entity.NotStarted && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
-				sendBulletCancel()
-				timingBulletCancel()
-				robotBulletCancel()
-				catchBulletCancel()
-				handleBulletCancel()
-				thankGiftCancel()
-				ineterractCancel() // 关闭弹幕姬goroutine
+				if sendBulletCancel != nil {
+					sendBulletCancel()
+				}
+				if timingBulletCancel != nil {
+					timingBulletCancel()
+				}
+				if robotBulletCancel != nil {
+					robotBulletCancel()
+				}
+				if catchBulletCancel != nil {
+					catchBulletCancel()
+				}
+				if handleBulletCancel != nil {
+					handleBulletCancel()
+				}
+				if thankGiftCancel != nil {
+					if l.svcCtx.Config.ThanksGift {
+						thankGiftCancel()
+					}
+				}
+				if ineterractCancel != nil {
+					ineterractCancel() // 关闭弹幕姬goroutine
+				}
 			}
 		}
 	}
@@ -142,7 +174,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Stop() {
 			handleBulletCancel()
 		}
 		if thankGiftCancel != nil {
-			thankGiftCancel()
+			if l.svcCtx.Config.ThanksGift {
+				thankGiftCancel()
+			}
 		}
 		if ineterractCancel != nil {
 			ineterractCancel()
@@ -201,8 +235,11 @@ func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
 	logx.Info("弹幕处理已开启...")
 
 	// 开启礼物感谢
-	go bullet_girl.ThanksGift(thanksGiftCtx)
-	logx.Info("礼物感谢已开启")
+	if l.svcCtx.Config.ThanksGift {
+		go bullet_girl.ThanksGift(thanksGiftCtx)
+		logx.Info("礼物感谢已开启")
+	}
+
 	go bullet_girl.Interact(ineterractCtx)
 	// 指定弹幕定时任务
 	//time.Sleep(time.Second) // 现开启定时任务弹幕再推送，这个方法很low，暂且这样吧

@@ -15,6 +15,7 @@ type Config struct {
 	DanmuLen      int               `json:",default=20"`
 	EntryEffect   bool              `json:",default=false"`
 	EntryMsg      string            `json:",default=off"`
+	ThanksGift    bool              `json:",default=false"`
 	InteractWord  bool              `json:",default=false"`
 	WelcomeSwitch bool              `json:",default=false"`
 	WelcomeString map[string]string `json:",optional"`

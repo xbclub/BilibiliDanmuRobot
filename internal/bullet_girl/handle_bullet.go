@@ -124,9 +124,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 
 				// 感谢礼物
 				case sendGift:
-					send := &entity.SendGiftText{}
-					_ = json.Unmarshal(body, send)
-					pushToGiftChan(send)
+					if svcCtx.Config.ThanksGift {
+						send := &entity.SendGiftText{}
+						_ = json.Unmarshal(body, send)
+						pushToGiftChan(send)
+					}
 				}
 			}
 		case heartOrCertification:
