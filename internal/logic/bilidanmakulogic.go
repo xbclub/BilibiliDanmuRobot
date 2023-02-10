@@ -85,10 +85,11 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	var info *entity.RoomInitInfo
 	var preStatus int
 
-	logx.Info("启动命令行输入线程...")
 	input := make(chan string)
-	go getTerminalInput(input)
-
+	if l.svcCtx.Config.CustomizeBullet {
+		logx.Info("启动命令行输入线程...")
+		go getTerminalInput(input)
+	}
 	logx.Info("正在检测直播间是否开播...")
 
 	// 循环监听直播间情况
@@ -100,7 +101,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 			goto END
 
 		case ta := <-input:
-			bullet_girl.PushToBulletSender(ta)
+			if l.svcCtx.Config.CustomizeBullet {
+				bullet_girl.PushToBulletSender(ta)
+			}
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
