@@ -65,5 +65,5 @@ func handleInterract() {
 	if len(msg) == 0 {
 		return
 	}
-	PushToBulletSender(msg + " 进入直播间")
+	PushToBulletSender(msg + " ~")
 }
