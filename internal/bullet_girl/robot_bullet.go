@@ -40,18 +40,27 @@ END:
 func handleRobotBullet(content string, svcCtx *svc.ServiceContext) {
 	var err error
 	var reply string
-	if reply, err = http.RequestQingyunkeRobot(content); err != nil {
-		logx.Errorf("请求机器人失败：", err)
-		PushToBulletSender("不好意思，机器人坏掉了...")
+	if svcCtx.Config.RobotMode == "ChatGPT" {
+		if reply, err = http.RequestChatgptRobot(content, svcCtx); err != nil {
+			logx.Errorf("请求机器人失败：", err)
+			PushToBulletSender("不好意思，机器人坏掉了...")
+			return
+		}
+	} else {
+		if reply, err = http.RequestQingyunkeRobot(content); err != nil {
+			logx.Errorf("请求机器人失败：", err)
+			PushToBulletSender("不好意思，机器人坏掉了...")
+			return
+		}
+		bulltes := splitRobotReply(reply, svcCtx)
+		for _, v := range bulltes {
+			PushToBulletSender(v)
+		}
 		return
 	}
-
+	PushToBulletSender(reply)
 	logx.Infof("机器人回复：%s", reply)
 
-	bulltes := splitRobotReply(reply, svcCtx)
-	for _, v := range bulltes {
-		PushToBulletSender(v)
-	}
 }
 
 // 将机器人回复语句中的 {br} 进行分割

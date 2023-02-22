@@ -20,4 +20,9 @@ type Config struct {
 	InteractWord    bool              `json:",default=false"`
 	WelcomeSwitch   bool              `json:",default=false"`
 	WelcomeString   map[string]string `json:",optional"`
+	RobotMode       string            `json:",default=QingYunKe,options=QingYunKe|ChatGPT"`
+	ChatGPT         struct {
+		MaxToken int    `json:",default=10"`
+		APIToken string `json:",optional"`
+	}
 }

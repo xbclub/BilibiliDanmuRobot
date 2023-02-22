@@ -10,7 +10,7 @@ EntryEffect: true
 # 礼物感谢
 ThanksGift: true
 # 手动发送弹幕开关
-CustomizeBullet: false
+CustomizeBullet: true
 #日志输出
 Log:
 #  Mode: file
@@ -26,3 +26,9 @@ WelcomeSwitch: true
 RobotName: "花花"
 #直播间调用机器人的昵称：例如 "花花今天你吃了吗"，此处填花花
 TalkRobotCmd: "花花"
+#机器人模式仅有QingYunKe/ChatGPT两个选项
+RobotMode: QingYunKe
+#此项配置仅在RobotMode为ChatGPT时生效，使用chatgpt时APItoken为必填项
+ChatGPT:
+  MaxToken: 100
+  APIToken: yor api token
