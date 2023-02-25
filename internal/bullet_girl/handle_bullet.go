@@ -115,11 +115,16 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					//if err != nil {
 					//	fmt.Println(err)
 					//}
-					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
-						PushToBulletSender(v)
-					} else if svcCtx.Config.InteractWord {
-						//fmt.Println(interact.Data.Uid)
-						pushToInterractChan(welcomeInteract(interact.Data.Uname))
+					// 1 进场 2 关注
+					if interact.Data.MsgType == 1 {
+						if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
+							PushToBulletSender(v)
+						} else if svcCtx.Config.InteractWord {
+							//fmt.Println(interact.Data.Uid)
+							pushToInterractChan(welcomeInteract(interact.Data.Uname))
+						}
+					} else {
+						// logx.Info("guanzhu", interact)
 					}
 
 				// 感谢礼物
