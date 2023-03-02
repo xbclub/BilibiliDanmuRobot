@@ -30,5 +30,4 @@ TalkRobotCmd: "花花"
 RobotMode: QingYunKe
 #此项配置仅在RobotMode为ChatGPT时生效，使用chatgpt时APItoken为必填项
 ChatGPT:
-  MaxToken: 100
   APIToken: yor api token

@@ -11,21 +11,28 @@ import (
 func RequestChatgptRobot(msg string, svcCtx *svc.ServiceContext) (string, error) {
 	c := gogpt.NewClient(svcCtx.Config.ChatGPT.APIToken)
 	ctx := context.Background()
-
-	req := gogpt.CompletionRequest{
-		Model:     gogpt.GPT3TextDavinci003,
-		MaxTokens: svcCtx.Config.ChatGPT.MaxToken,
-		Prompt:    "使用中文回答" + msg,
+	msgs := ""
+	req := gogpt.ChatCompletionRequest{
+		Model: gogpt.GPT3Dot5Turbo,
+		Messages: []gogpt.ChatCompletionMessage{
+			{
+				Role:    "user",
+				Content: msg,
+			},
+		},
 	}
-	resp, err := c.CreateCompletion(ctx, req)
+	resp, err := c.CreateChatCompletion(ctx, req)
 	if err != nil {
 		return "", err
 	}
 	logx.Infof("本次开销：%v tokens", resp.Usage.TotalTokens)
-	data := []byte(resp.Choices[0].Text)
-	if bytes.HasPrefix(data, []byte{239, 188, 159}) {
-		data = bytes.TrimPrefix(data, []byte{239, 188, 159})
+	for _, v := range resp.Choices {
+		data := []byte(v.Message.Content)
+		if bytes.HasPrefix(data, []byte{239, 188, 159}) {
+			data = bytes.TrimPrefix(data, []byte{239, 188, 159})
+		}
+		data = bytes.ReplaceAll(data, []byte{10, 10}, []byte{})
+		msgs += string(data)
 	}
-	data = bytes.ReplaceAll(data, []byte{10, 10}, []byte{})
-	return string(data), nil
+	return msgs, nil
 }
