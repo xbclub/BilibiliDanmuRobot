@@ -53,17 +53,12 @@ END:
 }
 
 func handleInterract() {
-	msg := ""
-	for k, v := range interractGiver.handlermsg {
-		if k == 0 {
-			msg += "欢迎 " + v
+	for _, v := range interractGiver.handlermsg {
+		s := []rune(v)
+		if len(s) > 13 {
+			PushToBulletSender("[欢迎 " + string(s[0:10]) + " ~]")
 		} else {
-			msg += "，" + v
+			PushToBulletSender("[欢迎 " + v + " ~]")
 		}
-
 	}
-	if len(msg) == 0 {
-		return
-	}
-	PushToBulletSender(msg + " ~")
 }
