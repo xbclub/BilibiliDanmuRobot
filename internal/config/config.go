@@ -22,7 +22,6 @@ type Config struct {
 	WelcomeString   map[string]string `json:",optional"`
 	RobotMode       string            `json:",default=QingYunKe,options=QingYunKe|ChatGPT"`
 	ChatGPT         struct {
-		MaxToken int    `json:",default=10"`
 		APIToken string `json:",optional"`
 	}
 }
