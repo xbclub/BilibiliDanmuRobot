@@ -116,7 +116,7 @@ steps:
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - zip -r  ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
+      - zip -r  ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
     when:
@@ -136,7 +136,7 @@ steps:
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - zip -r ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.tar.gz ./*
+      - zip -r ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
     when:
@@ -156,7 +156,7 @@ steps:
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - zip -r ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.tar.gz ./*
+      - zip -r ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
     when:
