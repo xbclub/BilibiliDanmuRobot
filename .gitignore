@@ -18,6 +18,4 @@ token/bili_token*
 .idea/
 dist/
 .goreleaser.yml.bak
-.goreleaser.yaml
 .DS_Store
-.gitignore

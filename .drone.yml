@@ -1,0 +1,11 @@
+kind: pipeline
+type: kubernetes
+name: default
+steps:
+  - name: acme
+    image: goreleaser/goreleaser
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    commands:
+      - goreleaser release
