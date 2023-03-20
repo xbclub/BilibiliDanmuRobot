@@ -7,12 +7,12 @@ steps:
     environment:
       GOOS: linux
       GOARCH: arm64
-      outputpath: ./dist/$GOOS-$GOARCH
     commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
       - go mod tidy
-      - go build -v -o ./dist/arm64/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - tar czvf ./dist/BilibiliDanmuRobot_Linux_arm64_v1.0.5.tar.gz $outputpath/*
