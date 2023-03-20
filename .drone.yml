@@ -198,4 +198,5 @@ steps:
       - build-windows-amd64
       - build-windows-arm64
     when:
-      event: tag
+      event:
+        - tag
