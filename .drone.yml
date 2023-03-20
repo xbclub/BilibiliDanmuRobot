@@ -8,6 +8,7 @@ steps:
       GOOS: linux
       GOARCH: arm64
     commands:
+      - env
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
