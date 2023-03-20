@@ -3,11 +3,11 @@ type: kubernetes
 name: default
 steps:
   - name: build
-    image: goreleaser/goreleaser
+    image: golang:1.20.2-alpine
     environment:
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
     commands:
-      - pwd
-      - ls
+      - apk add --no-cache git gcc musl-dev git
+      - go install github.com/goreleaser/goreleaser@latest
       - goreleaser release
