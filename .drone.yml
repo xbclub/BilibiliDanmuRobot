@@ -112,7 +112,7 @@ steps:
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
-      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
@@ -132,7 +132,7 @@ steps:
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
-      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
@@ -152,7 +152,7 @@ steps:
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
-      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
