@@ -8,4 +8,6 @@ steps:
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
     commands:
+      - pwd
+      - ls
       - goreleaser release
