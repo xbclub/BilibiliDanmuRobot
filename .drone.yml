@@ -109,14 +109,14 @@ steps:
       GOARCH: arm64
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
-      - apk add --no-cache git gcc musl-dev tar
+      - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
+      - zip -r  ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
       - cd ../../
       - rm -rf $outputpath
     when:
@@ -129,14 +129,14 @@ steps:
       GOARCH: 386
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
-      - apk add --no-cache git gcc musl-dev tar
+      - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.tar.gz ./*
+      - zip -r ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.tar.gz ./*
       - cd ../../
       - rm -rf $outputpath
     when:
@@ -149,14 +149,14 @@ steps:
       GOARCH: amd64
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
-      - apk add --no-cache git gcc musl-dev tar
+      - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
       - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.tar.gz ./*
+      - zip -r ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.tar.gz ./*
       - cd ../../
       - rm -rf $outputpath
     when:
