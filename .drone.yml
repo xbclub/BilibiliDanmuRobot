@@ -2,7 +2,7 @@ kind: pipeline
 type: kubernetes
 name: default
 steps:
-  - name: build-arm64
+  - name: build-linux-arm64
     image: golang:1.20.2-alpine
     environment:
       GOOS: linux
@@ -15,9 +15,6 @@ steps:
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
-      - tar czvf ./dist/BilibiliDanmuRobot_Linux_arm64_v1.0.5.tar.gz $outputpath/*
-      - ls -al dist
-      - ls -al $outputpath
-      - rm -rf $outputpath
-      - cd dist
-      - tar xvf BilibiliDanmuRobot_Linux_arm64_v1.0.5.tar.gz
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Linux_arm64_${DRONE_TAG}.tar.gz ./*
+      - tar -ztvf ../BilibiliDanmuRobot_Linux_arm64_${DRONE_TAG}.tar.gz
