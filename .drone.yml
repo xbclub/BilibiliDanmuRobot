@@ -162,26 +162,6 @@ steps:
     when:
       event:
         - tag
-  - name: build-windows-arm64
-    image: golang:1.20.2-alpine
-    environment:
-      GOOS: windows
-      GOARCH: arm64
-    commands:
-      - export outputpath=./dist/$GOOS-$GOARCH
-      - apk add --no-cache git gcc musl-dev tar
-      - mkdir -p $outputpath
-      - go mod tidy
-      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
-      - cp -r etc $outputpath
-      - cp readme.md $outputpath
-      - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
-      - cd ../../
-      - rm -rf $outputpath
-    when:
-      event:
-        - tag
   - name: github-release
     image: plugins/github-release
     settings:
