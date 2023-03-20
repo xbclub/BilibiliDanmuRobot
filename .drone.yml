@@ -8,7 +8,6 @@ steps:
       GOOS: linux
       GOARCH: arm64
     commands:
-      - env
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
@@ -57,7 +56,7 @@ steps:
   - name: checkbuild
     image: golang:1.20.2-alpine
     commands:
-      - ls -al ./build
+      - ls -al ./dist
     depends_on:
       - build-linux-arm64
       - build-linux-amd64
