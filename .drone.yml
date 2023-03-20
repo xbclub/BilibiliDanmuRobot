@@ -17,7 +17,7 @@ steps:
       - cp readme.md $outputpath
       - cd $outputpath
       - tar czvf ../BilibiliDanmuRobot_Linux_arm64_${DRONE_TAG}.tar.gz ./*
-      - cd ../
+      - cd ../../
       - rm -rf $outputpath
     when:
       event:
@@ -37,7 +37,7 @@ steps:
       - cp readme.md $outputpath
       - cd $outputpath
       - tar czvf ../BilibiliDanmuRobot_Linux_$GOARCH_${DRONE_TAG}.tar.gz ./*
-      - cd ../
+      - cd ../../
       - rm -rf $outputpath
     when:
       event:
@@ -57,7 +57,7 @@ steps:
       - cp readme.md $outputpath
       - cd $outputpath
       - tar czvf ../BilibiliDanmuRobot_Linux_$GOARCH_${DRONE_TAG}.tar.gz ./*
-      - cd ../
+      - cd ../../
       - rm -rf $outputpath
     when:
       event:
