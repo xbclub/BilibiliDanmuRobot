@@ -36,7 +36,7 @@ steps:
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Linux_$GOARCH_${DRONE_TAG}.tar.gz ./*
+      - tar czvf ../BilibiliDanmuRobot_Linux_x86_64_${DRONE_TAG}.tar.gz ./*
       - cd ../../
       - rm -rf $outputpath
     when:
@@ -56,20 +56,146 @@ steps:
       - cp -r etc $outputpath
       - cp readme.md $outputpath
       - cd $outputpath
-      - tar czvf ../BilibiliDanmuRobot_Linux_$GOARCH_${DRONE_TAG}.tar.gz ./*
+      - tar czvf ../BilibiliDanmuRobot_Linux_i386_${DRONE_TAG}.tar.gz ./*
       - cd ../../
       - rm -rf $outputpath
     when:
       event:
         - tag
-  - name: checkbuild
+  - name: build-darwin-amd64
     image: golang:1.20.2-alpine
+    environment:
+      GOOS: darwin
+      GOARCH: amd64
     commands:
-      - ls -al ./dist
-    depends_on:
-      - build-linux-arm64
-      - build-linux-amd64
-      - build-linux-386
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Darwin_x86_64_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
     when:
       event:
         - tag
+  - name: build-darwin-arm64
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: darwin
+      GOARCH: arm64
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Darwin_arm64_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
+    when:
+      event:
+        - tag
+  - name: build-windows-arm64
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: windows
+      GOARCH: arm64
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
+    when:
+      event:
+        - tag
+  - name: build-windows-386
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: windows
+      GOARCH: 386
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
+    when:
+      event:
+        - tag
+  - name: build-windows-amd64
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: windows
+      GOARCH: amd64
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
+    when:
+      event:
+        - tag
+  - name: build-windows-arm64
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: windows
+      GOARCH: arm64
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.tar.gz ./*
+      - cd ../../
+      - rm -rf $outputpath
+    when:
+      event:
+        - tag
+  - name: github-release
+    image: plugins/github-release
+    settings:
+      api_key:
+        from_secret: GITHUB_TOKEN
+      files: dist/*
+    depends_on:
+      - build-darwin-arm64
+      - build-darwin-amd64
+      - build-linux-386
+      - build-linux-arm64
+      - build-linux-amd64
+      - build-windows-386
+      - build-windows-amd64
+      - build-windows-arm64
+    when:
+      event: tag
