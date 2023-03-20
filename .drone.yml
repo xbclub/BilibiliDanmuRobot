@@ -17,4 +17,47 @@ steps:
       - cp readme.md $outputpath
       - cd $outputpath
       - tar czvf ../BilibiliDanmuRobot_Linux_arm64_${DRONE_TAG}.tar.gz ./*
-      - tar -ztvf ../BilibiliDanmuRobot_Linux_arm64_${DRONE_TAG}.tar.gz
+      - cd ../
+      - rm -rf $outputpath
+  - name: build-linux-amd64
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: linux
+      GOARCH: amd64
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Linux_${GOARCH}_${DRONE_TAG}.tar.gz ./*
+      - cd ../
+      - rm -rf $outputpath
+  - name: build-linux-386
+    image: golang:1.20.2-alpine
+    environment:
+      GOOS: linux
+      GOARCH: 386
+    commands:
+      - export outputpath=./dist/$GOOS-$GOARCH
+      - apk add --no-cache git gcc musl-dev tar
+      - mkdir -p $outputpath
+      - go mod tidy
+      - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
+      - cp -r etc $outputpath
+      - cp readme.md $outputpath
+      - cd $outputpath
+      - tar czvf ../BilibiliDanmuRobot_Linux_${GOARCH}_${DRONE_TAG}.tar.gz ./*
+      - cd ../
+      - rm -rf $outputpath
+  - name: checkbuild
+    image: golang:1.20.2-alpine
+    commands:
+      - ls -al ./build
+    depends_on:
+      - build-linux-arm64
+      - build-linux-amd64
+      - build-linux-386
