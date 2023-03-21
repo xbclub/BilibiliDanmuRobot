@@ -31,3 +31,10 @@ RobotMode: QingYunKe
 #此项配置仅在RobotMode为ChatGPT时生效，使用chatgpt时APItoken为必填项
 ChatGPT:
   APIToken: yor api token
+# 指定定时弹幕是否启用 true:开 false：关
+CronDanmu: false
+# 指定定时弹幕列表
+CronDanmuList:
+    # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
+  - Cron: "*/1 * * * *"
+    Danmu: "这是每分钟发送一次弹幕的测试弹幕"

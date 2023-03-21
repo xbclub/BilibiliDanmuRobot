@@ -24,4 +24,9 @@ type Config struct {
 	ChatGPT         struct {
 		APIToken string `json:",optional"`
 	}
+	CronDanmu     bool `json:",default=false"`
+	CronDanmuList []struct {
+		Cron  string `json:",optional"`
+		Danmu string `json:",optional"`
+	} `json:",default=false"`
 }

@@ -9,6 +9,7 @@ import (
 	"bili_danmaku/internal/utiles"
 	"bufio"
 	"context"
+	"github.com/robfig/cron/v3"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
 	"os/signal"
@@ -31,6 +32,7 @@ var thanksGiftCtx context.Context
 var thankGiftCancel context.CancelFunc
 var ineterractCtx context.Context
 var ineterractCancel context.CancelFunc
+var corndanmu *cron.Cron
 
 type Bili_danmakuLogic struct {
 	logx.Logger
@@ -55,7 +57,6 @@ func getTerminalInput(input chan string) {
 }
 
 func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
-	// todo: add your logic here and delete this line
 	var err error
 	http.InitHttpClient()
 	// 判断是否存在历史cookie
@@ -152,6 +153,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				if ineterractCancel != nil {
 					ineterractCancel() // 关闭弹幕姬goroutine
 				}
+				if corndanmu != nil {
+					l.danmustop()
+				}
 			}
 		}
 	}
@@ -183,6 +187,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Stop() {
 		}
 		if ineterractCancel != nil {
 			ineterractCancel()
+		}
+		if corndanmu != nil {
+			l.danmustop()
 		}
 	}()
 }
@@ -244,22 +251,30 @@ func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
 	}
 
 	go bullet_girl.Interact(ineterractCtx)
-	// 指定弹幕定时任务
-	//time.Sleep(time.Second) // 现开启定时任务弹幕再推送，这个方法很low，暂且这样吧
-	//bullet_girl.PushToBulletEvent(
-	//	bullet_girl.NewBulletEvent(
-	//		bullet_girl.Save, bullet_girl.NewBulletTask(
-	//			bullet_girl.NewBullet("ios请到哔哩哔哩直播姬公众号投喂哦～", "*/9 * * * * *"))))
-	//bullet_girl.PushToBulletEvent(
-	//	bullet_girl.NewBulletEvent(
-	//		bullet_girl.Save, bullet_girl.NewBulletTask(
-	//			bullet_girl.NewBullet("喜欢主播可以加入粉丝团哦～", "*/7 * * * * *"))))
-	//bullet_girl.PushToBulletEvent(
-	//	bullet_girl.NewBulletEvent(
-	//		bullet_girl.Save, bullet_girl.NewBulletTask(
-	//			bullet_girl.NewBullet("主播今天很可爱哦！干巴爹！", "*/17 * * * * *"))))
-	//bullet_girl.PushToBulletEvent(
-	//	bullet_girl.NewBulletEvent(
-	//		bullet_girl.Save, bullet_girl.NewBulletTask(
-	//			bullet_girl.NewBullet("无聊的同学可以找橘子聊天喔！", "*/23 * * * * *"))))
+	if l.svcCtx.Config.CronDanmu {
+		l.danmustart()
+		logx.Info("定时弹幕已开启")
+	}
+}
+
+// 定时弹幕功能
+func (l *Bili_danmakuLogic) danmustart() {
+	corndanmu = cron.New(cron.WithParser(cron.NewParser(
+		cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
+	)))
+	for i, danmu := range l.svcCtx.Config.CronDanmuList {
+		danmus := danmu
+		_, err := corndanmu.AddFunc(danmus.Cron, func() {
+			bullet_girl.PushToBulletSender(danmus.Danmu)
+		})
+		if err != nil {
+			logx.Errorf("第%d条定时弹幕配置出现错误: %v", i+1, err)
+		}
+	}
+	corndanmu.Start()
+}
+func (l *Bili_danmakuLogic) danmustop() {
+	corndanmu.Stop()
+	corndanmu = nil
+	logx.Info("定时弹幕已关闭")
 }

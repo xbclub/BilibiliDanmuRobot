@@ -7,6 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/gorilla/websocket v1.5.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sashabaranov/go-gpt3 v1.3.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/zeromicro/go-zero v1.4.0
