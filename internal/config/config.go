@@ -29,4 +29,5 @@ type Config struct {
 		Cron  string `json:",optional"`
 		Danmu string `json:",optional"`
 	} `json:",default=false"`
+	PKNotice bool `json:",default=true"`
 }

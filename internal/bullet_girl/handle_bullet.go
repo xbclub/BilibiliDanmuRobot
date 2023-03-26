@@ -1,6 +1,7 @@
 package bullet_girl
 
 import (
+	"bili_danmaku/internal/http"
 	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"bytes"
@@ -43,7 +44,6 @@ END:
 
 func handle(message []byte, svcCtx *svc.ServiceContext) {
 	var err error
-
 	// 一个正文可能包含多个数据包，需要逐个解析
 	index := 0
 	for index < len(message) {
@@ -134,6 +134,63 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						_ = json.Unmarshal(body, send)
 						pushToGiftChan(send)
 					}
+				case "PK_BATTLE_START_NEW":
+					if svcCtx.Config.PKNotice == false {
+						break
+					}
+					info := &entity.PKStartInfo{}
+					toplist := &entity.TopListInfo{}
+					toplistalive := 0
+					roomid := 0
+					rankcount := 0
+					err = json.Unmarshal(body, info)
+					if err != nil {
+						logx.Error(err)
+						break
+					}
+					if info.Data.InitInfo.RoomId == svcCtx.Config.RoomId {
+						roomid = info.Data.MatchInfo.RoomId
+					} else {
+						roomid = info.Data.InitInfo.RoomId
+					}
+					userinfo, err := http.Userinfo(roomid)
+					if err != nil {
+						logx.Error(err)
+						break
+					}
+					toppage := 1
+					listInfo, err := http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
+					if err != nil {
+						logx.Error(err)
+						break
+					}
+
+					tmpPage := listInfo.Data.Info.Page
+					if tmpPage != toppage {
+						toppage++
+						for toppage <= tmpPage {
+							toplist, err = http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
+							if err != nil {
+								logx.Error(err)
+								break
+							}
+							listInfo.Data.List = append(listInfo.Data.List, toplist.Data.List...)
+						}
+					}
+					for _, data := range listInfo.Data.List {
+						if data.IsAlive == 1 {
+							toplistalive++
+						}
+					}
+					rankListInfo, err := http.RankListInfo(roomid, userinfo.Data.Info.Uid, 1)
+					if err != nil {
+						logx.Error(err)
+						break
+					}
+					for _, data := range rankListInfo.Data.OnlineRankItem {
+						rankcount += data.Score
+					}
+					PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))
 				}
 			}
 		case heartOrCertification:

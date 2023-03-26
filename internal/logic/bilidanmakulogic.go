@@ -109,7 +109,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
 			t.Reset(interval)
-			if info, err = http.RoomInit(l.svcCtx); err != nil || err == errs.RoomIdNotExistErr {
+			if info, err = http.RoomInit(l.svcCtx.Config.RoomId); err != nil || err == errs.RoomIdNotExistErr {
 				logx.Infof("RoomInit错误：%v", err)
 				continue
 			}
