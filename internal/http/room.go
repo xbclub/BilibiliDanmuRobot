@@ -92,7 +92,7 @@ func TopListInfo(roomid int, userid int64, page int) (toplistinfo *entity.TopLis
 		return nil, err
 	}
 	if toplistinfo.Code != 0 {
-		logx.Errorf("直播间id %v 用户id %v 获取舰长列表失败", roomid, roomid, userid)
+		logx.Errorf("直播间id %v 用户id %v 获取舰长列表失败", roomid, userid)
 		return nil, errors.New("获取舰长列表失败")
 	}
 	return toplistinfo, nil
