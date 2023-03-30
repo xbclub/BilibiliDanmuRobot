@@ -7,7 +7,7 @@ EntryMsg: "花花机器人进入直播间"
 PKNotice: true
 # 欢迎弹幕 true:开 false：关
 InteractWord: true
-# 进场特效欢迎 true:开 false：关，如果同时开启进场特效欢迎和欢迎弹幕可能会导致重复欢迎同一人，但关闭任意一个必定会丢失部分观众进入的欢迎弹幕
+# 进场特效欢迎 true:开 false：关，已增加过滤器 两个欢迎同时开启不会重复欢迎
 EntryEffect: true
 # 礼物感谢
 ThanksGift: true

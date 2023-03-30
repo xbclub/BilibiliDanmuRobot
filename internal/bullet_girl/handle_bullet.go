@@ -1,7 +1,6 @@
 package bullet_girl
 
 import (
-	"bili_danmaku/internal/http"
 	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"bytes"
@@ -102,7 +101,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(entry.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok && svcCtx.Config.EntryEffect {
 						PushToBulletSender(v)
 					} else if svcCtx.Config.EntryEffect {
-						PushToBulletSender(welcomeCaptain(entry.Data.CopyWriting))
+						//PushToBulletSender(welcomeCaptain(entry.Data.CopyWriting))
+						pushToInterractChan(&InterractData{
+							Uid: entry.Data.Uid,
+							Msg: welcomeCaptain(entry.Data.CopyWriting),
+						})
 					}
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
@@ -114,7 +117,10 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 							PushToBulletSender(v)
 						} else if svcCtx.Config.InteractWord {
-							pushToInterractChan(welcomeInteract(interact.Data.Uname))
+							pushToInterractChan(&InterractData{
+								Uid: interact.Data.Uid,
+								Msg: handleInterract(welcomeInteract(interact.Data.Uname)),
+							})
 						}
 					} else {
 						// logx.Info("guanzhu", interact)
@@ -127,15 +133,29 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						_ = json.Unmarshal(body, send)
 						pushToGiftChan(send)
 					}
-				case "PK_BATTLE_START_NEW":
+				case "PK_BATTLE_START_NEW", "PK_BATTLE_START":
 					if svcCtx.Config.PKNotice {
-						go handlerPK(svcCtx, body)
+						info := &entity.PKStartInfo{}
+						roomid := 0
+						err := json.Unmarshal(body, info)
+						if err != nil {
+							logx.Error(err)
+							return
+						}
+						if info.Data.InitInfo.RoomId == svcCtx.Config.RoomId {
+							roomid = info.Data.MatchInfo.RoomId
+						} else {
+							roomid = info.Data.InitInfo.RoomId
+						}
+						logx.Debug("开始pk")
+						//go handlerPK(svcCtx, body)
+						pushToPKChan(&roomid)
 					}
-				default:
-					logx.Debug("---------------------")
-					logx.Debug(text.Cmd)
-					logx.Debug(string(body))
-					logx.Debug("---------------------")
+					//default:
+					//	logx.Debug("---------------------")
+					//	logx.Debug(text.Cmd)
+					//	logx.Debug(string(body))
+					//	logx.Debug("---------------------")
 				}
 			}
 		case heartOrCertification:
@@ -159,68 +179,20 @@ func welcomeCaptain(s string) string {
 	return s
 }
 
-func welcomeInteract(name string) *string {
+func welcomeInteract(name string) string {
 	if strings.Contains(name, "欢迎") {
 		name = strings.Replace(name, "欢迎", "", 1)
-		return &name
+		return name
 	} else {
-		return &name
+		return name
 	}
 }
 
-func handlerPK(svcCtx *svc.ServiceContext, body []byte) {
-	info := &entity.PKStartInfo{}
-	toplist := &entity.TopListInfo{}
-	toplistalive := 0
-	roomid := 0
-	rankcount := 0
-	err := json.Unmarshal(body, info)
-	if err != nil {
-		logx.Error(err)
-		return
-	}
-	if info.Data.InitInfo.RoomId == svcCtx.Config.RoomId {
-		roomid = info.Data.MatchInfo.RoomId
+func handleInterract(uname string) string {
+	s := []rune(uname)
+	if len(s) > 13 {
+		return "[欢迎 " + string(s[0:10]) + " ~]"
 	} else {
-		roomid = info.Data.InitInfo.RoomId
+		return "[欢迎 " + uname + " ~]"
 	}
-	userinfo, err := http.Userinfo(roomid)
-	if err != nil {
-		logx.Error(err)
-		return
-	}
-	toppage := 1
-	listInfo, err := http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
-	if err != nil {
-		logx.Error(err)
-		return
-	}
-
-	tmpPage := listInfo.Data.Info.Page
-	if tmpPage != toppage {
-		toppage++
-		for toppage <= tmpPage {
-			toplist, err = http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
-			if err != nil {
-				logx.Error(err)
-				continue
-			}
-			listInfo.Data.List = append(listInfo.Data.List, toplist.Data.List...)
-		}
-	}
-	for _, data := range listInfo.Data.List {
-		if data.IsAlive == 1 {
-			toplistalive++
-		}
-	}
-	rankListInfo, err := http.RankListInfo(roomid, userinfo.Data.Info.Uid, 1)
-	if err != nil {
-		logx.Error(err)
-		return
-	}
-	for _, data := range rankListInfo.Data.OnlineRankItem {
-		rankcount += data.Score
-	}
-	PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))
-
 }

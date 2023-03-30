@@ -32,6 +32,8 @@ var thanksGiftCtx context.Context
 var thankGiftCancel context.CancelFunc
 var ineterractCtx context.Context
 var ineterractCancel context.CancelFunc
+var pkCtx context.Context
+var pkCancel context.CancelFunc
 var corndanmu *cron.Cron
 
 type Bili_danmakuLogic struct {
@@ -124,6 +126,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				handleBulletCtx, handleBulletCancel = context.WithCancel(context.Background())
 				thanksGiftCtx, thankGiftCancel = context.WithCancel(context.Background())
 				ineterractCtx, ineterractCancel = context.WithCancel(context.Background())
+				pkCtx, pkCancel = context.WithCancel(context.Background())
 				l.StartBulletGirl(sendBulletCtx,
 					//timingBulletCtx,
 					robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx) // 开启弹幕姬
@@ -152,6 +155,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				}
 				if ineterractCancel != nil {
 					ineterractCancel() // 关闭弹幕姬goroutine
+				}
+				if pkCancel != nil {
+					pkCancel()
 				}
 				if corndanmu != nil {
 					l.danmustop()
@@ -187,6 +193,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Stop() {
 		}
 		if ineterractCancel != nil {
 			ineterractCancel()
+		}
+		if pkCancel != nil {
+			pkCancel()
 		}
 		if corndanmu != nil {
 			l.danmustop()
@@ -243,7 +252,10 @@ func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
 	// 开启弹幕处理
 	go bullet_girl.HandleBullet(handleBulletCtx, l.svcCtx)
 	logx.Info("弹幕处理已开启...")
-
+	// 开启pk
+	if l.svcCtx.Config.PKNotice {
+		go bullet_girl.PK(pkCtx)
+	}
 	// 开启礼物感谢
 	if l.svcCtx.Config.ThanksGift {
 		go bullet_girl.ThanksGift(thanksGiftCtx)
