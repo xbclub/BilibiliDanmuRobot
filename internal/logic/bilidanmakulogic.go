@@ -9,6 +9,7 @@ import (
 	"bili_danmaku/internal/utiles"
 	"bufio"
 	"context"
+	"math/rand"
 	"github.com/robfig/cron/v3"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
@@ -34,7 +35,8 @@ var ineterractCtx context.Context
 var ineterractCancel context.CancelFunc
 var pkCtx context.Context
 var pkCancel context.CancelFunc
-var corndanmu *cron.Cron
+var corndanmu *cron.Cron = nil
+var mapCronDanmuSendIdx map[int]int = make(map[int]int)
 
 type Bili_danmakuLogic struct {
 	logx.Logger
@@ -271,20 +273,39 @@ func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
 
 // 定时弹幕功能
 func (l *Bili_danmakuLogic) danmustart() {
-	corndanmu = cron.New(cron.WithParser(cron.NewParser(
-		cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
-	)))
-	for i, danmu := range l.svcCtx.Config.CronDanmuList {
-		danmus := danmu
-		_, err := corndanmu.AddFunc(danmus.Cron, func() {
-			bullet_girl.PushToBulletSender(danmus.Danmu)
-		})
-		if err != nil {
-			logx.Errorf("第%d条定时弹幕配置出现错误: %v", i+1, err)
+	if l.svcCtx.Config.CronDanmuList != nil && len(l.svcCtx.Config.CronDanmuList) > 0 {
+		if corndanmu == nil {
+			corndanmu = cron.New(cron.WithParser(cron.NewParser(
+				cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
+			)))
 		}
+		rand.Seed(time.Now().UnixNano())
+		for i, danmu := range l.svcCtx.Config.CronDanmuList {
+			if danmu.Danmu != nil {
+				danmus := danmu
+				_, err := corndanmu.AddFunc(danmus.Cron, func() {
+					if len(danmus.Danmu) > 0 {
+						if danmus.Random {
+							bullet_girl.PushToBulletSender(danmus.Danmu[rand.Intn(len(danmus.Danmu))])
+						} else {
+							_, ok := mapCronDanmuSendIdx[i]
+							if !ok {
+								mapCronDanmuSendIdx[i] = 0
+							}
+							mapCronDanmuSendIdx[i] = mapCronDanmuSendIdx[i] + 1
+							bullet_girl.PushToBulletSender(danmus.Danmu[mapCronDanmuSendIdx[i]%len(danmus.Danmu)])
+						}
+					}
+				})
+				if err != nil {
+					logx.Errorf("第%d条定时弹幕配置出现错误: %v", i+1, err)
+				}
+			}
+		}
+		corndanmu.Start()
 	}
-	corndanmu.Start()
 }
+
 func (l *Bili_danmakuLogic) danmustop() {
 	corndanmu.Stop()
 	corndanmu = nil

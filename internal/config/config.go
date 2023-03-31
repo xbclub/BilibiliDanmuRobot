@@ -26,8 +26,10 @@ type Config struct {
 	}
 	CronDanmu     bool `json:",default=false"`
 	CronDanmuList []struct {
-		Cron  string `json:",optional"`
-		Danmu string `json:",optional"`
-	} `json:",default=false"`
-	PKNotice bool `json:",default=true"`
+		Cron   string   `json:",optional"`
+		Random bool     `json:",default=false`
+		Danmu  []string `json:",optional"`
+	} `json:",optional"`
+	FocusDanmu []string `json:",optional"`
+	PKNotice   bool     `json:",default=true"`
 }

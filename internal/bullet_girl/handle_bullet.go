@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 var handler *BulletHandler
@@ -43,6 +45,7 @@ END:
 
 func handle(message []byte, svcCtx *svc.ServiceContext) {
 	var err error
+
 	// 一个正文可能包含多个数据包，需要逐个解析
 	index := 0
 	for index < len(message) {
@@ -123,7 +126,12 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							})
 						}
 					} else {
-						// logx.Info("guanzhu", interact)
+						msg := "感谢 " + interact.Data.Uname + " 的关注!"
+						PushToBulletSender(msg)
+						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+							rand.Seed(time.Now().UnixMicro())
+							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						}
 					}
 
 				// 感谢礼物
