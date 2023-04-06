@@ -113,6 +113,8 @@ func handlerPK(roomid int) {
 	for _, data := range rankListInfo.Data.OnlineRankItem {
 		rankcount += data.Score
 	}
-	PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))
-
+	//PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))
+	PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum))
+	PushToBulletSender(fmt.Sprintf("对面有%v船在线，高能榜%v人", toplistalive, rankListInfo.Data.OnlineNum))
+	PushToBulletSender(fmt.Sprintf("榜前50贡献%v分", rankcount))
 }
