@@ -67,7 +67,7 @@ func Send(msg string, svcCtx *svc.ServiceContext) error {
 			return errors.New(respdata.Msg)
 		}
 		return nil
-	}, retry.Attempts(3), retry.DelayType(retry.BackOffDelay))
+	}, retry.Attempts(3), retry.Delay(1*time.Second))
 	if err != nil {
 		logx.Error(err)
 	}
