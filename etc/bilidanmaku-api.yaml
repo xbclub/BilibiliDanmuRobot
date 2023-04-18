@@ -7,6 +7,11 @@ EntryMsg: "花花机器人进入直播间"
 PKNotice: true
 # 欢迎弹幕 true:开 false：关
 InteractWord: true
+# 自定义欢迎语 列表前必须加 -, 无论是否有多条, 切记，{user}为用户昵称占位符，列表为随机列表
+WelcomeDanmu:
+  - "欢迎 {user} ~"
+  - "欢迎 {user} 木嘛~"
+  - "欢迎 {user} 好诶~"
 # 进场特效欢迎 true:开 false：关，已增加过滤器 两个欢迎同时开启不会重复欢迎
 EntryEffect: true
 # 礼物感谢

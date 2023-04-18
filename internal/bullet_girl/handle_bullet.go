@@ -45,7 +45,6 @@ END:
 
 func handle(message []byte, svcCtx *svc.ServiceContext) {
 	var err error
-
 	// 一个正文可能包含多个数据包，需要逐个解析
 	index := 0
 	for index < len(message) {
@@ -122,7 +121,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						} else if svcCtx.Config.InteractWord {
 							pushToInterractChan(&InterractData{
 								Uid: interact.Data.Uid,
-								Msg: handleInterract(welcomeInteract(interact.Data.Uname)),
+								Msg: handleInterract(welcomeInteract(interact.Data.Uname), svcCtx),
 							})
 						}
 					} else {
@@ -148,6 +147,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						err := json.Unmarshal(body, info)
 						if err != nil {
 							logx.Error(err)
+							logx.Errorf("pk数据解析失败:%s", string(body))
 							return
 						}
 						if info.Data.InitInfo.RoomId == svcCtx.Config.RoomId {
@@ -157,7 +157,12 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						}
 						logx.Debug("开始pk")
 						//go handlerPK(svcCtx, body)
-						pushToPKChan(&roomid)
+						if roomid == 0 {
+							logx.Error("未获取的pk对手信息")
+						} else {
+							pushToPKChan(&roomid)
+						}
+
 					}
 					//default:
 					//	logx.Debug("---------------------")
@@ -196,11 +201,14 @@ func welcomeInteract(name string) string {
 	}
 }
 
-func handleInterract(uname string) string {
+func handleInterract(uname string, svcCtx *svc.ServiceContext) string {
 	s := []rune(uname)
+	rand.Seed(time.Now().UnixMicro())
 	if len(s) > 13 {
-		return "[欢迎 " + string(s[0:10]) + " ~]"
+		return strings.ReplaceAll(svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))], "{user}", string(s[0:10]))
+		//"[欢迎 " + string(s[0:10]) + " ~]"
 	} else {
-		return "[欢迎 " + uname + " ~]"
+		return strings.ReplaceAll(svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))], "{user}", uname)
+		//"[欢迎 " + uname + " ~]"
 	}
 }

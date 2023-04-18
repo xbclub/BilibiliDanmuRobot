@@ -9,11 +9,12 @@ import (
 	"bili_danmaku/internal/utiles"
 	"bufio"
 	"context"
-	"math/rand"
 	"github.com/robfig/cron/v3"
 	"github.com/zeromicro/go-zero/core/logx"
+	"math/rand"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -37,6 +38,7 @@ var pkCtx context.Context
 var pkCancel context.CancelFunc
 var corndanmu *cron.Cron = nil
 var mapCronDanmuSendIdx map[int]int = make(map[int]int)
+var once sync.Once
 
 type Bili_danmakuLogic struct {
 	logx.Logger
@@ -61,6 +63,9 @@ func getTerminalInput(input chan string) {
 }
 
 func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
+	once.Do(func() {
+		rand.Seed(time.Now().UnixMicro())
+	})
 	var err error
 	http.InitHttpClient()
 	// 判断是否存在历史cookie
@@ -208,7 +213,6 @@ func (l *Bili_danmakuLogic) userlogin() error {
 	var err error
 	http.InitHttpClient()
 	var loginUrl *entity.LoginUrl
-
 	if loginUrl, err = http.GetLoginUrl(); err != nil {
 		logx.Error(err)
 		return err

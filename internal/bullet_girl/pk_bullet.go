@@ -60,6 +60,7 @@ func PK(ctx context.Context) {
 			if value, ok := pkGiver.pkFilter[*g]; ok && value.Add(w).Unix() >= time.Now().Unix() {
 				logx.Debugf("pk room %v 10秒内重复获取数据已被过滤", *g)
 			} else {
+				logx.Debugf("正在处理pk信息")
 				handlerPK(*g)
 				logx.Debug(*g)
 				pkGiver.pkFilter[*g] = time.Now()

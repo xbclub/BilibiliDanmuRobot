@@ -15,6 +15,7 @@ type Config struct {
 	DanmuLen        int               `json:",default=20"`
 	EntryEffect     bool              `json:",default=false"`
 	EntryMsg        string            `json:",default=off"`
+	WelcomeDanmu    []string          `json:",default='欢迎 {user} ~'"`
 	ThanksGift      bool              `json:",default=false"`
 	CustomizeBullet bool              `json:",default=false"`
 	InteractWord    bool              `json:",default=false"`
@@ -27,7 +28,7 @@ type Config struct {
 	CronDanmu     bool `json:",default=false"`
 	CronDanmuList []struct {
 		Cron   string   `json:",optional"`
-		Random bool     `json:",default=false`
+		Random bool     `json:",default=false"`
 		Danmu  []string `json:",optional"`
 	} `json:",optional"`
 	FocusDanmu []string `json:",optional"`
