@@ -1,30 +1,20 @@
 <script setup lang="ts">
 import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
-import { message } from "@/utils/message";
-import { loginRules } from "./utils/rule";
 import { useNav } from "@/layout/hooks/useNav";
-import type { FormInstance } from "element-plus";
 import { useLayout } from "@/layout/hooks/useLayout";
-import { useUserStoreHook } from "@/store/modules/user";
-import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
-import Lock from "@iconify-icons/ri/lock-fill";
-import User from "@iconify-icons/ri/user-3-fill";
 import QrCode from "@/views/login/components/qrCode.vue";
-
 defineOptions({
   name: "Login"
 });
 const router = useRouter();
 const loading = ref(false);
-const ruleFormRef = ref<FormInstance>();
 
 const { initStorage } = useLayout();
 initStorage();
@@ -32,49 +22,48 @@ initStorage();
 const { dataTheme, dataThemeChange } = useDataThemeChange();
 dataThemeChange();
 const { title } = useNav();
-
-const ruleForm = reactive({
-  username: "admin",
-  password: "admin123"
-});
-
-const onLogin = async (formEl: FormInstance | undefined) => {
-  loading.value = true;
-  if (!formEl) return;
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      useUserStoreHook()
-        .loginByUsername({ username: ruleForm.username, password: "admin123" })
-        .then(res => {
-          if (res.success) {
-            // 获取后端路由
-            initRouter().then(() => {
-              router.push(getTopMenu(true).path);
-              message("登录成功", { type: "success" });
-            });
-          }
-        });
-    } else {
-      loading.value = false;
-      return fields;
-    }
-  });
-};
-
-/** 使用公共函数，避免`removeEventListener`失效 */
-function onkeypress({ code }: KeyboardEvent) {
-  if (code === "Enter") {
-    onLogin(ruleFormRef.value);
-  }
-}
-
-onMounted(() => {
-  window.document.addEventListener("keypress", onkeypress);
-});
-
-onBeforeUnmount(() => {
-  window.document.removeEventListener("keypress", onkeypress);
-});
+// const ruleForm = reactive({
+//   username: "admin",
+//   password: "admin123"
+// });
+//
+// const onLogin = async (formEl: FormInstance | undefined) => {
+//   loading.value = true;
+//   if (!formEl) return;
+//   await formEl.validate((valid, fields) => {
+//     if (valid) {
+//       useUserStoreHook()
+//         .loginByUsername({ username: ruleForm.username, password: "admin123" })
+//         .then(res => {
+//           if (res.success) {
+//             // 获取后端路由
+//             initRouter().then(() => {
+//               router.push(getTopMenu(true).path);
+//               message("登录成功", { type: "success" });
+//             });
+//           }
+//         });
+//     } else {
+//       loading.value = false;
+//       return fields;
+//     }
+//   });
+// };
+//
+// /** 使用公共函数，避免`removeEventListener`失效 */
+// function onkeypress({ code }: KeyboardEvent) {
+//   if (code === "Enter") {
+//     onLogin(ruleFormRef.value);
+//   }
+// }
+//
+// onMounted(() => {
+//   window.document.addEventListener("keypress", onkeypress);
+// });
+//
+// onBeforeUnmount(() => {
+//   window.document.removeEventListener("keypress", onkeypress);
+// });
 </script>
 
 <template>

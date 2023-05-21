@@ -21,14 +21,7 @@ var assets embed.FS
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 var Version string
 
-func start() {
-	flag.Parse()
-	var c config.Config
-	conf.MustLoad(*configFile, &c, conf.UseEnv())
-	logx.MustSetup(c.Log)
-	logx.DisableStat()
-	logx.Infof("当前版本: %s", Version)
-	logx.Infof("监听直播间: %d", c.RoomId)
+func init() {
 	dir := "./token"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// Directory does not exist, create it
@@ -38,6 +31,16 @@ func start() {
 			return
 		}
 	}
+}
+func start() {
+	flag.Parse()
+	var c config.Config
+	conf.MustLoad(*configFile, &c, conf.UseEnv())
+	logx.MustSetup(c.Log)
+	logx.DisableStat()
+	logx.Infof("当前版本: %s", Version)
+	logx.Infof("监听直播间: %d", c.RoomId)
+
 	ctx := svc.NewServiceContext(c)
 	server := logic.NewBili_danmakuLogic(context.TODO(), ctx)
 	server.Bili_danmaku_Start()
