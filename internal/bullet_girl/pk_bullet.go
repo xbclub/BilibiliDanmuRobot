@@ -90,17 +90,15 @@ func handlerPK(roomid int) {
 	}
 
 	tmpPage := listInfo.Data.Info.Page
-	if tmpPage != toppage {
-		toppage++
-		for toppage <= tmpPage {
-			toplist, err = http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
-			if err != nil {
-				logx.Error(err)
-				continue
-			}
-			listInfo.Data.List = append(listInfo.Data.List, toplist.Data.List...)
+	for toppage += 1; toppage <= tmpPage; toppage++ {
+		toplist, err = http.TopListInfo(roomid, userinfo.Data.Info.Uid, toppage)
+		if err != nil {
+			logx.Error(err)
+			continue
 		}
+		listInfo.Data.List = append(listInfo.Data.List, toplist.Data.List...)
 	}
+
 	for _, data := range listInfo.Data.List {
 		if data.IsAlive == 1 {
 			toplistalive++
