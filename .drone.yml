@@ -1,6 +1,9 @@
 kind: pipeline
 type: kubernetes
 name: default
+platform:
+  os: linux
+  arch: arm64
 steps:
   - name: prebuild
     image: golang:1.20.2-alpine
