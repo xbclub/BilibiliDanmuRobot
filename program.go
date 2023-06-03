@@ -97,7 +97,35 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 
 		// 程序退出
 		case <-workctx.Done():
-			l.Stop()
+			if l.sendBulletCancel != nil {
+				l.sendBulletCancel()
+			}
+			if l.timingBulletCancel != nil {
+				l.timingBulletCancel()
+			}
+			if l.robotBulletCancel != nil {
+				l.robotBulletCancel()
+			}
+			if l.catchBulletCancel != nil {
+				l.catchBulletCancel()
+			}
+			if l.handleBulletCancel != nil {
+				l.handleBulletCancel()
+			}
+			if l.thankGiftCancel != nil {
+				if l.svcCtx.Config.ThanksGift {
+					l.thankGiftCancel()
+				}
+			}
+			if l.ineterractCancel != nil {
+				l.ineterractCancel()
+			}
+			if l.pkCancel != nil {
+				l.pkCancel()
+			}
+			if l.corndanmu != nil {
+				l.danmustop()
+			}
 			l.running = false
 			logx.Info("弹幕姬进程停止")
 

@@ -266,7 +266,7 @@ func (l *App) WriteConfig(data string) *ConfigResponse {
 	}
 	c.Log = logx.LogConf{
 		ServiceName:         "",
-		Mode:                "file",
+		Mode:                "console",
 		Encoding:            "plain",
 		Path:                fmt.Sprintf("./logs/%v", c.RoomId),
 		TimeFormat:          "",
