@@ -17,10 +17,8 @@
     "lint:eslint": "eslint --cache --max-warnings 0  \"{src,mock,build}/**/*.{vue,js,ts,tsx}\" --fix",
     "lint:prettier": "prettier --write  \"src/**/*.{js,ts,json,tsx,css,scss,vue,html,md}\"",
     "lint:stylelint": "stylelint --cache --fix \"**/*.{html,vue,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
-    "lint:lint-staged": "lint-staged -c ./.husky/lintstagedrc.js",
     "lint:pretty": "pretty-quick --staged",
     "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
-    "prepare": "husky install",
     "preinstall": "npx only-allow pnpm"
   },
   "browserslist": [
@@ -80,7 +78,6 @@
     "eslint": "^8.40.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.12.0",
-    "husky": "^8.0.3",
     "lint-staged": "^13.2.2",
     "picocolors": "^1.0.0",
     "postcss": "^8.4.23",

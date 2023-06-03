@@ -1,7 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "wails-study",
-  "outputfilename": "wails-study",
+  "name": "GUI-BilibiliDanmuRobot",
+  "outputfilename": "GUI-BilibiliDanmuRobot",
   "frontend:install": "pnpm install",
   "frontend:build": "pnpm build",
   "frontend:dev:watcher": "pnpm dev",

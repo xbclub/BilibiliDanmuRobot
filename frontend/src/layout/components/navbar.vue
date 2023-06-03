@@ -7,6 +7,11 @@ import Breadcrumb from "./sidebar/breadCrumb.vue";
 import topCollapse from "./sidebar/topCollapse.vue";
 import LogoutCircleRLine from "@iconify-icons/ri/logout-circle-r-line";
 import Setting from "@iconify-icons/ri/settings-3-line";
+import {onMounted, reactive} from "vue";
+import {GetloginStatus, GetUserInfo, ReadConfig} from "../../../wailsjs/go/main/App";
+import router from "@/router";
+import {Monitor, Start, Stop} from "../../../wailsjs/go/main/Program";
+import {ElNotification} from "element-plus";
 
 const {
   layout,
@@ -14,10 +19,128 @@ const {
   logout,
   onPanel,
   pureApp,
-  username,
   avatarsStyle,
   toggleSideBar
 } = useNav();
+const data = reactive({
+  islogin: false,
+  username: "",
+  avatars: "https://avatars.githubusercontent.com/u/44761321?v=4",
+  isrunning: false,
+  form: {
+    RoomId: 3,
+    DanmuLen: 20,
+    EntryMsg: "花花机器人进入直播间",
+    PKNotice: true,
+    InteractWord: true,
+    EntryEffect: true,
+    ThanksGift: true,
+    WelcomeSwitch: true,
+    WelcomeString: {
+      "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
+    },
+    WelcomeDanmu: ["欢迎 {user} ~","欢迎 {user} 木嘛~","欢迎 {user} 好诶~"],
+    RobotName: "花花",
+    TalkRobotCmd: "花花",
+    RobotMode: "QingYunKe",
+    ChatGPT:{
+      APIToken: ""
+    },
+    FocusDanmu: [
+      "啾咪~",
+      "喜欢可以领牌牌哦~",
+      "么么哒~",
+      "入股不亏哦~",
+      "贴贴~"
+    ],
+    CronDanmu: false,
+    CronDanmuList: [{
+      Cron: "*/2 * * * *",
+      Random:true,
+      Danmu:[
+        "喜欢主播请关注, 主播带你去致富~",
+        "万水千山总是情, 上个舰长行不行~",
+        "喜欢主播的小伙伴可以动动小手点个关注~",
+        "喜欢主播的小伙伴，点点关注不迷路~",
+        "你已经是成熟的观众了，该学会自己上船了~",
+        "小礼物和弹幕都是对主播的支持哦，比心心~",
+        "有一种关心叫关注，有一种惦记叫入粉",
+        "有一种陪伴叫: 加入大航海~",
+        "iOS端可关注公众号哗哩哗哩直播姬充值~",
+        "万水千山总是情，点个关注行不行~"
+      ]
+    }]
+  }
+})
+onMounted(()=>{
+getuserinfo()
+  setInterval(() => {
+    ReadConfig().then(res=>{
+      if (!res.Code){
+        console.log(res)
+        ElNotification({
+          title: '读取配置文件失败',
+          message: res.Msg,
+          type: 'error',
+        })
+      }else {
+        data.form = res.Form
+        console.log(data.form)
+      }
+    })
+    Monitor().then(res => {
+      data.isrunning = res
+    })
+    console.log(data.isrunning)
+  }, 5000)
+
+})
+
+async function getuserinfo() {
+  await GetloginStatus().then(res => {
+    data.islogin = res
+  })
+  if (data.islogin) {
+    // window.localStorage.setItem("userInfo","true")
+    // router.push("/login")
+    await GetUserInfo().then(res => {
+      data.avatars= res.Avactor
+      data.username = res.Username
+    })
+  }else {
+    window.localStorage.removeItem("userInfo")
+    router.push("/login")
+    return
+  }
+  pgstart()
+}
+async function pgstart() {
+  await Monitor().then(res => {
+    data.isrunning = res
+  })
+  if (data.isrunning == false) {
+    await Start().then(res => {
+      data.isrunning = res
+    })
+  }
+}
+async function pgstop(){
+  await Monitor().then(res => {
+    data.isrunning = res
+  })
+  if (data.isrunning == true) {
+    await Stop().then(res => {
+      data.isrunning = !res
+    })
+  }
+}
+async function restart() {
+  await pgstop()
+  console.log(data.isrunning)
+  if (data.isrunning == false) {
+    pgstart()
+  }
+}
 </script>
 
 <template>
@@ -39,30 +162,37 @@ const {
     <mixNav v-if="layout === 'mix'" />
 
     <div v-if="layout === 'vertical'" class="vertical-header-right">
-      <!-- 菜单搜索 -->
-      <Search />
-      <!-- 通知 -->
-      <Notice id="header-notice" />
+<!--      &lt;!&ndash; 菜单搜索 &ndash;&gt;-->
+<!--      <Search />-->
+<!--      &lt;!&ndash; 通知 &ndash;&gt;-->
+<!--      <Notice id="header-notice" />-->
       <!-- 退出登录 -->
+      <el-tag >当前房间号:{{data.form.RoomId}}</el-tag>
+        <el-tag type="success" v-if="data.isrunning">运行状态:已启动</el-tag>
+        <el-tag type="danger" v-else>运行状态：已停止</el-tag>
+
+      <el-button size="small" type="danger" @click="restart">重启</el-button>
+      <el-button size="small"  @click="pgstop" v-if="data.isrunning">停止</el-button>
+      <el-button size="small"  @click="pgstart" v-else>启动</el-button>
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">
           <img
-            src="https://avatars.githubusercontent.com/u/44761321?v=4"
-            :style="avatarsStyle"
-          />
-          <p v-if="username" class="dark:text-white">{{ username }}</p>
+            :src="data.avatars" />
+<!--            :style="avatarsStyle"-->
+<!--          />-->
+          <p v-if="data.username" class="dark:text-white">{{ data.username }}</p>
         </span>
-        <template #dropdown>
-          <el-dropdown-menu class="logout">
-            <el-dropdown-item @click="logout">
-              <IconifyIconOffline
-                :icon="LogoutCircleRLine"
-                style="margin: 5px"
-              />
-              退出系统
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
+<!--        <template #dropdown>-->
+<!--          <el-dropdown-menu class="logout">-->
+<!--            <el-dropdown-item @click="logout">-->
+<!--              <IconifyIconOffline-->
+<!--                :icon="LogoutCircleRLine"-->
+<!--                style="margin: 5px"-->
+<!--              />-->
+<!--              退出系统-->
+<!--            </el-dropdown-item>-->
+<!--          </el-dropdown-menu>-->
+<!--        </template>-->
       </el-dropdown>
       <span
         class="set-icon navbar-bg-hover"

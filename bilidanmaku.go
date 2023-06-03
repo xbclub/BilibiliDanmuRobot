@@ -1,18 +1,12 @@
 package main
 
 import (
-	"bili_danmaku/internal/config"
-	"bili_danmaku/internal/logic"
-	"bili_danmaku/internal/svc"
-	"context"
 	"embed"
 	"flag"
 	"fmt"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/core/logx"
 	"os"
 )
 
@@ -32,30 +26,10 @@ func init() {
 		}
 	}
 }
-func start() {
-	flag.Parse()
-	var c config.Config
-	conf.MustLoad(*configFile, &c, conf.UseEnv())
-	logx.MustSetup(c.Log)
-	logx.DisableStat()
-	logx.Infof("当前版本: %s", Version)
-	logx.Infof("监听直播间: %d", c.RoomId)
-
-	ctx := svc.NewServiceContext(c)
-	server := logic.NewBili_danmakuLogic(context.TODO(), ctx)
-	server.Bili_danmaku_Start()
-
-	//server := rest.MustNewServer(c.RestConf)
-	defer server.Bili_danmaku_Stop()
-
-	//handler.RegisterHandlers(server, ctx)
-	//logx.Infof()
-	//fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
-	//server.Start()
-}
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+	program := NewProgram()
 	//test := NewTest()
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -67,9 +41,11 @@ func main() {
 		},
 		//BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: app.startup,
+		//OnBeforeClose: app.Onstop,
 		Bind: []interface{}{
 			app,
 			//test,
+			program,
 		},
 	})
 

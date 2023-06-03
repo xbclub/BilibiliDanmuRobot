@@ -26,7 +26,10 @@ const { $storage } = useGlobal<GlobalPropertiesApi>();
 
 const set: setType = reactive({
   sidebar: computed(() => {
-    return useAppStoreHook().sidebar;
+    const x = useAppStoreHook().sidebar
+    x.opened = false
+    x.isClickCollapse = true
+    return x;
   }),
 
   device: computed(() => {
@@ -101,7 +104,7 @@ onMounted(() => {
     toggle("mobile", false);
   }
 });
-
+// console.log(classes.hideSidebar)
 const layoutHeader = defineComponent({
   render() {
     return h(

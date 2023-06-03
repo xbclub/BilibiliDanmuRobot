@@ -10,6 +10,7 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 import QrCode from "@/views/login/components/qrCode.vue";
+import {useUserStore} from "@/store/modules/user";
 defineOptions({
   name: "Login"
 });
@@ -18,7 +19,6 @@ const loading = ref(false);
 
 const { initStorage } = useLayout();
 initStorage();
-
 const { dataTheme, dataThemeChange } = useDataThemeChange();
 dataThemeChange();
 const { title } = useNav();
@@ -35,13 +35,13 @@ const { title } = useNav();
 //       useUserStoreHook()
 //         .loginByUsername({ username: ruleForm.username, password: "admin123" })
 //         .then(res => {
-//           if (res.success) {
-//             // 获取后端路由
-//             initRouter().then(() => {
-//               router.push(getTopMenu(true).path);
-//               message("登录成功", { type: "success" });
-//             });
-//           }
+//           // if (res.success) {
+//           //   // 获取后端路由
+//           //   initRouter().then(() => {
+//           //     router.push(getTopMenu(true).path);
+//           //     message("登录成功", { type: "success" });
+//           //   });
+//           // }
 //         });
 //     } else {
 //       loading.value = false;
@@ -49,7 +49,7 @@ const { title } = useNav();
 //     }
 //   });
 // };
-//
+
 // /** 使用公共函数，避免`removeEventListener`失效 */
 // function onkeypress({ code }: KeyboardEvent) {
 //   if (code === "Enter") {

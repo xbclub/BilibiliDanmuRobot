@@ -44,11 +44,12 @@ export const useUserStore = defineStore({
     },
     /** 前端登出（不调用接口） */
     logOut() {
-      this.username = "";
-      this.roles = [];
-      removeToken();
-      useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
-      resetRouter();
+      // this.username = "";
+      // this.roles = [];
+      // removeToken();
+      // useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
+      // resetRouter();
+      window.localStorage.removeItem("userInfo")
       router.push("/login");
     },
     /** 刷新`token` */

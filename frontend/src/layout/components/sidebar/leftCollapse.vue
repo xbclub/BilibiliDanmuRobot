@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import {ref, computed, onMounted} from "vue";
 import { useNav } from "@/layout/hooks/useNav";
 import MenuFold from "@iconify-icons/ri/menu-fold-fill";
 
@@ -37,6 +37,11 @@ const emit = defineEmits<{
 const toggleClick = () => {
   emit("toggleClick");
 };
+// onMounted(()=>{
+//   if (props.isActive) {
+//     toggleClick()
+//   }
+// })
 </script>
 
 <template>

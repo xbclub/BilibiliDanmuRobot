@@ -13,6 +13,7 @@ require (
 	github.com/wailsapp/wails/v2 v2.5.1
 	github.com/zeromicro/go-zero v1.5.0
 	golang.org/x/crypto v0.6.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

@@ -142,7 +142,7 @@ function onReset() {
   toggleClass(Weak, "html-weakness", document.querySelector("html"));
   router.push("/login");
   useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
-  resetRouter();
+  // resetRouter();
 }
 
 function onChange(label) {
@@ -398,7 +398,7 @@ onBeforeMount(() => {
         height="15"
         style="margin-right: 4px"
       />
-      清空缓存并返回登录页
+      清空缓存
     </el-button>
   </panel>
 </template>

@@ -12,6 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"math/rand"
+	"sort"
 	"strings"
 	"time"
 )
@@ -41,6 +42,26 @@ func HandleBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 		}
 	}
 END:
+}
+
+func in(target string, src []string) bool {
+	if src != nil {
+		sort.Strings(src)
+		index := sort.SearchStrings(src, target)
+		return index < len(src) && src[index] == target
+	}
+	return false
+}
+
+func inWide(target string, src []string) bool {
+	if src != nil {
+		for _, s := range src {
+			if strings.Contains(target, s) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func handle(message []byte, svcCtx *svc.ServiceContext) {
@@ -119,10 +140,14 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 							PushToBulletSender(v)
 						} else if svcCtx.Config.InteractWord {
-							pushToInterractChan(&InterractData{
-								Uid: interact.Data.Uid,
-								Msg: handleInterract(welcomeInteract(interact.Data.Uname), svcCtx),
-							})
+							// 不在黑名单才欢迎
+							if !inWide(interact.Data.Uname, svcCtx.Config.WelcomeBlacklistWide) &&
+								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
+								pushToInterractChan(&InterractData{
+									Uid: interact.Data.Uid,
+									Msg: handleInterract(welcomeInteract(interact.Data.Uname), svcCtx),
+								})
+							}
 						}
 					} else {
 						msg := "感谢 " + interact.Data.Uname + " 的关注!"

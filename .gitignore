@@ -1,3 +1,9 @@
 build/bin
 node_modules
 frontend/dist
+frontend/node_modules
+logs
+token
+node_modules
+.idea
+frontend/.idea

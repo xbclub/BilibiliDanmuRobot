@@ -27,7 +27,7 @@ func GetLoginUrl() (*entity.LoginUrl, error) {
 		return nil, err
 	}
 
-	logx.Info("oauthKey:", r.Data.OauthKey)
+	logx.Error("oauthKey:", r.Data.OauthKey)
 
 	return r, err
 }
@@ -42,7 +42,7 @@ func GetLoginInfo(oauthKey string) (*entity.LoginInfoData, error) {
 	pre := &entity.LoginInfoPre{}
 	logx.Info("等待扫码登录...")
 	for {
-		logx.Info(1)
+
 		if resp, err = cli.R().
 			SetHeader("user-agent", userAgent).
 			Post(url); err != nil {
@@ -91,7 +91,6 @@ func GetLoginInfo(oauthKey string) (*entity.LoginInfoData, error) {
 	file.Close()
 	return data, err
 }
-
 func FileExists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
