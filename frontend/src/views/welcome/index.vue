@@ -229,10 +229,10 @@ onMounted(()=>{
       })
     }else {
       data.form = res.Form
-      console.log(data.form)
+      formatWelcomeString()
     }
   })
-  formatWelcomeString()
+
 })
 </script>
 
