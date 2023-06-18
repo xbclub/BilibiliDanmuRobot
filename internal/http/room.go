@@ -2,17 +2,15 @@ package http
 
 import (
 	"bili_danmaku/internal/errs"
+	types2 "bili_danmaku/internal/types"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/zeromicro/go-zero/core/logx"
-
-	//entity "bili_danmaku/internal/types"
-	entity "bili_danmaku/internal/types"
 )
 
-func RoomInit(roomid int) (*entity.RoomInitInfo, error) {
+func RoomInit(roomid int) (*types2.RoomInitInfo, error) {
 	var err error
 	var resp *resty.Response
 	var url = fmt.Sprintf("https://api.live.bilibili.com/room/v1/Room/room_init?id=%v", roomid)
@@ -25,14 +23,14 @@ func RoomInit(roomid int) (*entity.RoomInitInfo, error) {
 	}
 
 	// 先解析响应状态
-	status := &entity.RoomInitStatus{}
+	status := &types2.RoomInitStatus{}
 	if err = json.Unmarshal(resp.Body(), status); err != nil {
 		logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 		return nil, err
 	}
 
 	// 在解析房间状态
-	r := &entity.RoomInitInfo{}
+	r := &types2.RoomInitInfo{}
 	if status.Code == 0 {
 		if err = json.Unmarshal(resp.Body(), r); err != nil {
 			logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
@@ -47,7 +45,7 @@ func RoomInit(roomid int) (*entity.RoomInitInfo, error) {
 	return r, err
 }
 
-func Userinfo(roomid int) (userinfo *entity.Userinfo, err error) {
+func Userinfo(roomid int) (userinfo *types2.Userinfo, err error) {
 	roominfo, err := RoomInit(roomid)
 	if err != nil {
 		return nil, err
@@ -63,7 +61,7 @@ func Userinfo(roomid int) (userinfo *entity.Userinfo, err error) {
 	}
 
 	// 先解析响应状态
-	userinfo = &entity.Userinfo{}
+	userinfo = &types2.Userinfo{}
 	if err = json.Unmarshal(resp.Body(), userinfo); err != nil {
 		logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 		return nil, err
@@ -75,7 +73,7 @@ func Userinfo(roomid int) (userinfo *entity.Userinfo, err error) {
 	return userinfo, nil
 }
 
-func TopListInfo(roomid int, userid int64, page int) (toplistinfo *entity.TopListInfo, err error) {
+func TopListInfo(roomid int, userid int64, page int) (toplistinfo *types2.TopListInfo, err error) {
 	var url = fmt.Sprintf("https://api.live.bilibili.com/xlive/app-room/v2/guardTab/topList?page_size=29&roomid=%v&page=%v&ruid=%v", roomid, page, userid)
 	var resp *resty.Response
 	if resp, err = cli.R().
@@ -86,7 +84,7 @@ func TopListInfo(roomid int, userid int64, page int) (toplistinfo *entity.TopLis
 	}
 
 	// 先解析响应状态
-	toplistinfo = &entity.TopListInfo{}
+	toplistinfo = &types2.TopListInfo{}
 	if err = json.Unmarshal(resp.Body(), toplistinfo); err != nil {
 		logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 		return nil, err
@@ -97,7 +95,7 @@ func TopListInfo(roomid int, userid int64, page int) (toplistinfo *entity.TopLis
 	}
 	return toplistinfo, nil
 }
-func RankListInfo(roomid int, userid int64, page int) (toplistinfo *entity.RankListInfo, err error) {
+func RankListInfo(roomid int, userid int64, page int) (toplistinfo *types2.RankListInfo, err error) {
 	var url = fmt.Sprintf("https://api.live.bilibili.com/xlive/general-interface/v1/rank/getOnlineGoldRank?ruid=%v&roomId=%v&page=%v&pageSize=50", userid, roomid, page)
 	var resp *resty.Response
 	if resp, err = cli.R().
@@ -108,7 +106,7 @@ func RankListInfo(roomid int, userid int64, page int) (toplistinfo *entity.RankL
 	}
 
 	// 先解析响应状态
-	toplistinfo = &entity.RankListInfo{}
+	toplistinfo = &types2.RankListInfo{}
 	if err = json.Unmarshal(resp.Body(), toplistinfo); err != nil {
 		logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 		return nil, err

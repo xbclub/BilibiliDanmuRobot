@@ -20,7 +20,7 @@ ThanksGift: true
 CustomizeBullet: false
 #日志输出
 Log:
-#  Mode: file
+  #  Mode: file
   Encoding: plain
 #  Path: ./logs
 # 指定人欢迎
@@ -42,12 +42,12 @@ ChatGPT:
 CronDanmu: false
 # 指定定时弹幕列表
 CronDanmuList:
-    # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
-    # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
-    # 弹幕列表前必须加 -, 无论是否有多条, 切记
+  # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
+  # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
+  # 弹幕列表前必须加 -, 无论是否有多条, 切记
   - Cron: "*/2 * * * *"
     Random: true
-    Danmu: 
+    Danmu:
       - "喜欢主播请关注, 主播带你去致富~"
       - "万水千山总是情, 上个舰长行不行~"
       - "喜欢主播的小伙伴可以动动小手点个关注~"
@@ -60,7 +60,7 @@ CronDanmuList:
       - "万水千山总是情，点个关注行不行~"
   - Cron: "*/1 * * * *"
     Random: true
-    Danmu: 
+    Danmu:
       - "另一个一分钟弹幕测试"
 
 # 指定关注感谢文本列表
@@ -85,4 +85,3 @@ WelcomeBlacklistWide:
 WelcomeBlacklist:
   - "小妖网玩"
   - "独家朲芞"
-

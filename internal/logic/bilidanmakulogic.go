@@ -5,7 +5,7 @@ import (
 	"bili_danmaku/internal/errs"
 	"bili_danmaku/internal/http"
 	"bili_danmaku/internal/svc"
-	entity "bili_danmaku/internal/types"
+	types2 "bili_danmaku/internal/types"
 	"bili_danmaku/internal/utiles"
 	"bufio"
 	"context"
@@ -63,9 +63,6 @@ func getTerminalInput(input chan string) {
 }
 
 func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
-	once.Do(func() {
-		rand.Seed(time.Now().UnixMicro())
-	})
 	var err error
 	http.InitHttpClient()
 	// 判断是否存在历史cookie
@@ -92,7 +89,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 	var interval = 10 * time.Second
 	t := time.NewTimer(interval)
 	defer t.Stop()
-	var info *entity.RoomInitInfo
+	var info *types2.RoomInitInfo
 	var preStatus int
 
 	input := make(chan string)
@@ -122,9 +119,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				logx.Infof("RoomInit错误：%v", err)
 				continue
 			}
-			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
+			if info.Data.LiveStatus == types2.Live && preStatus == types2.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
-				preStatus = entity.Live
+				preStatus = types2.Live
 				// 弹幕姬各goroutine上下文
 				sendBulletCtx, sendBulletCancel = context.WithCancel(context.Background())
 				//timingBulletCtx, timingBulletCancel = context.WithCancel(context.Background())
@@ -137,9 +134,9 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				l.StartBulletGirl(sendBulletCtx,
 					//timingBulletCtx,
 					robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx) // 开启弹幕姬
-			} else if info.Data.LiveStatus == entity.NotStarted && preStatus == entity.Live { // 由Live到NotStarted是下播
+			} else if info.Data.LiveStatus == types2.NotStarted && preStatus == types2.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
-				preStatus = entity.NotStarted
+				preStatus = types2.NotStarted
 				if sendBulletCancel != nil {
 					sendBulletCancel()
 				}
@@ -212,7 +209,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Stop() {
 func (l *Bili_danmakuLogic) userlogin() error {
 	var err error
 	http.InitHttpClient()
-	var loginUrl *entity.LoginUrl
+	var loginUrl *types2.LoginUrl
 	if loginUrl, err = http.GetLoginUrl(); err != nil {
 		logx.Error(err)
 		return err
