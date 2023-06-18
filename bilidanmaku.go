@@ -23,7 +23,6 @@ func init() {
 		err = os.Mkdir(dir, 0755)
 		if err != nil {
 			panic(fmt.Sprintf("无法创建token文件夹 请手动创建:%s", err))
-			return
 		}
 	}
 	logconf := logx.LogConf{

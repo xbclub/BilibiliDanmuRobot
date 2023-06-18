@@ -1,17 +1,38 @@
 kind: pipeline
 type: kubernetes
 name: default
+platform:
+  os: linux
+  arch: arm64
 steps:
+  - name: prebuild
+    image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
+    environment:
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
+    commands:
+      - go mod tidy
+    when:
+      event:
+        - tag
   - name: build-linux-arm64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: linux
       GOARCH: arm64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -22,16 +43,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-linux-amd64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: linux
       GOARCH: amd64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -42,16 +70,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-linux-386
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: linux
       GOARCH: 386
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -62,16 +97,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-darwin-amd64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: darwin
       GOARCH: amd64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -82,16 +124,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-darwin-arm64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: darwin
       GOARCH: arm64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev tar
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -102,16 +151,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-windows-arm64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: windows
       GOARCH: arm64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -122,16 +178,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-windows-386
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: windows
       GOARCH: 386
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -142,16 +205,23 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: build-windows-amd64
     image: golang:1.20.2-alpine
+    volumes:
+      - name: cache
+        path: /gobuild
     environment:
       GOOS: windows
       GOARCH: amd64
+      GOCACHE: /gobuild/gocache
+      GOPATH: /gobuild/gopath
     commands:
       - export outputpath=./dist/$GOOS-$GOARCH
       - apk add --no-cache git gcc musl-dev zip
       - mkdir -p $outputpath
-      - go mod tidy
+#      - go mod tidy
       - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
       - cp -r etc $outputpath
       - cp readme.md $outputpath
@@ -162,6 +232,8 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - prebuild
   - name: github-release
     image: plugins/github-release
     settings:
@@ -180,3 +252,8 @@ steps:
     when:
       event:
         - tag
+volumes:
+  - name: cache
+    claim:
+      name: robotbuild-cache
+      read_only: false # <true|false>
