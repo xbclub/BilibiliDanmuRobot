@@ -27,7 +27,7 @@ func GetLoginUrl() (*entity.LoginUrl, error) {
 		return nil, err
 	}
 
-	logx.Error("oauthKey:", r.Data.OauthKey)
+	logx.Info("oauthKey:", r.Data.OauthKey)
 
 	return r, err
 }

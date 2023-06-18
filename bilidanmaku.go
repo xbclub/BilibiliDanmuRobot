@@ -7,6 +7,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/zeromicro/go-zero/core/logx"
 	"os"
 )
 
@@ -25,9 +26,28 @@ func init() {
 			return
 		}
 	}
+	logconf := logx.LogConf{
+		ServiceName:         "",
+		Mode:                "file",
+		Encoding:            "plain",
+		Path:                "./logs/applog",
+		TimeFormat:          "",
+		Level:               "info",
+		MaxContentLength:    0,
+		Compress:            false,
+		Stat:                true,
+		KeepDays:            0,
+		StackCooldownMillis: 100,
+		MaxBackups:          0,
+		MaxSize:             0,
+		Rotation:            "daily",
+	}
+	logx.MustSetup(logconf)
+	logx.DisableStat()
 }
 func main() {
 	// Create an instance of the app structure
+	logx.Info("当前版本:", Version)
 	app := NewApp()
 	program := NewProgram()
 	//test := NewTest()
