@@ -96,7 +96,7 @@ func (l *App) work(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			//l.channelisrun = false
-			fmt.Println("Worker stopped")
+			logx.Info("登录线程退出")
 			nologin = false
 		case <-t.C:
 			logx.Info("等待扫码中")
@@ -156,92 +156,15 @@ func (l *App) Stopwork() {
 		l.loginCancel()
 	}
 }
-func (l *App) work1() {
-	var err error
-	var url = "https://passport.bilibili.com/qrcode/getLoginInfo?oauthKey=" + l.loginurl.Data.OauthKey
-	var resp *resty.Response
-	var data *types2.LoginInfoData
-	var file *os.File
-	var CookieStr string
-	var CookieList = make(map[string]string)
-	cli := resty.New()
-	pre := &types2.LoginInfoPre{}
-	logx.Info("等待扫码登录...")
-	for {
-		select {
-		case <-l.login:
-			l.channelisrun = false
-			fmt.Println("Worker stopped")
-			return
-		default:
-			if l.loginstatus == 1 {
-				logx.Info("登录已成功等待线程退出")
-				time.Sleep(5 * time.Second)
-				continue
-			}
-			logx.Info("等待扫码中")
 
-			if resp, err = cli.R().
-				SetHeader("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36").
-				Post(url); err != nil {
-				logx.Error("请求getLoginInfo失败：", err)
-				l.loginstatus = 3
-			}
-
-			if err = json.Unmarshal(resp.Body(), pre); err != nil {
-				logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
-				l.loginstatus = 3
-			}
-
-			if pre.Status {
-
-				data = &types2.LoginInfoData{}
-				if err = json.Unmarshal(resp.Body(), data); err != nil {
-					logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
-					l.loginstatus = 3
-				}
-				logx.Info("登录成功！")
-				for _, v := range resp.Header().Values("Set-Cookie") {
-					pair := strings.Split(v, ";")
-					kv := strings.Split(pair[0], "=")
-					CookieList[kv[0]] = kv[1]
-					CookieStr += pair[0] + ";"
-				}
-				//使用追加模式打开文件
-				file, err = os.OpenFile("token/bili_token.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-				if err != nil {
-					logx.Errorf("打开文件错误：", err)
-				}
-				file.WriteString(CookieStr)
-				file.Close()
-				//使用追加模式打开文件
-				file, err = os.OpenFile("token/bili_token.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-				if err != nil {
-					logx.Errorf("打开文件错误：", err)
-					l.loginstatus = 3
-				}
-				tokenstr, _ := json.Marshal(CookieList)
-				file.WriteString(string(tokenstr))
-				file.Close()
-				l.loginstatus = 1
-				//l.Stopwork()
-			}
-
-			time.Sleep(5 * time.Second)
-		}
-	}
-}
-func (l *App) Stopwork1() {
-	l.login <- true
-}
-func (l *App) Onstop(ctx context.Context) bool {
+func (l *App) Onstop() bool {
 	return true
 }
 func (l *App) GetloginStatus() bool {
 	if http.FileExists("token/bili_token.txt") && http.FileExists("token/bili_token.json") {
 		err := http.SetHistoryCookie()
 		if err != nil {
-			fmt.Println(err)
+			logx.Error(err)
 			return false
 		}
 		status := http.GetUserInfo()

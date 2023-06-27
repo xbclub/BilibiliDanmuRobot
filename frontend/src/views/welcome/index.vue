@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import {onMounted, reactive} from "vue";
+import { onMounted, reactive } from "vue";
 
 defineOptions({
   name: "Welcome"
 });
-const formRef = ref<FormInstance>()
+const formRef = ref<FormInstance>();
 const data = reactive({
   isrunning: false,
   savestatus: false,
-  savemsg:"",
+  savemsg: "",
   tabledata: [],
   dialogdata: {
     uid: "",
     msg: ""
   },
-  dialogtitle:"",
+  dialogtitle: "",
   dialogVisible: false,
+  dialogAction: false,
   form: {
     RoomId: 3,
     DanmuLen: 20,
@@ -28,11 +29,11 @@ const data = reactive({
     WelcomeString: {
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
-    WelcomeDanmu: ["欢迎 {user} ~","欢迎 {user} 木嘛~","欢迎 {user} 好诶~"],
+    WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
     RobotName: "花花",
     TalkRobotCmd: "花花",
     RobotMode: "QingYunKe",
-    ChatGPT:{
+    ChatGPT: {
       APIToken: ""
     },
     FocusDanmu: [
@@ -45,8 +46,8 @@ const data = reactive({
     CronDanmu: false,
     CronDanmuList: [{
       Cron: "*/2 * * * *",
-      Random:true,
-      Danmu:[
+      Random: true,
+      Danmu: [
         "喜欢主播请关注, 主播带你去致富~",
         "万水千山总是情, 上个舰长行不行~",
         "喜欢主播的小伙伴可以动动小手点个关注~",
@@ -59,181 +60,202 @@ const data = reactive({
         "万水千山总是情，点个关注行不行~"
       ]
     }],
-    WelcomeBlacklistWide:[],
-    WelcomeBlacklist:[],
+    WelcomeBlacklistWide: [],
+    WelcomeBlacklist: []
 
   }
-})
-import { ref } from 'vue'
-import type {FormInstance, FormRules, TabsPaneContext} from 'element-plus'
-import {ReadConfig, WriteConfig} from "../../../wailsjs/go/main/App";
-import {ElNotification} from "element-plus";
-import {Monitor, Start, Stop} from "../../../wailsjs/go/main/Program";
+});
+import { ref } from "vue";
+import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
+import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
+import { ElNotification } from "element-plus";
+import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
 
-const activeName = ref('first')
+const activeName = ref("first");
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
-}
+  console.log(tab, event);
+};
 const addWelcomeDanmu = () => {
-  data.form.WelcomeDanmu.push("{user}")
-}
+  data.form.WelcomeDanmu.push("{user}");
+};
 const addWelcomeBlacklist = () => {
-  data.form.WelcomeBlacklist.push("")
-}
+  data.form.WelcomeBlacklist.push("");
+};
 const addWelcomeBlacklistWide = () => {
-  data.form.WelcomeBlacklistWide.push("")
-}
+  data.form.WelcomeBlacklistWide.push("");
+};
 const deleteWelcomeDanmu = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
-    data.form.WelcomeDanmu.splice(item, 1)
+    data.form.WelcomeDanmu.splice(item, 1);
   }
-}
+};
 const deleteWelcomeBlacklist = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
-    data.form.WelcomeBlacklist.splice(item, 1)
+    data.form.WelcomeBlacklist.splice(item, 1);
   }
-}
+};
 const deleteWelcomeBlacklistWide = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
-    data.form.WelcomeBlacklistWide.splice(item, 1)
+    data.form.WelcomeBlacklistWide.splice(item, 1);
   }
-}
+};
 const addFocusDanmu = () => {
-  data.form.FocusDanmu.push("")
-}
+  data.form.FocusDanmu.push("");
+};
 const deleteFocusDanmu = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
-    data.form.FocusDanmu.splice(item, 1)
+    data.form.FocusDanmu.splice(item, 1);
   }
-}
+};
+
 function formatWelcomeString() {
   const arr = Object.entries(data.form.WelcomeString);
-  data.tabledata=arr.map(([key, value]) => ({ key, value }))
+  data.tabledata = arr.map(([key, value]) => ({ key, value }));
 }
-function addWelcomeString(){
-  data.dialogdata={
+
+function addWelcomeString() {
+  data.dialogdata = {
     uid: "",
     msg: ""
-  }
-  data.dialogtitle = "新增"
-  data.dialogVisible = true
+  };
+  data.dialogtitle = "新增";
+  data.dialogAction = false;
+  data.dialogVisible = true;
 
 }
-function saveWelcomeString(){
-  data.form.WelcomeString[data.dialogdata.uid] = data.dialogdata.msg
-  formatWelcomeString()
-  data.dialogVisible = false
+
+function saveWelcomeString() {
+  data.form.WelcomeString[data.dialogdata.uid] = data.dialogdata.msg;
+  formatWelcomeString();
+  data.dialogVisible = false;
 }
-function deleteWelcomeString(item:string){
+
+function deleteWelcomeString(item: string) {
   // console.log(item)
   if (data.form.WelcomeString.hasOwnProperty(item)) {
     delete data.form.WelcomeString[item];
   }
-  formatWelcomeString()
+  formatWelcomeString();
 }
-function addDanmulist(item:string){
+
+function editWelcomeString(uid, msg) {
+  data.dialogdata.uid = uid;
+  data.dialogdata.msg = msg;
+  data.dialogAction = true;
+  data.dialogVisible = true;
+}
+
+function addDanmulist() {
   data.form.CronDanmuList.push({
     Cron: "*/2 * * * *",
-    Random:true,
-    Danmu:[
-      "",
+    Random: true,
+    Danmu: [
+      ""
     ]
-  })
+  });
 }
-function deleteDanmulist(row: number){
+
+function deleteDanmulist(row: number) {
   if (row !== -1) {
-    data.form.CronDanmuList.splice(row, 1)
+    data.form.CronDanmuList.splice(row, 1);
   }
 }
-function addDanmu(item:number){
-  data.form.CronDanmuList[item].Danmu.push("")
+
+function addDanmu(item: number) {
+  data.form.CronDanmuList[item].Danmu.push("");
 }
-function deleteDanmu(item:number,row: number){
-  if (item !== -1&&row!== -1) {
-    data.form.CronDanmuList[item].Danmu.splice(row, 1)
+
+function deleteDanmu(item: number, row: number) {
+  if (item !== -1 && row !== -1) {
+    data.form.CronDanmuList[item].Danmu.splice(row, 1);
   }
 }
+
 async function saveConfig() {
-  data.savestatus = false
-  data.savemsg = ""
+  data.savestatus = false;
+  data.savemsg = "";
   await WriteConfig(JSON.stringify(data.form)).then(res => {
-    data.savestatus = res.Code
-    data.savemsg = res.Msg
-  })
+    data.savestatus = res.Code;
+    data.savemsg = res.Msg;
+  });
   if (data.savestatus) {
     ElNotification({
-      title: '操作成功',
-      message: '操作成功，正在重启机器人',
-      type: 'success',
-    })
-    restart()
-  }else {
+      title: "操作成功",
+      message: "操作成功，正在重启机器人",
+      type: "success"
+    });
+    restart();
+  } else {
     ElNotification({
-      title: '保存失败',
-      message: '请修改配置知道保存正确为止，错误信息：'+data.savemsg,
-      type: 'error',
-    })
+      title: "保存失败",
+      message: "请修改配置知道保存正确为止，错误信息：" + data.savemsg,
+      type: "error"
+    });
   }
 }
+
 async function pgstart() {
   await Monitor().then(res => {
-    data.isrunning = res
-  })
+    data.isrunning = res;
+  });
   if (data.isrunning == false) {
     await Start().then(res => {
-      data.isrunning = res
-    })
+      data.isrunning = res;
+    });
   }
 }
-async function pgstop(){
+
+async function pgstop() {
   await Monitor().then(res => {
-    data.isrunning = res
-  })
+    data.isrunning = res;
+  });
   if (data.isrunning == true) {
     await Stop().then(res => {
-      data.isrunning = !res
-    })
+      data.isrunning = !res;
+    });
   }
 }
+
 async function restart() {
-  await pgstop()
-  console.log(data.isrunning)
+  await pgstop();
+  console.log(data.isrunning);
   if (data.isrunning == false) {
-    pgstart()
+    pgstart();
   }
 }
+
 const rules = reactive<FormRules>({
-  RoomId:[
-    { required: true, message: '此项必填' },
-    { type: 'number', message: '此处必须为数字' },
+  RoomId: [
+    { required: true, message: "此项必填" },
+    { type: "number", message: "此处必须为数字" }
   ],
-  DanmuLen:[
-    { required: true, message: '此项必填' },
-    { type: 'number', message: '此处必须为数字' },
+  DanmuLen: [
+    { required: true, message: "此项必填" },
+    { type: "number", message: "此处必须为数字" }
   ]
-})
-onMounted(()=>{
+});
+onMounted(() => {
 
-  ReadConfig().then(res=>{
-    if (!res.Code){
-      console.log(res)
+  ReadConfig().then(res => {
+    if (!res.Code) {
+      console.log(res);
       ElNotification({
-        title: '读取配置文件失败',
+        title: "读取配置文件失败",
         message: res.Msg,
-        type: 'error',
-      })
-    }else {
-      data.form = res.Form
-      formatWelcomeString()
+        type: "error"
+      });
+    } else {
+      data.form = res.Form;
+      formatWelcomeString();
     }
-  })
+  });
 
-})
+});
 </script>
 
 <template>
@@ -241,12 +263,12 @@ onMounted(()=>{
     <el-tabs v-model="activeName" class="demo-tabs" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基础配置" name="first">
         <el-form-item label="直播间号" prop="RoomId">
-          <el-input v-model.number="data.form.RoomId" autocomplete="off"/>
+          <el-input v-model.number="data.form.RoomId" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="可发送弹幕长度"  prop="DanmuLen">
+        <el-form-item label="可发送弹幕长度" prop="DanmuLen">
           <el-input v-model.number="data.form.DanmuLen" />
         </el-form-item>
-        <el-form-item label="进入直播间消息"  prop="DanmuLen">
+        <el-form-item label="进入直播间消息" prop="DanmuLen">
           <el-input v-model.number="data.form.EntryMsg" />
         </el-form-item>
         <el-form-item label="欢迎弹幕">
@@ -269,7 +291,7 @@ onMounted(()=>{
           <el-tag>Tips: 自定义欢迎语 {user}为用户昵称占位符，列表为随机列表</el-tag>
         </el-form-item>
         <el-form-item>
-        <el-button type="primary" @click="addWelcomeDanmu">新增</el-button>
+          <el-button type="primary" @click="addWelcomeDanmu">新增</el-button>
         </el-form-item>
         <el-form-item
           v-for="(items, index) in data.form.WelcomeDanmu"
@@ -278,28 +300,29 @@ onMounted(()=>{
           <el-input v-model="data.form.WelcomeDanmu[index]" />
           <el-button class="mt-2"
                      @click="deleteWelcomeDanmu(index)"
-          >删除</el-button
+          >删除
+          </el-button
           >
         </el-form-item>
       </el-tab-pane>
       <el-tab-pane label="指定人欢迎" name="third">
-<!--        <template>-->
+        <!--        <template>-->
         <el-form-item label="功能开关">
-         <el-switch v-model="data.form.WelcomeSwitch" />
+          <el-switch v-model="data.form.WelcomeSwitch" />
         </el-form-item>
-          <el-button @click="addWelcomeString" type="primary">添加</el-button>
-          <el-table :data="data.tabledata" border>
-            <el-table-column prop="key" label="用户uid"  />
-            <el-table-column prop="value" label="欢迎语"  />
-            <el-table-column label="操作">
-              <template #default="scope">
-                  <el-button>编辑</el-button>
-                  <el-button @click="deleteWelcomeString(scope.row.key)">删除</el-button>
-              </template>
-            </el-table-column>
-<!--            <el-table-column prop="address" label="Address" />-->
-          </el-table>
-<!--        </template>-->
+        <el-button @click="addWelcomeString" type="primary">添加</el-button>
+        <el-table :data="data.tabledata" border>
+          <el-table-column prop="key" label="用户uid" />
+          <el-table-column prop="value" label="欢迎语" />
+          <el-table-column label="操作">
+            <template #default="scope">
+              <el-button type="primary" @click="editWelcomeString(scope.row.key,scope.row.value)">编辑</el-button>
+              <el-button type="danger" @click="deleteWelcomeString(scope.row.key)">删除</el-button>
+            </template>
+          </el-table-column>
+          <!--            <el-table-column prop="address" label="Address" />-->
+        </el-table>
+        <!--        </template>-->
       </el-tab-pane>
       <el-tab-pane label="ai机器人" name="fourth">
         <el-form-item label="机器人名称">
@@ -314,6 +337,9 @@ onMounted(()=>{
             <el-option label="ChatGPT" value="ChatGPT" />
           </el-select>
         </el-form-item>
+        <el-form-item label="API KEY" v-if="data.form.RobotMode == 'ChatGPT'">
+          <el-input v-model="data.form.ChatGPT.APIToken" />
+        </el-form-item>
       </el-tab-pane>
       <el-tab-pane label="关注答谢语" name="fifth">
         <el-form-item>
@@ -326,7 +352,8 @@ onMounted(()=>{
           <el-input v-model="data.form.FocusDanmu[index]" />
           <el-button class="mt-2"
                      @click="deleteFocusDanmu(index)"
-          >删除</el-button
+          >删除
+          </el-button
           >
         </el-form-item>
       </el-tab-pane>
@@ -335,32 +362,35 @@ onMounted(()=>{
           <el-switch v-model="data.form.CronDanmu" />
         </el-form-item>
         <el-form-item>
-          <el-tag>Tips1: 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
+          <el-tag>Tips1: 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/
+            中的linux格式（此格式支持windows使用）
           </el-tag>
         </el-form-item>
         <el-form-item>
           <el-tag>Tips2: 随即开关打开表示随机发送列表中的一条弹幕, 关闭则是顺序发送</el-tag>
         </el-form-item>
         <el-form-item>
-        <el-button
-                   type="primary"
-                   @click="addDanmulist"
-        >新增弹幕列表</el-button
-        >
+          <el-button
+            type="primary"
+            @click="addDanmulist"
+          >新增弹幕列表
+          </el-button
+          >
         </el-form-item>
         <div
           v-for="(items, index) in data.form.CronDanmuList"
         >
           <el-form-item :label="'弹幕列表'+ (index+1)">
             <el-button type="danger" @click="deleteDanmulist(index)"
-          >删除</el-button
-          >
+            >删除
+            </el-button
+            >
           </el-form-item>
           <el-form-item
-          :label="'发送时间'"
-        >
-          <el-input v-model="data.form.CronDanmuList[index].Cron" />
-        </el-form-item>
+            :label="'发送时间'"
+          >
+            <el-input v-model="data.form.CronDanmuList[index].Cron" />
+          </el-form-item>
           <el-form-item
             :label="'随机开关'"
           >
@@ -370,7 +400,8 @@ onMounted(()=>{
             <el-button
               type="primary"
               @click="addDanmu(index)"
-            >新增弹幕</el-button
+            >新增弹幕
+            </el-button
             >
           </el-form-item>
 
@@ -379,7 +410,8 @@ onMounted(()=>{
             <el-button class="mt-2"
                        @click="deleteDanmu(index,index2)"
                        type="danger"
-            >删除</el-button
+            >删除
+            </el-button
             >
           </el-form-item>
 
@@ -399,7 +431,8 @@ onMounted(()=>{
           <el-input v-model="data.form.WelcomeBlacklistWide[index]" />
           <el-button class="mt-2"
                      @click="deleteWelcomeBlacklistWide(index)"
-          >删除</el-button
+          >删除
+          </el-button
           >
         </el-form-item>
       </el-tab-pane>
@@ -417,7 +450,8 @@ onMounted(()=>{
           <el-input v-model="data.form.WelcomeBlacklist[index]" />
           <el-button class="mt-2"
                      @click="deleteWelcomeBlacklist(index)"
-          >删除</el-button
+          >删除
+          </el-button
           >
         </el-form-item>
       </el-tab-pane>
@@ -434,9 +468,9 @@ onMounted(()=>{
     :title="data.dialogtitle"
     width="30%"
   >
-   <el-form-item label="用户uid">
-     <el-input v-model.number="data.dialogdata.uid"></el-input>
-   </el-form-item>
+    <el-form-item label="用户uid">
+      <el-input v-model.number="data.dialogdata.uid" :disabled = data.dialogAction></el-input>
+    </el-form-item>
     <el-form-item label="欢迎语">
       <el-input v-model="data.dialogdata.msg"></el-input>
     </el-form-item>

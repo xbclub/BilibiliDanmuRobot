@@ -4,7 +4,8 @@ import (
 	"bili_danmaku/internal/svc"
 	"bytes"
 	"context"
-	gogpt "github.com/sashabaranov/go-gpt3"
+	"fmt"
+	gogpt "github.com/sashabaranov/go-openai"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -13,10 +14,14 @@ func RequestChatgptRobot(msg string, svcCtx *svc.ServiceContext) (string, error)
 	ctx := context.Background()
 	msgs := ""
 	req := gogpt.ChatCompletionRequest{
-		Model: gogpt.GPT3Dot5Turbo,
+		Model: gogpt.GPT3Dot5Turbo0613,
 		Messages: []gogpt.ChatCompletionMessage{
 			{
-				Role:    "user",
+				Role:    gogpt.ChatMessageRoleAssistant,
+				Content: fmt.Sprintf("你是一个非常幽默的机器人助理，尽可能的在%v个字符内回答，不要使用emoji等表情符号，可以使用颜文字", svcCtx.Config.DanmuLen),
+			},
+			{
+				Role:    gogpt.ChatMessageRoleUser,
 				Content: msg,
 			},
 		},
