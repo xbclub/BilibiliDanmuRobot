@@ -99,9 +99,17 @@ func checkIsAtMe(msg, u string, svcCtx *svc.ServiceContext) (bool, string) {
 
 	userId, ok := http.CookieList["DedeUserID"]
 
-	if ok && userId != u && strings.Contains(msg, svcCtx.Config.TalkRobotCmd) {
-		return true, strings.ReplaceAll(msg, svcCtx.Config.TalkRobotCmd, "")
+	if svcCtx.Config.FuzzyMatchCmd {
+		if ok && userId != u && strings.Contains(msg, svcCtx.Config.TalkRobotCmd) {
+			return true, strings.ReplaceAll(msg, svcCtx.Config.TalkRobotCmd, "")
+		} else {
+			return false, ""
+		}
 	} else {
-		return false, ""
+		if ok && userId != u && strings.HasPrefix(msg, svcCtx.Config.TalkRobotCmd) {
+			return true, strings.TrimPrefix(msg, svcCtx.Config.TalkRobotCmd)
+		} else {
+			return false, ""
+		}
 	}
 }
