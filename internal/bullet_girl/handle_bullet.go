@@ -109,8 +109,9 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					_ = json.Unmarshal(body, danmu)
 					from := danmu.Info[2].([]interface{})
 
+					uid := fmt.Sprintf("%.0f", from[0].(float64))
 					// 如果发现弹幕在@我，那么调用机器人进行回复
-					y, content := checkIsAtMe(danmu.Info[1].(string), svcCtx)
+					y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
 					if y && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
@@ -149,13 +150,22 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 								})
 							}
 						}
-					} else {
+					} else if interact.Data.MsgType == 2 {
 						msg := "感谢 " + interact.Data.Uname + " 的关注!"
 						PushToBulletSender(msg)
 						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
 							rand.Seed(time.Now().UnixMicro())
 							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
 						}
+					} else if interact.Data.MsgType == 3 {
+						msg := "感谢 " + interact.Data.Uname + " 的分享!"
+						PushToBulletSender(msg)
+						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+							rand.Seed(time.Now().UnixMicro())
+							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						}
+					} else {
+						logx.Info(">>>>>>>>>>>>> 未识别的类型:", string(body))
 					}
 
 				// 感谢礼物
@@ -229,11 +239,12 @@ func welcomeInteract(name string) string {
 func handleInterract(uname string, svcCtx *svc.ServiceContext) string {
 	s := []rune(uname)
 	rand.Seed(time.Now().UnixMicro())
-	if len(s) > 13 {
-		return strings.ReplaceAll(svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))], "{user}", string(s[0:10]))
-		//"[欢迎 " + string(s[0:10]) + " ~]"
+	r := "{user}"
+	szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
+	szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
+	if len(s) > (20 - len(szWelcomTmp)) {
+		return strings.ReplaceAll(szWelcomOrig, r, string(s[0:(20-len(szWelcomTmp))]))
 	} else {
-		return strings.ReplaceAll(svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))], "{user}", uname)
-		//"[欢迎 " + uname + " ~]"
+		return strings.ReplaceAll(szWelcomOrig, r, uname)
 	}
 }

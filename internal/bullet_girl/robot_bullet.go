@@ -94,9 +94,13 @@ func splitRobotReply(content string, svcCtx *svc.ServiceContext) []string {
 }
 
 // 检查弹幕是否在@我，返回bool和@我要说的内容
-func checkIsAtMe(msg string, svcCtx *svc.ServiceContext) (bool, string) {
-	if strings.HasPrefix(msg, svcCtx.Config.TalkRobotCmd) {
-		return true, strings.TrimPrefix(msg, svcCtx.Config.TalkRobotCmd)
+func checkIsAtMe(msg, u string, svcCtx *svc.ServiceContext) (bool, string) {
+	// 自己发的包含关键字 不与理会 避免递归
+
+	userId, ok := http.CookieList["DedeUserID"]
+
+	if ok && userId != u && strings.Contains(msg, svcCtx.Config.TalkRobotCmd) {
+		return true, strings.ReplaceAll(msg, svcCtx.Config.TalkRobotCmd, "")
 	} else {
 		return false, ""
 	}
