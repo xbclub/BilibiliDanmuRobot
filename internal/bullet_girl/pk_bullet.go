@@ -99,10 +99,19 @@ func handlerPK(roomid int) {
 		listInfo.Data.List = append(listInfo.Data.List, toplist.Data.List...)
 	}
 
+	for k := range otherSideUid {
+		delete(otherSideUid, k)
+	}
+	for k := range topUid {
+		delete(topUid, k)
+	}
+
 	for _, data := range listInfo.Data.List {
 		if data.IsAlive == 1 {
 			toplistalive++
 		}
+		topUid[data.Uid] = true
+		otherSideUid[data.Uid] = true
 	}
 	rankListInfo, err := http.RankListInfo(roomid, userinfo.Data.Info.Uid, 1)
 	if err != nil {
@@ -111,11 +120,15 @@ func handlerPK(roomid int) {
 	}
 	for _, data := range rankListInfo.Data.OnlineRankItem {
 		rankcount += data.Score
+		if _, ok := topUid[data.Uid]; ok {
+			toplistalive++
+		}
+		otherSideUid[data.Uid] = true
 	}
 	//PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))
 	PushToBulletSender(fmt.Sprintf("当前对手:%v", userinfo.Data.Info.Uname))
 	PushToBulletSender(fmt.Sprintf("共%v船，%v粉", listInfo.Data.Info.Num, userinfo.Data.FollowerNum))
-	//PushToBulletSender(fmt.Sprintf("对面有%v船在线，高能榜%v人", toplistalive, rankListInfo.Data.OnlineNum))
-	PushToBulletSender(fmt.Sprintf("高能榜%v人", rankListInfo.Data.OnlineNum))
+	PushToBulletSender(fmt.Sprintf("对面有%v船在线，高能榜%v人", toplistalive, rankListInfo.Data.OnlineNum))
+	// PushToBulletSender(fmt.Sprintf("高能榜%v人", rankListInfo.Data.OnlineNum))
 	PushToBulletSender(fmt.Sprintf("榜前50贡献%v分", rankcount))
 }

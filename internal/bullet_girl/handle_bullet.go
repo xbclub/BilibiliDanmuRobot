@@ -19,6 +19,9 @@ import (
 
 var handler *BulletHandler
 
+var otherSideUid map[int64]bool = make(map[int64]bool)
+var topUid map[int64]bool = make(map[int64]bool)
+
 type BulletHandler struct {
 	BulletChan chan []byte
 }
@@ -146,19 +149,19 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
 								pushToInterractChan(&InterractData{
 									Uid: interact.Data.Uid,
-									Msg: handleInterract(welcomeInteract(interact.Data.Uname), svcCtx),
+									Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
 								})
 							}
 						}
 					} else if interact.Data.MsgType == 2 {
-						msg := "感谢 " + interact.Data.Uname + " 的关注!"
+						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的关注!"
 						PushToBulletSender(msg)
 						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
 							rand.Seed(time.Now().UnixMicro())
 							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
 						}
 					} else if interact.Data.MsgType == 3 {
-						msg := "感谢 " + interact.Data.Uname + " 的分享!"
+						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的分享!"
 						PushToBulletSender(msg)
 						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
 							rand.Seed(time.Now().UnixMicro())
@@ -199,6 +202,13 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						}
 
 					}
+
+				case "PK_BATTLE_END", "PK_END", "PK_BATTLE_CRIT":
+					// 清空串门列表
+					for k := range otherSideUid {
+						delete(otherSideUid, k)
+					}
+
 					//default:
 					//	logx.Debug("---------------------")
 					//	logx.Debug(text.Cmd)
@@ -236,15 +246,37 @@ func welcomeInteract(name string) string {
 	}
 }
 
-func handleInterract(uname string, svcCtx *svc.ServiceContext) string {
+func shortName(uname string, alreadyLen int) string {
+	s := []rune(uname)
+	maxLen := (20 - alreadyLen)
+	if len(s) > maxLen && maxLen > 0 {
+		return string(s[0:maxLen])
+	} else {
+		return uname
+	}
+}
+
+func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string {
 	s := []rune(uname)
 	rand.Seed(time.Now().UnixMicro())
 	r := "{user}"
-	szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
-	szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
-	if len(s) > (20 - len(szWelcomTmp)) {
-		return strings.ReplaceAll(szWelcomOrig, r, string(s[0:(20-len(szWelcomTmp))]))
+	if _, ook := otherSideUid[uid]; ook {
+		szWelcom := "欢迎  过来串门~"
+		maxLen := (20 - len([]rune(szWelcom)))
+		if len(s) > maxLen && maxLen > 0 {
+			return "欢迎 " + string(s[0:maxLen]) + " 过来串门~"
+		} else {
+			return "欢迎 " + uname + " 过来串门~"
+		}
 	} else {
-		return strings.ReplaceAll(szWelcomOrig, r, uname)
+		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
+		szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
+		maxLen := (20 - len([]rune(szWelcomTmp)))
+		logx.Info(szWelcomTmp, " ", maxLen)
+		if len(s) > maxLen && maxLen > 0 {
+			return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
+		} else {
+			return strings.ReplaceAll(szWelcomOrig, r, uname)
+		}
 	}
 }
