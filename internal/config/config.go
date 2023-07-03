@@ -11,6 +11,7 @@ type Config struct {
 	WsServerUrl string `json:",default=wss://broadcastlv.chat.bilibili.com:2245/sub"`
 	//QrCodePath   string `json:"qr_code_path"`
 	TalkRobotCmd    string            `json:",default=test"`
+	FuzzyMatchCmd   bool              `json:",default=false"`
 	RobotName       string            `json:",default=花花"`
 	DanmuLen        int               `json:",default=20"`
 	EntryEffect     bool              `json:",default=false"`
