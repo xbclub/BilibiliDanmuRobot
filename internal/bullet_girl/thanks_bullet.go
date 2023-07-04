@@ -70,9 +70,11 @@ func summarizeGift() {
 			// 感谢完后立刻清空map
 			delete(m, gift)
 		}
+		msg = "感谢 " + name + " 的 "
+		PushToBulletSender(msg)
 		for k, v := range giftstring {
 			if k == 0 {
-				msg += "感谢 " + name + " 的 " + v
+				msg = v
 			} else {
 				msg += "，" + v
 			}
