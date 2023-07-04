@@ -33,6 +33,7 @@ const data = reactive({
     RobotName: "花花",
     TalkRobotCmd: "花花",
     RobotMode: "QingYunKe",
+    FuzzyMatchCmd: false,
     ChatGPT: {
       APIToken: ""
     },
@@ -325,11 +326,17 @@ onMounted(() => {
         <!--        </template>-->
       </el-tab-pane>
       <el-tab-pane label="ai机器人" name="fourth">
+        <el-form-item>
+          <el-tag>Tips: 直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答</el-tag>
+        </el-form-item>
         <el-form-item label="机器人名称">
           <el-input v-model.number="data.form.RobotName" />
         </el-form-item>
         <el-form-item label="触发关键字">
           <el-input v-model.number="data.form.TalkRobotCmd" />
+        </el-form-item>
+        <el-form-item label="关键词模糊匹配">
+          <el-switch v-model="data.form.FuzzyMatchCmd" />
         </el-form-item>
         <el-form-item label="服务提供商" prop="region">
           <el-select v-model="data.form.RobotMode" placeholder="请选择">

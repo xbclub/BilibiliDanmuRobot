@@ -33,6 +33,8 @@ WelcomeSwitch: true
 RobotName: "花花"
 #直播间调用机器人的昵称：例如 "花花今天你吃了吗"，此处填花花
 TalkRobotCmd: "花花"
+#直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答
+FuzzyMatchCmd: false
 #机器人模式仅有QingYunKe/ChatGPT两个选项
 RobotMode: QingYunKe
 #此项配置仅在RobotMode为ChatGPT时生效，使用chatgpt时APItoken为必填项
