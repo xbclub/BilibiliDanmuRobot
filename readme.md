@@ -8,7 +8,7 @@
  # 获取构建依赖
  go mod download
  # 构建软件
- go build bilidanmaku.go
+ go build cli/bilidanmaku.go
 ```
 ### 鸣谢
 - github.com/k-si/bilibili_live
