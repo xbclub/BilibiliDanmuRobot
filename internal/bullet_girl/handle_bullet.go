@@ -156,10 +156,17 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							// 不在黑名单才欢迎
 							if !inWide(interact.Data.Uname, svcCtx.Config.WelcomeBlacklistWide) &&
 								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
-								pushToInterractChan(&InterractData{
-									Uid: interact.Data.Uid,
-									Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
-								})
+								if svcCtx.Config.InteractWordByTime {
+									pushToInterractChan(&InterractData{
+										Uid: interact.Data.Uid,
+										Msg: handleInterractByTime(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
+									})
+								} else {
+									pushToInterractChan(&InterractData{
+										Uid: interact.Data.Uid,
+										Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
+									})
+								}
 							}
 						}
 					} else if interact.Data.MsgType == 2 {
@@ -269,6 +276,79 @@ func shortName(uname string, alreadyLen, danmuLen int) string {
 	}
 }
 
+func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) string {
+	// 凌晨 - Early morning   2:00--5:00
+	// 早晨 - Morning   5:00--9:00
+	// 上午 - Late morning / Mid-morning  9:00--11:00
+	// 中午 - Noon  11:00--14:00
+	// 下午 - Afternoon 14:00 -- 20:00
+	// 晚上 - Evening / Night 20:00--00:00
+	// 午夜 - Midnight 00:00 -- 2:00
+	s := []rune(uname)
+	rand.Seed(time.Now().UnixMicro())
+	r := "{user}"
+
+	if svcCtx.Config.InteractWordByTime &&
+		svcCtx.Config.WelcomeDanmuByTime != nil &&
+		len(svcCtx.Config.WelcomeDanmuByTime) > 0 {
+
+		now := time.Now().Hour()
+
+		key := ""
+		switch now {
+		case 0, 1:
+			// 午夜
+			key = "midnight"
+
+		case 2, 3, 4:
+			// 凌晨
+			key = "earlymorning"
+
+		case 5, 6, 7, 8:
+			// 早上
+			key = "morning"
+
+		case 9, 10:
+			// 上午
+			key = "latemorning"
+
+		case 11, 12, 13:
+			// 中午
+			key = "noon"
+
+		case 14, 15, 16, 17, 18, 19:
+			// 下午
+			key = "afternoon"
+
+		case 20, 21, 22, 23:
+			// 晚上
+			key = "night"
+		}
+
+		for _, danmuCfg := range svcCtx.Config.WelcomeDanmuByTime {
+			if danmuCfg.Key == key {
+				if danmuCfg.Enabled && len(danmuCfg.Danmu) > 0 {
+					szWelcomOrig := danmuCfg.Danmu[rand.Intn(len(danmuCfg.Danmu))]
+					szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
+					maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
+
+					if len(s) > maxLen && maxLen > 0 {
+						return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
+					} else {
+						return strings.ReplaceAll(szWelcomOrig, r, uname)
+					}
+				} else {
+					return handleInterract(uid, uname, svcCtx)
+				}
+			}
+		}
+
+		return handleInterract(uid, uname, svcCtx)
+	} else {
+		return handleInterract(uid, uname, svcCtx)
+	}
+}
+
 func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string {
 	s := []rune(uname)
 	rand.Seed(time.Now().UnixMicro())
@@ -285,7 +365,6 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 		szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
 		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
-		logx.Info(szWelcomTmp, " ", maxLen)
 		if len(s) > maxLen && maxLen > 0 {
 			return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
 		} else {

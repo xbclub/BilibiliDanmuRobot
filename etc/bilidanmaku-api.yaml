@@ -7,6 +7,8 @@ EntryMsg: "花花机器人进入直播间"
 PKNotice: true
 # 欢迎弹幕 true:开 false：关
 InteractWord: true
+# 时间段时间欢迎
+InteractWordByTime: true
 # 自定义欢迎语 列表前必须加 -, 无论是否有多条, 切记，{user}为用户昵称占位符，列表为随机列表
 WelcomeDanmu:
   - "欢迎 {user} ~"
@@ -73,6 +75,105 @@ FocusDanmu:
   - "入股不亏哦~"
   - "贴贴~"
 
+# 欢迎弹幕列表
+WelcomeDanmu:
+  - "欢迎 {user}, 你来啦~"
+  - "欢迎 {user}, 等你好久了~"
+  - "欢迎 {user}, 你好呀~"
+  - "欢迎 {user}, 吃饭了嘛~"
+  - "欢迎 {user}, 什么星座的呀?"
+
+# 指定定时弹幕列表
+WelcomeDanmuByTime:
+  - Enabled: true
+    Key: "earlymorning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 凌晨的问候~"
+      - "欢迎 {user}, 早安，幸福满满"
+      - "欢迎 {user}, 祝梦想成真"
+      - "欢迎 {user}, 望快乐起步"
+      - "欢迎 {user}, 望奋斗加油"
+      - "欢迎 {user}, 祝充满力量"
+      - "欢迎 {user}, 祝精神旺盛"
+      - "欢迎 {user}, 望谦虚前行"
+      - "欢迎 {user}, 祝青春无限"
+      - "欢迎 {user}, 祝前程似锦"
+  - Enabled: true
+    Key: "morning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 早安，美好开始"
+      - "欢迎 {user}, 早安，成功在望"
+      - "欢迎 {user}, 早安，加油！"
+      - "欢迎 {user}, 早安，勇往直前"
+      - "欢迎 {user}, 早安，工作愉快"
+      - "欢迎 {user}, 早安，眉开眼笑"
+      - "欢迎 {user}, 早安，携手前行"
+      - "欢迎 {user}, 早安，让生活更好"
+      - "欢迎 {user}, 早安，热情满怀"
+  - Enabled: true
+    Key: "latemorning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 上午好，奋斗有力"
+      - "欢迎 {user}, 上午好，朝气蓬勃"
+      - "欢迎 {user}, 上午好，加油向前"
+      - "欢迎 {user}, 上午好，祝福无限"
+      - "欢迎 {user}, 上午好，暖心问候"
+      - "欢迎 {user}, 上午好，快乐工作"
+      - "欢迎 {user}, 上午好，信心十足"
+      - "欢迎 {user}, 上午好，开心一整天"
+      - "欢迎 {user}, 上午好，精神满满"
+      - "欢迎 {user}, 上午好，工作愉快"
+  - Enabled: true
+    Key: "noon"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 中午好，午餐愉快"
+      - "欢迎 {user}, 中午好，美食充盈"
+      - "欢迎 {user}, 中午好，快乐午时"
+      - "欢迎 {user}, 中午好，记得午间小憩"
+      - "欢迎 {user}, 中午好，吃好喝好"
+      - "欢迎 {user}, 中午好，百般顺利"
+  - Enabled: true
+    Key: "afternoon"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 下午好，动力十足"
+      - "欢迎 {user}, 下午好，活力满满"
+      - "欢迎 {user}, 下午好，祝你成功"
+      - "欢迎 {user}, 下午好，笑容满面"
+      - "欢迎 {user}, 下午好，开心每时"
+      - "欢迎 {user}, 下午好，工作顺利"
+      - "欢迎 {user}, 下午好，美好心情"
+      - "欢迎 {user}, 下午好，活力四射"
+      - "欢迎 {user}, 下午好，幸福无限"
+  - Enabled: true
+    Key: "night"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 晚上好，祝福相伴"
+      - "欢迎 {user}, 晚上好，幸福安康"
+      - "欢迎 {user}, 晚上好，心情愉悦"
+      - "欢迎 {user}, 晚上好，生活美满"
+      - "欢迎 {user}, 晚上好，夜色温馨"
+      - "欢迎 {user}, 晚上好，美梦成真"
+      - "欢迎 {user}, 晚上好，美好的晚上"
+      - "欢迎 {user}, 祝愿你今晚开心"
+  - Enabled: true
+    Key: "midnight"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 午夜好，月色清朗"
+      - "欢迎 {user}, 午夜好，真诚问候"
+      - "欢迎 {user}, 午夜好，祝福相随"
+      - "欢迎 {user}, 午夜深沉，你不是独自一人"
+      - "欢迎 {user}, 午夜好，静夜祝福"
+      - "欢迎 {user}, 祝福你坚定向前"
+      - "欢迎 {user}, 午夜沉寂，吉祥相随。"
+      - "欢迎 {user}, 午夜好，还没休息?"
+      - "欢迎 {user}, 拥抱午夜的美好"
 
 # 不欢迎的黑名单
 # 以下两种方式
