@@ -112,10 +112,19 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					_ = json.Unmarshal(body, danmu)
 					from := danmu.Info[2].([]interface{})
 
+					// @帮助 打出来关键词
+					if strings.Compare("@帮助", danmu.Info[1].(string)) == 0 {
+						s := fmt.Sprintf("发送带有 %s 的弹幕和我互动", svcCtx.Config.TalkRobotCmd)
+						logx.Info(s)
+						PushToBulletSender(" ")
+						PushToBulletSender(s)
+						PushToBulletSender("请尽情调戏我吧!")
+					}
+
 					uid := fmt.Sprintf("%.0f", from[0].(float64))
 					// 如果发现弹幕在@我，那么调用机器人进行回复
 					y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
-					if y && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
+					if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
 
@@ -154,18 +163,22 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							}
 						}
 					} else if interact.Data.MsgType == 2 {
-						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的关注!"
-						PushToBulletSender(msg)
-						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
-							rand.Seed(time.Now().UnixMicro())
-							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						if svcCtx.Config.InteractWord {
+							msg := "感谢 " + shortName(interact.Data.Uname, 8, svcCtx.Config.DanmuLen) + " 的关注!"
+							PushToBulletSender(msg)
+							if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+								rand.Seed(time.Now().UnixMicro())
+								PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+							}
 						}
 					} else if interact.Data.MsgType == 3 {
-						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的分享!"
-						PushToBulletSender(msg)
-						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
-							rand.Seed(time.Now().UnixMicro())
-							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						if svcCtx.Config.InteractWord {
+							msg := "感谢 " + shortName(interact.Data.Uname, 8, svcCtx.Config.DanmuLen) + " 的分享!"
+							PushToBulletSender(msg)
+							if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+								rand.Seed(time.Now().UnixMicro())
+								PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+							}
 						}
 					} else {
 						logx.Info(">>>>>>>>>>>>> 未识别的类型:", string(body))
@@ -246,9 +259,9 @@ func welcomeInteract(name string) string {
 	}
 }
 
-func shortName(uname string, alreadyLen int) string {
+func shortName(uname string, alreadyLen, danmuLen int) string {
 	s := []rune(uname)
-	maxLen := (20 - alreadyLen)
+	maxLen := (danmuLen - alreadyLen)
 	if len(s) > maxLen && maxLen > 0 {
 		return string(s[0:maxLen])
 	} else {
@@ -262,7 +275,7 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 	r := "{user}"
 	if _, ook := otherSideUid[uid]; ook {
 		szWelcom := "欢迎  过来串门~"
-		maxLen := (20 - len([]rune(szWelcom)))
+		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcom)))
 		if len(s) > maxLen && maxLen > 0 {
 			return "欢迎 " + string(s[0:maxLen]) + " 过来串门~"
 		} else {
@@ -271,7 +284,7 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 	} else {
 		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 		szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
-		maxLen := (20 - len([]rune(szWelcomTmp)))
+		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
 		logx.Info(szWelcomTmp, " ", maxLen)
 		if len(s) > maxLen && maxLen > 0 {
 			return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
