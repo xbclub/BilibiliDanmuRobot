@@ -112,10 +112,19 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					_ = json.Unmarshal(body, danmu)
 					from := danmu.Info[2].([]interface{})
 
+					// @帮助 打出来关键词
+					if strings.Compare("@帮助", danmu.Info[1].(string)) == 0 {
+						s := fmt.Sprintf("发送带有 %s 的弹幕和我互动", svcCtx.Config.TalkRobotCmd)
+						logx.Info(s)
+						PushToBulletSender(" ")
+						PushToBulletSender(s)
+						PushToBulletSender("请尽情调戏我吧!")
+					}
+
 					uid := fmt.Sprintf("%.0f", from[0].(float64))
 					// 如果发现弹幕在@我，那么调用机器人进行回复
 					y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
-					if y && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
+					if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
 
@@ -147,25 +156,36 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							// 不在黑名单才欢迎
 							if !inWide(interact.Data.Uname, svcCtx.Config.WelcomeBlacklistWide) &&
 								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
-								pushToInterractChan(&InterractData{
-									Uid: interact.Data.Uid,
-									Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
-								})
+								if svcCtx.Config.InteractWordByTime {
+									pushToInterractChan(&InterractData{
+										Uid: interact.Data.Uid,
+										Msg: handleInterractByTime(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
+									})
+								} else {
+									pushToInterractChan(&InterractData{
+										Uid: interact.Data.Uid,
+										Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
+									})
+								}
 							}
 						}
 					} else if interact.Data.MsgType == 2 {
-						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的关注!"
-						PushToBulletSender(msg)
-						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
-							rand.Seed(time.Now().UnixMicro())
-							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						if svcCtx.Config.InteractWord {
+							msg := "感谢 " + shortName(interact.Data.Uname, 8, svcCtx.Config.DanmuLen) + " 的关注!"
+							PushToBulletSender(msg)
+							if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+								rand.Seed(time.Now().UnixMicro())
+								PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+							}
 						}
 					} else if interact.Data.MsgType == 3 {
-						msg := "感谢 " + shortName(interact.Data.Uname, 8) + " 的分享!"
-						PushToBulletSender(msg)
-						if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
-							rand.Seed(time.Now().UnixMicro())
-							PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+						if svcCtx.Config.InteractWord {
+							msg := "感谢 " + shortName(interact.Data.Uname, 8, svcCtx.Config.DanmuLen) + " 的分享!"
+							PushToBulletSender(msg)
+							if svcCtx.Config.FocusDanmu != nil && len(svcCtx.Config.FocusDanmu) > 0 {
+								rand.Seed(time.Now().UnixMicro())
+								PushToBulletSender(svcCtx.Config.FocusDanmu[rand.Intn(len(svcCtx.Config.FocusDanmu))])
+							}
 						}
 					} else {
 						logx.Info(">>>>>>>>>>>>> 未识别的类型:", string(body))
@@ -246,13 +266,86 @@ func welcomeInteract(name string) string {
 	}
 }
 
-func shortName(uname string, alreadyLen int) string {
+func shortName(uname string, alreadyLen, danmuLen int) string {
 	s := []rune(uname)
-	maxLen := (20 - alreadyLen)
+	maxLen := (danmuLen - alreadyLen)
 	if len(s) > maxLen && maxLen > 0 {
 		return string(s[0:maxLen])
 	} else {
 		return uname
+	}
+}
+
+func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) string {
+	// 凌晨 - Early morning   2:00--5:00
+	// 早晨 - Morning   5:00--9:00
+	// 上午 - Late morning / Mid-morning  9:00--11:00
+	// 中午 - Noon  11:00--14:00
+	// 下午 - Afternoon 14:00 -- 20:00
+	// 晚上 - Evening / Night 20:00--00:00
+	// 午夜 - Midnight 00:00 -- 2:00
+	s := []rune(uname)
+	rand.Seed(time.Now().UnixMicro())
+	r := "{user}"
+
+	if svcCtx.Config.InteractWordByTime &&
+		svcCtx.Config.WelcomeDanmuByTime != nil &&
+		len(svcCtx.Config.WelcomeDanmuByTime) > 0 {
+
+		now := time.Now().Hour()
+
+		key := ""
+		switch now {
+		case 0, 1:
+			// 午夜
+			key = "midnight"
+
+		case 2, 3, 4:
+			// 凌晨
+			key = "earlymorning"
+
+		case 5, 6, 7, 8:
+			// 早上
+			key = "morning"
+
+		case 9, 10:
+			// 上午
+			key = "latemorning"
+
+		case 11, 12, 13:
+			// 中午
+			key = "noon"
+
+		case 14, 15, 16, 17, 18, 19:
+			// 下午
+			key = "afternoon"
+
+		case 20, 21, 22, 23:
+			// 晚上
+			key = "night"
+		}
+
+		for _, danmuCfg := range svcCtx.Config.WelcomeDanmuByTime {
+			if danmuCfg.Key == key {
+				if danmuCfg.Enabled && len(danmuCfg.Danmu) > 0 {
+					szWelcomOrig := danmuCfg.Danmu[rand.Intn(len(danmuCfg.Danmu))]
+					szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
+					maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
+
+					if len(s) > maxLen && maxLen > 0 {
+						return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
+					} else {
+						return strings.ReplaceAll(szWelcomOrig, r, uname)
+					}
+				} else {
+					return handleInterract(uid, uname, svcCtx)
+				}
+			}
+		}
+
+		return handleInterract(uid, uname, svcCtx)
+	} else {
+		return handleInterract(uid, uname, svcCtx)
 	}
 }
 
@@ -262,7 +355,7 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 	r := "{user}"
 	if _, ook := otherSideUid[uid]; ook {
 		szWelcom := "欢迎  过来串门~"
-		maxLen := (20 - len([]rune(szWelcom)))
+		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcom)))
 		if len(s) > maxLen && maxLen > 0 {
 			return "欢迎 " + string(s[0:maxLen]) + " 过来串门~"
 		} else {
@@ -271,8 +364,7 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 	} else {
 		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 		szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
-		maxLen := (20 - len([]rune(szWelcomTmp)))
-		logx.Info(szWelcomTmp, " ", maxLen)
+		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
 		if len(s) > maxLen && maxLen > 0 {
 			return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
 		} else {

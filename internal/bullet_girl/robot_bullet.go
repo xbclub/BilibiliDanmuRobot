@@ -69,6 +69,7 @@ func splitRobotReply(content string, svcCtx *svc.ServiceContext) []string {
 
 	// 将机器人回复中的菲菲替换为橘子
 	content = strings.ReplaceAll(content, "菲菲", svcCtx.Config.RobotName)
+	content = strings.ReplaceAll(content, "爸爸", "好大儿")
 
 	//var res []string
 	reply := strings.Split(content, "{br}")
