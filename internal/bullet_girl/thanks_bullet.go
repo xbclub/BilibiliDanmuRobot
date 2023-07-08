@@ -9,7 +9,7 @@ import (
 )
 
 // 检测到礼物，push [uname]->[giftName]->[cost]，number+1
-// 每10s统计一次礼物，并进行感谢，礼物价值高于x元加一句大气
+// 每3s统计一次礼物，并进行感谢，礼物价值高于x元加一句大气
 
 var thanksGiver *GiftThanksGiver
 
@@ -34,7 +34,7 @@ func ThanksGift(ctx context.Context) {
 	}
 
 	var g *entity.SendGiftText
-	var w = 10 * time.Second
+	var w = 3 * time.Second
 	var t = time.NewTimer(w)
 	defer t.Stop()
 
