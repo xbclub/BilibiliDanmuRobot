@@ -15,6 +15,7 @@ var thanksGiver *GiftThanksGiver
 
 type GiftThanksGiver struct {
 	giftTable map[string]map[string]map[string]int
+	locked    *sync.Mutex
 	tableMu   sync.RWMutex
 	giftChan  chan *entity.SendGiftText
 }
@@ -27,6 +28,7 @@ func ThanksGift(ctx context.Context) {
 
 	thanksGiver = &GiftThanksGiver{
 		giftTable: make(map[string]map[string]map[string]int),
+		locked:    new(sync.Mutex),
 		tableMu:   sync.RWMutex{},
 		giftChan:  make(chan *entity.SendGiftText, 1000),
 	}
@@ -41,9 +43,12 @@ func ThanksGift(ctx context.Context) {
 		case <-ctx.Done():
 			goto END
 		case <-t.C:
+			thanksGiver.locked.Lock()
 			summarizeGift()
+			thanksGiver.locked.Unlock()
 			t.Reset(w)
 		case g = <-thanksGiver.giftChan:
+			thanksGiver.locked.Lock()
 			if _, ok := thanksGiver.giftTable[g.Data.Uname]; !ok {
 				thanksGiver.giftTable[g.Data.Uname] = make(map[string]map[string]int)
 			}
@@ -52,6 +57,7 @@ func ThanksGift(ctx context.Context) {
 			}
 			thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName]["cost"] += g.Data.Price
 			thanksGiver.giftTable[g.Data.Uname][g.Data.GiftName]["count"] += g.Data.Num
+			thanksGiver.locked.Unlock()
 		}
 	}
 END:
