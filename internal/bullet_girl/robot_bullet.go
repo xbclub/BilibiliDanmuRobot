@@ -42,13 +42,13 @@ func handleRobotBullet(content string, svcCtx *svc.ServiceContext) {
 	var reply string
 	if svcCtx.Config.RobotMode == "ChatGPT" {
 		if reply, err = http.RequestChatgptRobot(content, svcCtx); err != nil {
-			logx.Errorf("请求机器人失败：", err)
+			logx.Errorf("请求机器人失败：%v", err)
 			PushToBulletSender("不好意思，机器人坏掉了...")
 			return
 		}
 	} else {
 		if reply, err = http.RequestQingyunkeRobot(content); err != nil {
-			logx.Errorf("请求机器人失败：", err)
+			logx.Errorf("请求机器人失败：%v", err)
 			PushToBulletSender("不好意思，机器人坏掉了...")
 			return
 		}

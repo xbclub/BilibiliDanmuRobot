@@ -76,21 +76,21 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 		// 读出包长
 		var length uint32
 		if err = binary.Read(bytes.NewBuffer(message[index:index+headLengthOffset]), binary.BigEndian, &length); err != nil {
-			logx.Errorf("解析包长度失败", err)
+			logx.Errorf("解析包长度失败:%v", err)
 			return
 		}
 
 		// 读出正文协议版本
 		var ver Version
 		if err = binary.Read(bytes.NewBuffer(message[index+versionOffset:index+opcodeOffset]), binary.BigEndian, &ver); err != nil {
-			logx.Errorf("解析正文协议版本失败", err)
+			logx.Errorf("解析正文协议版本失败:%v", err)
 			return
 		}
 
 		// 读出操作码
 		var op Opcode
 		if err = binary.Read(bytes.NewBuffer(message[index+opcodeOffset:index+magicOffset]), binary.BigEndian, &op); err != nil {
-			logx.Errorf("解析操作码失败", err)
+			logx.Errorf("解析操作码失败:%v", err)
 			return
 		}
 
@@ -100,12 +100,12 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 		// 解析正文内容
 		switch ver {
 		case normalJson:
+			logx.Debug(string(body))
 			text := &entity.CmdText{}
 			_ = json.Unmarshal(body, text)
 			//logx.Infof("普通json包：%s,%v,%v", text.Cmd, ver, op)
 			if op == command {
 				switch Cmd(text.Cmd) {
-
 				// 处理弹幕
 				case DanmuMsg:
 					danmu := &entity.DanmuMsgText{}

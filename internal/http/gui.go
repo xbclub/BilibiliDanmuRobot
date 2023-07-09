@@ -23,6 +23,7 @@ func GetUserInfo() (userinfo *entity.UserinfoLite) {
 			Get(url); err != nil {
 			return err
 		}
+		logx.Debug(string(resp.Body()))
 		if err = json.Unmarshal(resp.Body(), r); err != nil {
 			logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 			return err
@@ -46,5 +47,6 @@ func GetUserInfo() (userinfo *entity.UserinfoLite) {
 	userinfo.Avactor = "data:image/gif;base64," + base64.StdEncoding.EncodeToString(resp.Body())
 	userinfo.Islogin = true
 	userinfo.Username = r.Data.Uname
+	userinfo.Uid = r.Data.Mid
 	return userinfo
 }

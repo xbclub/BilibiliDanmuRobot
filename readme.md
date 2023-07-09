@@ -1,6 +1,7 @@
 ### 本项目概述
     本项目是基于github.com/k-si/bilibili_live项目二开完成
-    
+### 使用教程
+[点此访问使用教程](https://www.yuque.com/yuqueyonghu3xsgin/igligh/rpr4oslh4nwt2pwv?singleDoc#)
 ###  构建环境
  * golang version 1.20+
 ### 构建指令

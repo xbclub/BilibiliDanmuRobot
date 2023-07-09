@@ -77,7 +77,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 		logx.Info("用户登录成功")
 	} else {
 		if err = l.userlogin(); err != nil {
-			logx.Errorf("用户登录失败：", err)
+			logx.Errorf("用户登录失败：%v", err)
 			return
 		}
 		logx.Info("用户登录成功")
