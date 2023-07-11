@@ -157,15 +157,37 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							if !inWide(interact.Data.Uname, svcCtx.Config.WelcomeBlacklistWide) &&
 								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
 								if svcCtx.Config.InteractWordByTime {
-									pushToInterractChan(&InterractData{
-										Uid: interact.Data.Uid,
-										Msg: handleInterractByTime(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
-									})
+									msg := handleInterractByTime(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx)
+									ms := strings.Split(msg, "\n")
+									if len(ms) > 1 {
+										for i, s := range ms {
+											pushToInterractChan(&InterractData{
+												Uid: interact.Data.Uid + int64(i),
+												Msg: s,
+											})
+										}
+									} else {
+										pushToInterractChan(&InterractData{
+											Uid: interact.Data.Uid,
+											Msg: msg,
+										})
+									}
 								} else {
-									pushToInterractChan(&InterractData{
-										Uid: interact.Data.Uid,
-										Msg: handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx),
-									})
+									msg := handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx)
+									ms := strings.Split(msg, "\n")
+									if len(ms) > 1 {
+										for i, s := range ms {
+											pushToInterractChan(&InterractData{
+												Uid: interact.Data.Uid + int64(i),
+												Msg: s,
+											})
+										}
+									} else {
+										pushToInterractChan(&InterractData{
+											Uid: interact.Data.Uid,
+											Msg: msg,
+										})
+									}
 								}
 							}
 						}
@@ -284,7 +306,7 @@ func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) 
 	// 下午 - Afternoon 14:00 -- 20:00
 	// 晚上 - Evening / Night 20:00--00:00
 	// 午夜 - Midnight 00:00 -- 2:00
-	s := []rune(uname)
+	//s := []rune(uname)
 	rand.Seed(time.Now().UnixMicro())
 	r := "{user}"
 
@@ -329,20 +351,22 @@ func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) 
 			if danmuCfg.Key == key {
 				if danmuCfg.Enabled && len(danmuCfg.Danmu) > 0 {
 					szWelcomOrig := danmuCfg.Danmu[rand.Intn(len(danmuCfg.Danmu))]
-					szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
-					maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
 
-					if len(s) > maxLen && maxLen > 0 {
-						return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
+					welcome := strings.ReplaceAll(szWelcomOrig, r, uname)
+					rWelcome := []rune(welcome)
+					if len(rWelcome) > svcCtx.Config.DanmuLen {
+						szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r+", ", r+"\n")
+						szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+",", r+"\n")
+						szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+"，", r+"\n")
+						return strings.ReplaceAll(szWelcomTmp, r, uname)
 					} else {
-						return strings.ReplaceAll(szWelcomOrig, r, uname)
+						return welcome
 					}
 				} else {
 					return handleInterract(uid, uname, svcCtx)
 				}
 			}
 		}
-
 		return handleInterract(uid, uname, svcCtx)
 	} else {
 		return handleInterract(uid, uname, svcCtx)
@@ -357,18 +381,22 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 		szWelcom := "欢迎  过来串门~"
 		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcom)))
 		if len(s) > maxLen && maxLen > 0 {
-			return "欢迎 " + string(s[0:maxLen]) + " 过来串门~"
+			return "欢迎 " + string(s[0:maxLen-1]) + "… 过来串门~"
 		} else {
 			return "欢迎 " + uname + " 过来串门~"
 		}
 	} else {
 		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
-		szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r, "")
-		maxLen := (svcCtx.Config.DanmuLen - len([]rune(szWelcomTmp)))
-		if len(s) > maxLen && maxLen > 0 {
-			return strings.ReplaceAll(szWelcomOrig, r, string(s[0:maxLen]))
+
+		welcome := strings.ReplaceAll(szWelcomOrig, r, uname)
+		rWelcome := []rune(welcome)
+		if len(rWelcome) > svcCtx.Config.DanmuLen {
+			szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r+", ", r+"\n")
+			szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+",", r+"\n")
+			szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+"，", r+"\n")
+			return strings.ReplaceAll(szWelcomTmp, r, uname)
 		} else {
-			return strings.ReplaceAll(szWelcomOrig, r, uname)
+			return welcome
 		}
 	}
 }

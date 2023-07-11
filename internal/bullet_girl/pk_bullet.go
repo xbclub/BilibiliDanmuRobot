@@ -128,30 +128,30 @@ func handlerPK(roomid int) {
 		otherSideUid[data.Uid] = true
 	}
 
-	// // 获取剩下的高能榜
-	// if len(rankListInfo.Data.OnlineRankItem) > 0 && len(rankListInfo.Data.OnlineRankItem) < rankListInfo.Data.OnlineNum {
-	// 	totalPage := rankListInfo.Data.OnlineNum / len(rankListInfo.Data.OnlineRankItem)
-	// 	if rankListInfo.Data.OnlineNum%50 > 0 {
-	// 		totalPage++
-	// 	}
+	// 获取剩下的高能榜
+	if len(rankListInfo.Data.OnlineRankItem) > 0 && len(rankListInfo.Data.OnlineRankItem) < rankListInfo.Data.OnlineNum {
+		totalPage := rankListInfo.Data.OnlineNum / len(rankListInfo.Data.OnlineRankItem)
+		if rankListInfo.Data.OnlineNum%50 > 0 {
+			totalPage++
+		}
 
-	// 	p := 2
-	// 	for ; p <= totalPage; p++ {
-	// 		rankListInfoTmp, err := http.RankListInfo(roomid, userinfo.Data.Info.Uid, 1)
-	// 		if err != nil {
-	// 			logx.Error(err)
-	// 			continue
-	// 		}
-	// 		rankListInfo.Data.OnlineRankItem = append(rankListInfo.Data.OnlineRankItem, rankListInfoTmp.Data.OnlineRankItem...)
-	// 	}
-	// 	for _, data := range rankListInfo.Data.OnlineRankItem {
-	// 		// logx.Info(">>>>>>>", data)
-	// 		if _, ok := topUid[data.Uid]; ok {
-	// 			toplistalive++
-	// 		}
-	// 		otherSideUid[data.Uid] = true
-	// 	}
-	// }
+		p := 2
+		for ; p <= totalPage; p++ {
+			rankListInfoTmp, err := http.RankListInfo(roomid, userinfo.Data.Info.Uid, 1)
+			if err != nil {
+				logx.Error(err)
+				continue
+			}
+			rankListInfo.Data.OnlineRankItem = append(rankListInfo.Data.OnlineRankItem, rankListInfoTmp.Data.OnlineRankItem...)
+		}
+		for _, data := range rankListInfo.Data.OnlineRankItem {
+			// logx.Info(">>>>>>>", data)
+			if _, ok := topUid[data.Uid]; ok {
+				toplistalive++
+			}
+			otherSideUid[data.Uid] = true
+		}
+	}
 
 	// logx.Info("TTTTT ", otherSideUid)
 	//PushToBulletSender(fmt.Sprintf("当前对手:%v，%v船，%v粉,对面有%v名船长在线，高能榜%v人，榜前50贡献%v分", userinfo.Data.Info.Uname, listInfo.Data.Info.Num, userinfo.Data.FollowerNum, toplistalive, rankListInfo.Data.OnlineNum, rankcount))

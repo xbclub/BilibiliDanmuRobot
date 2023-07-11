@@ -5,20 +5,29 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
 	gogpt "github.com/sashabaranov/go-openai"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 func RequestChatgptRobot(msg string, svcCtx *svc.ServiceContext) (string, error) {
-	c := gogpt.NewClient(svcCtx.Config.ChatGPT.APIToken)
+	// c := gogpt.NewClient(svcCtx.Config.ChatGPT.APIToken)
+	cfg := gogpt.DefaultConfig(svcCtx.Config.ChatGPT.APIToken)
+	cfg.BaseURL = svcCtx.Config.ChatGPT.APIUrl
+	c := gogpt.NewClientWithConfig(cfg)
 	ctx := context.Background()
 	msgs := ""
+	prompt := svcCtx.Config.ChatGPT.Prompt
+	if svcCtx.Config.ChatGPT.Limit {
+		prompt += fmt.Sprintf(" 尽可能的在%v个字内回答", svcCtx.Config.DanmuLen)
+	}
 	req := gogpt.ChatCompletionRequest{
 		Model: gogpt.GPT3Dot5Turbo0613,
 		Messages: []gogpt.ChatCompletionMessage{
 			{
-				Role:    gogpt.ChatMessageRoleAssistant,
-				Content: fmt.Sprintf("你是一个非常幽默的机器人助理，尽可能的在%v个字符内回答，不要使用emoji等表情符号，可以使用颜文字", svcCtx.Config.DanmuLen),
+				Role: gogpt.ChatMessageRoleAssistant,
+				//Content: fmt.Sprintf("你是一个非常幽默的机器人助理，尽可能的在%v个字符内回答，不要使用emoji等表情符号，可以使用颜文字", svcCtx.Config.DanmuLen),
+				Content: prompt,
 			},
 			{
 				Role:    gogpt.ChatMessageRoleUser,
