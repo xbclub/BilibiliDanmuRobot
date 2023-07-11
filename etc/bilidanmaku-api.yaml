@@ -48,11 +48,14 @@ ChatGPT:
   Limit: true
 # 指定定时弹幕是否启用 true:开 false：关
 CronDanmu: false
+CronSupportSec: false
 # 指定定时弹幕列表
 CronDanmuList:
   # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
   # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
   # 弹幕列表前必须加 -, 无论是否有多条, 切记
+  # CronSupportSec开的时候, 应该是 30 * * * * * 表示每分钟的第30秒执行
+  # CronSupportSec关的时候, 应该是 */1 * * * *  表示每1分钟执行一次
   - Cron: "*/2 * * * *"
     Random: true
     Danmu:

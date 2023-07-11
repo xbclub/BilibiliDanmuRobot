@@ -276,9 +276,15 @@ func (l *Bili_danmakuLogic) StartBulletGirl(sendBulletCtx,
 func (l *Bili_danmakuLogic) danmustart() {
 	if l.svcCtx.Config.CronDanmuList != nil && len(l.svcCtx.Config.CronDanmuList) > 0 {
 		if corndanmu == nil {
-			corndanmu = cron.New(cron.WithParser(cron.NewParser(
-				cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
-			)))
+			if l.svcCtx.Config.CronSupportSec {
+				corndanmu = cron.New(cron.WithParser(cron.NewParser(
+					cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
+				)))
+			} else {
+				corndanmu = cron.New(cron.WithParser(cron.NewParser(
+					cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
+				)))
+			}
 		}
 		rand.Seed(time.Now().UnixNano())
 		for i, danmu := range l.svcCtx.Config.CronDanmuList {
