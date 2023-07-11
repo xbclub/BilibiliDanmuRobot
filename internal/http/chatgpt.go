@@ -4,8 +4,7 @@ import (
 	"bili_danmaku/internal/svc"
 	"bytes"
 	"context"
-	"strconv"
-	"strings"
+	"fmt"
 
 	gogpt "github.com/sashabaranov/go-openai"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -18,7 +17,10 @@ func RequestChatgptRobot(msg string, svcCtx *svc.ServiceContext) (string, error)
 	c := gogpt.NewClientWithConfig(cfg)
 	ctx := context.Background()
 	msgs := ""
-	prompt := strings.ReplaceAll(svcCtx.Config.ChatGPT.Prompt, "{limit}", strconv.Itoa(svcCtx.Config.DanmuLen))
+	prompt := svcCtx.Config.ChatGPT.Prompt
+	if svcCtx.Config.ChatGPT.Limit {
+		prompt += fmt.Sprintf(" 尽可能的在%v个字内回答", svcCtx.Config.DanmuLen)
+	}
 	req := gogpt.ChatCompletionRequest{
 		Model: gogpt.GPT3Dot5Turbo0613,
 		Messages: []gogpt.ChatCompletionMessage{

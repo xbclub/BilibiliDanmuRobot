@@ -28,6 +28,7 @@ type Config struct {
 		APIUrl   string `json:",default=https://api.openai.com/v1"`
 		APIToken string `json:",optional"`
 		Prompt   string `json:",default=你是一个非常幽默的机器人助理，尽可能的在{limit}个字符内回答，可以使用emoji表情符号，可以使用颜文字"`
+		Limit    bool   `json:",default=true"`
 	}
 	CronDanmu     bool `json:",default=false"`
 	CronDanmuList []struct {

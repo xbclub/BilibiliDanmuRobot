@@ -43,7 +43,9 @@ RobotMode: QingYunKe
 ChatGPT:
   APIToken: # 你的TOKEN
   APIUrl: # 你的代理地址, 如果没有, 可以删除这个配置项, 程序会使用默认的openai地址
-  Prompt: 你是一个非常幽默的机器人助理，尽可能的在{limit}个字符内回答，可以使用emoji表情，可以使用颜文字
+  Prompt: 你是一个非常幽默的机器人助理，可以使用emoji表情，可以使用颜文字
+  # 尽可能的限制在弹幕允许长度内
+  Limit: true
 # 指定定时弹幕是否启用 true:开 false：关
 CronDanmu: false
 # 指定定时弹幕列表
