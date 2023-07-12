@@ -18,6 +18,8 @@ WelcomeDanmu:
 EntryEffect: true
 # 礼物感谢
 ThanksGift: true
+# 礼物感谢频率(秒)
+ThanksGiftTimeout: 3
 # 手动发送弹幕开关
 CustomizeBullet: false
 #日志输出

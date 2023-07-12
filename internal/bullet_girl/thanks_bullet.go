@@ -1,6 +1,7 @@
 package bullet_girl
 
 import (
+	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"context"
 	"fmt"
@@ -24,7 +25,7 @@ func pushToGiftChan(g *entity.SendGiftText) {
 	thanksGiver.giftChan <- g
 }
 
-func ThanksGift(ctx context.Context) {
+func ThanksGift(ctx context.Context, svcCtx *svc.ServiceContext) {
 
 	thanksGiver = &GiftThanksGiver{
 		giftTable: make(map[string]map[string]map[string]int),
@@ -34,7 +35,7 @@ func ThanksGift(ctx context.Context) {
 	}
 
 	var g *entity.SendGiftText
-	var w = 3 * time.Second
+	var w = time.Duration(svcCtx.Config.ThanksGiftTimeout) * time.Second
 	var t = time.NewTimer(w)
 	defer t.Stop()
 
