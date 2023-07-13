@@ -18,6 +18,8 @@ WelcomeDanmu:
 EntryEffect: true
 # 礼物感谢
 ThanksGift: true
+# 礼物感谢频率(秒)
+ThanksGiftTimeout: 3
 # 手动发送弹幕开关
 CustomizeBullet: false
 #日志输出
@@ -53,6 +55,8 @@ CronDanmuList:
   # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
   # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
   # 弹幕列表前必须加 -, 无论是否有多条, 切记
+    # 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
+    # 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
   - Cron: "*/2 * * * *"
     Random: true
     Danmu:
@@ -185,8 +189,10 @@ WelcomeDanmuByTime:
 
 # 模糊匹配关键字, 只要名字中包含任意一条就不欢迎
 WelcomeBlacklistWide:
-  - "小妖网玩"
-  - "独家朲芞"
+  - "小妖网"
+  - "朲芞"
+  - "朲気"
+  - "朲氣"
 
 # 精确匹配关键字, 名字完全匹配才不欢迎
 WelcomeBlacklist:

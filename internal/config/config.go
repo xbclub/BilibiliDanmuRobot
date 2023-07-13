@@ -18,6 +18,7 @@ type Config struct {
 	EntryMsg           string            `json:",default=off"`
 	WelcomeDanmu       []string          `json:",default='欢迎 {user} ~'"`
 	ThanksGift         bool              `json:",default=false"`
+	ThanksGiftTimeout  int               `json:",default=3"`
 	CustomizeBullet    bool              `json:",default=false"`
 	InteractWord       bool              `json:",default=false"`
 	InteractWordByTime bool              `json:",default=false"`
@@ -27,10 +28,11 @@ type Config struct {
 	ChatGPT            struct {
 		APIUrl   string `json:",default=https://api.openai.com/v1"`
 		APIToken string `json:",optional"`
-		Prompt   string `json:",default=你是一个非常幽默的机器人助理，尽可能的在{limit}个字符内回答，可以使用emoji表情符号，可以使用颜文字"`
+		Prompt   string `json:",default=你是一个非常幽默的机器人助理，可以使用emoji表情符号，可以使用颜文字"`
 		Limit    bool   `json:",default=true"`
 	}
-	CronDanmu     bool `json:",default=false"`
+	CronDanmu bool `json:",default=false"`
+	// CronSupportSec bool `json:",default=false"`
 	CronDanmuList []struct {
 		Cron   string   `json:",optional"`
 		Random bool     `json:",default=false"`
