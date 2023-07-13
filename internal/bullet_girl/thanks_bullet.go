@@ -45,7 +45,7 @@ func ThanksGift(ctx context.Context, svcCtx *svc.ServiceContext) {
 			goto END
 		case <-t.C:
 			thanksGiver.locked.Lock()
-			summarizeGift()
+			summarizeGift(svcCtx.Config.DanmuLen)
 			thanksGiver.locked.Unlock()
 			t.Reset(w)
 		case g = <-thanksGiver.giftChan:
@@ -64,7 +64,7 @@ func ThanksGift(ctx context.Context, svcCtx *svc.ServiceContext) {
 END:
 }
 
-func summarizeGift() {
+func summarizeGift(danmuLen int) {
 	for name, m := range thanksGiver.giftTable {
 		sumCost := 0
 		giftstring := []string{}
@@ -77,16 +77,28 @@ func summarizeGift() {
 			// 感谢完后立刻清空map
 			delete(m, gift)
 		}
-		msg = "感谢 " + name + " 的"
-		PushToBulletSender(msg)
+
+		msgShort := ""
+
+		msg = "感谢" + name + "的"
 		for k, v := range giftstring {
 			if k == 0 {
-				msg = v
+				msg += v
+				msgShort = v
 			} else {
 				msg += "，" + v
+				msgShort += "，" + v
 			}
 		}
-		PushToBulletSender(msg)
+
+		ms := []rune(msg)
+		if len(ms) > danmuLen {
+			PushToBulletSender("感谢 " + name + " 的")
+			PushToBulletSender(msgShort)
+		} else {
+			PushToBulletSender(msg)
+		}
+
 		//fmt.Println("礼物-----", name, giftstring)
 		// 总打赏高于x元，加一句大气
 		if sumCost >= 50000 { // 50元

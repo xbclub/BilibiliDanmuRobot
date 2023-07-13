@@ -292,7 +292,7 @@ func shortName(uname string, alreadyLen, danmuLen int) string {
 	s := []rune(uname)
 	maxLen := (danmuLen - alreadyLen)
 	if len(s) > maxLen && maxLen > 0 {
-		return string(s[0:maxLen])
+		return string(s[0:maxLen-1]) + "…"
 	} else {
 		return uname
 	}
@@ -352,7 +352,7 @@ func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) 
 				if danmuCfg.Enabled && len(danmuCfg.Danmu) > 0 {
 					szWelcomOrig := danmuCfg.Danmu[rand.Intn(len(danmuCfg.Danmu))]
 
-					welcome := strings.ReplaceAll(szWelcomOrig, r, uname)
+					welcome := strings.ReplaceAll(szWelcomOrig, r, shortName(uname, 3, svcCtx.Config.DanmuLen))
 					rWelcome := []rune(welcome)
 					if len(rWelcome) > svcCtx.Config.DanmuLen {
 						szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r+", ", r+"\n")
@@ -388,7 +388,7 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 	} else {
 		szWelcomOrig := svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 
-		welcome := strings.ReplaceAll(szWelcomOrig, r, uname)
+		welcome := strings.ReplaceAll(szWelcomOrig, r, shortName(uname, 3, svcCtx.Config.DanmuLen))
 		rWelcome := []rune(welcome)
 		if len(rWelcome) > svcCtx.Config.DanmuLen {
 			szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r+", ", r+"\n")
