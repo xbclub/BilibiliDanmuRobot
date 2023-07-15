@@ -282,7 +282,7 @@ func (l *Program) StartBulletGirl(sendBulletCtx,
 	}
 	// 开启礼物感谢
 	if l.svcCtx.Config.ThanksGift {
-		go bullet_girl.ThanksGift(thanksGiftCtx)
+		go bullet_girl.ThanksGift(thanksGiftCtx, l.svcCtx)
 		logx.Info("礼物感谢已开启")
 	}
 

@@ -7,3 +7,4 @@ token
 node_modules
 .idea
 frontend/.idea
+frontend/wailsjs

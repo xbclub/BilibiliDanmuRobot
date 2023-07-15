@@ -298,3 +298,8 @@ type ConfigResponse struct {
 	Msg  string
 	Form config.Config
 }
+type UpdateResponse struct {
+	Version   string `json:"version"`
+	Link      string `json:"link"`
+	ChangeLog string `json:"changeLog"`
+}
