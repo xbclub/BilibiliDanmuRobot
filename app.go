@@ -12,13 +12,18 @@ import (
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
+	"io"
+	httpx "net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
 // App struct
 type App struct {
+	Vserion      string
 	ctx          context.Context
 	login        chan bool
 	loginurl     *types2.LoginUrl
@@ -29,9 +34,9 @@ type App struct {
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
+func NewApp(version string) *App {
 	http.InitHttpClient()
-	return &App{}
+	return &App{Vserion: version}
 }
 
 // startup is called when the app starts. The context is saved
@@ -282,6 +287,81 @@ func (l *App) ReadConfig() *ConfigResponse {
 	return resp
 }
 
+type UpdateResponse struct {
+	Version   string `json:"version"`
+	Link      string `json:"link"`
+	ChangeLog string `json:"changeLog"`
+}
+
+func (l *App) GetVersion() string {
+	return l.Vserion
+}
+func (l *App) CheckUpdate() *VersionResponse {
+	versionresp := VersionResponse{Code: 2}
+
+	resp, err := httpx.Get("https://danmuji.neuedu.work/getUpdate")
+	if err != nil {
+		logx.Error(err)
+		versionresp.Msg = "链接更新服务器失败"
+		return &versionresp
+	}
+	if resp.StatusCode != httpx.StatusOK {
+		logx.Error(resp.StatusCode)
+		versionresp.Msg = "链接更新服务器失败"
+		return &versionresp
+	}
+	updateResp := &UpdateResponse{}
+	err = json.NewDecoder(resp.Body).Decode(updateResp)
+	if err != nil {
+		logx.Error(err)
+		versionresp.Msg = "更信息读取失败"
+		return &versionresp
+	}
+	if l.Vserion == updateResp.Version {
+		versionresp.Code = 0
+		versionresp.Msg = "无需更新"
+		return &versionresp
+	}
+	versionresp.Code = 1
+	versionresp.Msg = updateResp.Version
+	versionresp.Content = updateResp.ChangeLog
+	return &versionresp
+}
+func (l *App) GetUpdateUpgrader() string {
+	resp, err := httpx.Get("https://danmuji.neuedu.work/getUpgraderUpdate")
+	if err != nil {
+		logx.Error(err)
+		return "链接更新服务器失败"
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == httpx.StatusOK {
+		updateResp := &UpdateResponse{}
+		err := json.NewDecoder(resp.Body).Decode(updateResp)
+		if err != nil {
+			logx.Error(err)
+			return "更信息读取失败"
+		}
+		err = downloadAndExtract(updateResp.Link)
+		if err != nil {
+			logx.Error("Error:", err)
+			return "下载更新程序失败"
+		}
+	} else {
+		logx.Errorf("Request failed with status code: %d\n", resp.StatusCode)
+		return "更新服务器链接失败"
+	}
+	go func() {
+		// 唤起upgrade.exe start是非阻塞 /B是隐藏窗口
+		cmd := exec.Command("cmd.exe", "/C", "start", "main.exe")
+		if err := cmd.Start(); err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("exit")
+		os.Exit(0)
+	}()
+	return "升级程序初始化成功，即将开始升级"
+}
+
 //	func (l *App) StartProgram() bool {
 //		err := l.program.Start()
 //		if err != nil {
@@ -298,8 +378,26 @@ type ConfigResponse struct {
 	Msg  string
 	Form config.Config
 }
-type UpdateResponse struct {
-	Version   string `json:"version"`
-	Link      string `json:"link"`
-	ChangeLog string `json:"changeLog"`
+type VersionResponse struct {
+	Code    int
+	Msg     string
+	Content string
+}
+
+func downloadAndExtract(link string) error {
+	resp, err := httpx.Get(link)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	extractedFile, err := os.OpenFile(filepath.Base("upgrader.exe"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+	defer extractedFile.Close()
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(extractedFile, resp.Body)
+	if err != nil {
+		return err
+	}
+	return nil
 }

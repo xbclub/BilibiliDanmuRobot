@@ -360,7 +360,7 @@ async function saveConfig() {
   } else {
     ElNotification({
       title: "保存失败",
-      message: "请修改配置知道保存正确为止，错误信息：" + data.savemsg,
+      message: "请修改配置直到保存正确为止，错误信息：" + data.savemsg,
       type: "error"
     });
   }

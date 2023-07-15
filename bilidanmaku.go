@@ -80,7 +80,7 @@ func init() {
 func main() {
 	// Create an instance of the app structure
 	logx.Info("当前版本:", Version)
-	app := NewApp()
+	app := NewApp(Version)
 	program := NewProgram()
 	//test := NewTest()
 	// Create application with options
