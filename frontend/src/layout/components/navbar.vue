@@ -11,7 +11,7 @@ import { onMounted, reactive, ref } from "vue";
 import MarkdownIt from "markdown-it";
 import {
   CheckUpdate,
-  GetloginStatus,
+  GetloginStatus, GetUpdateUpgrader,
   GetUserInfo,
   GetVersion,
   ReadConfig
@@ -91,7 +91,13 @@ const data = reactive({
 });
 function updateit(){
   data.updateloading = true;
-  GetUpdateUpgrader();
+  GetUpdateUpgrader().then(res=>{
+    ElNotification({
+      title: "更新器下载中",
+      message: "更新器下载中",
+      type: "success"
+    });
+  });
 }
 function checkupdates(isbutton) {
   CheckUpdate().then(res=>{

@@ -25,6 +25,7 @@ const data = reactive({
     InteractWord: true,
     EntryEffect: true,
     ThanksGift: true,
+    ThanksGiftTimeout: 3,
     WelcomeSwitch: true,
     WelcomeString: {
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
@@ -35,7 +36,10 @@ const data = reactive({
     RobotMode: "QingYunKe",
     FuzzyMatchCmd: false,
     ChatGPT: {
-      APIToken: ""
+      APIToken: "",
+      APIUrl: "",
+      Prompt: "",
+      Limit: false
     },
     FocusDanmu: [
       "啾咪~",
@@ -346,6 +350,10 @@ function deleteDanmu(item: number, row: number) {
 async function saveConfig() {
   data.savestatus = false;
   data.savemsg = "";
+  console.log(data.form.ChatGPT.APIUrl)
+  if (data.form.ChatGPT.APIUrl.length == 0) {
+    data.form.ChatGPT.APIUrl = "https://api.openai.com/v1";
+  }
   await WriteConfig(JSON.stringify(data.form)).then(res => {
     data.savestatus = res.Code;
     data.savemsg = res.Msg;
@@ -419,6 +427,9 @@ onMounted(() => {
       data.form = res.Form;
       formatWelcomeString();
       initWelcomeDanmuByTime();
+      if (data.form.ChatGPT.APIUrl.length == 0) {
+        data.form.ChatGPT.APIUrl = "https://api.openai.com/v1";
+      }
     }
   });
 });
@@ -445,6 +456,15 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="礼物感谢">
           <el-switch v-model="data.form.ThanksGift" />
+        </el-form-item>
+        <el-form-item label="礼物感谢频率" prop="RoomId">
+          <el-col :span="3">
+          <el-input v-model.number="data.form.ThanksGiftTimeout" >
+            <template #append>
+              <div class="input-append">秒</div>
+            </template>
+          </el-input>
+          </el-col>
         </el-form-item>
         <el-form-item label="PK提醒">
           <el-switch v-model="data.form.PKNotice" />
@@ -538,6 +558,15 @@ onMounted(() => {
         <el-form-item label="API KEY" v-if="data.form.RobotMode == 'ChatGPT'">
           <el-input v-model="data.form.ChatGPT.APIToken" />
         </el-form-item>
+        <el-form-item label="API URL" v-if="data.form.RobotMode == 'ChatGPT'">
+          <el-input v-model="data.form.ChatGPT.APIUrl" />
+        </el-form-item>
+        <el-form-item label="prompt" v-if="data.form.RobotMode == 'ChatGPT'">
+          <el-input v-model="data.form.ChatGPT.Prompt" />
+        </el-form-item>
+        <el-form-item label="弹幕长度限制" v-if="data.form.RobotMode == 'ChatGPT'">
+          <el-switch v-model="data.form.ChatGPT.Limit" />
+        </el-form-item>
       </el-tab-pane>
       <el-tab-pane label="关注答谢语" name="fifth">
         <el-form-item>
@@ -560,12 +589,23 @@ onMounted(() => {
           <el-switch v-model="data.form.CronDanmu" />
         </el-form-item>
         <el-form-item>
-          <el-tag>Tips1: 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/
+          <el-tag>Tips1: 定时弹幕corn表达式 格式为 秒 分 时 日 月 星期 其中秒是可选的 具体参考 https://tool.lu/crontab/
             中的linux格式（此格式支持windows使用）
+          </el-tag>
+
+        </el-form-item>
+        <el-form-item>
+          <el-tag>
+            Tips2: 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
           </el-tag>
         </el-form-item>
         <el-form-item>
-          <el-tag>Tips2: 随机开关打开表示随机发送列表中的一条弹幕, 关闭则是顺序发送</el-tag>
+          <el-tag>
+          Tips3: 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
+          </el-tag>
+        </el-form-item>
+        <el-form-item>
+          <el-tag>Tips4: 随机开关打开表示随机发送列表中的一条弹幕, 关闭则是顺序发送</el-tag>
         </el-form-item>
         <el-form-item>
           <el-button

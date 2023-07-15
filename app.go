@@ -352,7 +352,7 @@ func (l *App) GetUpdateUpgrader() string {
 	}
 	go func() {
 		// 唤起upgrade.exe start是非阻塞 /B是隐藏窗口
-		cmd := exec.Command("cmd.exe", "/C", "start", "main.exe")
+		cmd := exec.Command("cmd.exe", "/C", "start", "upgrader.exe")
 		if err := cmd.Start(); err != nil {
 			fmt.Println(err)
 		}
@@ -386,11 +386,12 @@ type VersionResponse struct {
 
 func downloadAndExtract(link string) error {
 	resp, err := httpx.Get(link)
+	logx.Info(link)
 	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
-	extractedFile, err := os.OpenFile(filepath.Base("upgrader.exe"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+	extractedFile, err := os.OpenFile(filepath.Base("upgrader.exe"), os.O_WRONLY|os.O_CREATE, 0755)
 	defer extractedFile.Close()
 	if err != nil {
 		return err
