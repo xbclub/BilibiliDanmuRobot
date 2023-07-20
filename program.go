@@ -42,6 +42,9 @@ type Program struct {
 func NewProgram() *Program {
 	return &Program{
 		mapCronDanmuSendIdx: make(map[int]int),
+		corndanmu: cron.New(cron.WithParser(cron.NewParser(
+			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
+		))),
 	}
 }
 
@@ -136,7 +139,6 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
-			t.Reset(interval)
 			if info, err = http.RoomInit(l.svcCtx.Config.RoomId); err != nil || err == errs.RoomIdNotExistErr {
 				logx.Infof("RoomInit错误：%v", err)
 				continue
@@ -185,47 +187,13 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				if l.pkCancel != nil {
 					l.pkCancel()
 				}
-				if l.corndanmu != nil {
-					l.danmustop()
-				}
+				l.danmustop()
 			}
+			t.Reset(interval)
 		}
 	}
 
 	return
-}
-func (l *Program) Bili_danmaku_Stop() {
-	defer func() {
-		if l.sendBulletCancel != nil {
-			l.sendBulletCancel()
-		}
-		if l.timingBulletCancel != nil {
-			l.timingBulletCancel()
-		}
-		if l.robotBulletCancel != nil {
-			l.robotBulletCancel()
-		}
-		if l.catchBulletCancel != nil {
-			l.catchBulletCancel()
-		}
-		if l.handleBulletCancel != nil {
-			l.handleBulletCancel()
-		}
-		if l.thankGiftCancel != nil {
-			if l.svcCtx.Config.ThanksGift {
-				l.thankGiftCancel()
-			}
-		}
-		if l.ineterractCancel != nil {
-			l.ineterractCancel()
-		}
-		if l.pkCancel != nil {
-			l.pkCancel()
-		}
-		if l.corndanmu != nil {
-			l.danmustop()
-		}
-	}()
 }
 func (l *Program) userlogin() error {
 	var err error
@@ -296,11 +264,6 @@ func (l *Program) StartBulletGirl(sendBulletCtx,
 // 定时弹幕功能
 func (l *Program) danmustart() {
 	if l.svcCtx.Config.CronDanmuList != nil && len(l.svcCtx.Config.CronDanmuList) > 0 {
-		if l.corndanmu == nil {
-			l.corndanmu = cron.New(cron.WithParser(cron.NewParser(
-				cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow,
-			)))
-		}
 		rand.Seed(time.Now().UnixNano())
 		for i, danmu := range l.svcCtx.Config.CronDanmuList {
 			if danmu.Danmu != nil {
@@ -329,8 +292,9 @@ func (l *Program) danmustart() {
 }
 
 func (l *Program) danmustop() {
-	l.corndanmu.Stop()
-	l.corndanmu = nil
+	for _, i := range l.corndanmu.Entries() {
+		l.corndanmu.Remove(i.ID)
+	}
 	logx.Info("定时弹幕已关闭")
 }
 
