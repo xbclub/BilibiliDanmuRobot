@@ -174,7 +174,7 @@ steps:
       - cp -r ../etc $outputpath
       - cp ../readme.md $outputpath
       - cd $outputpath
-      - md5sum BilibiliDanmuRobot
+      - md5sum BilibiliDanmuRobot.exe
       - zip -r  ../BilibiliDanmuRobot_Windows_arm64_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
@@ -202,7 +202,7 @@ steps:
       - cp -r ../etc $outputpath
       - cp ../readme.md $outputpath
       - cd $outputpath
-      - md5sum BilibiliDanmuRobot
+      - md5sum BilibiliDanmuRobot.exe
       - zip -r ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
@@ -230,7 +230,7 @@ steps:
       - cp -r ../etc $outputpath
       - cp ../readme.md $outputpath
       - cd $outputpath
-      - md5sum BilibiliDanmuRobot
+      - md5sum BilibiliDanmuRobot.exe
       - zip -r ../BilibiliDanmuRobot_Windows_x86_64_${DRONE_TAG}.zip ./*
       - cd ../../
       - rm -rf $outputpath
