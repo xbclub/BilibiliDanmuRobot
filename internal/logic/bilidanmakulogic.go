@@ -134,7 +134,7 @@ func (l *Bili_danmakuLogic) Bili_danmaku_Start() {
 				l.StartBulletGirl(sendBulletCtx,
 					//timingBulletCtx,
 					robotBulletCtx, catchBulletCtx, handleBulletCtx, thanksGiftCtx) // 开启弹幕姬
-			} else if info.Data.LiveStatus == types2.NotStarted && preStatus == types2.Live { // 由Live到NotStarted是下播
+			} else if info.Data.LiveStatus != types2.Live && preStatus == types2.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = types2.NotStarted
 				if sendBulletCancel != nil {
