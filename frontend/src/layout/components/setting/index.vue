@@ -242,61 +242,61 @@ onBeforeMount(() => {
       @change="dataThemeChange"
     />
 
-    <el-divider>导航栏模式</el-divider>
-    <ul class="pure-theme">
-      <el-tooltip
-        :effect="tooltipEffect"
-        class="item"
-        content="左侧模式"
-        placement="bottom"
-        popper-class="pure-tooltip"
-      >
-        <li
-          :class="layoutTheme.layout === 'vertical' ? 'is-select' : ''"
-          ref="verticalRef"
-          @click="setLayoutModel('vertical')"
-        >
-          <div />
-          <div />
-        </li>
-      </el-tooltip>
+<!--    <el-divider>导航栏模式</el-divider>-->
+<!--    <ul class="pure-theme">-->
+<!--      <el-tooltip-->
+<!--        :effect="tooltipEffect"-->
+<!--        class="item"-->
+<!--        content="左侧模式"-->
+<!--        placement="bottom"-->
+<!--        popper-class="pure-tooltip"-->
+<!--      >-->
+<!--        <li-->
+<!--          :class="layoutTheme.layout === 'vertical' ? 'is-select' : ''"-->
+<!--          ref="verticalRef"-->
+<!--          @click="setLayoutModel('vertical')"-->
+<!--        >-->
+<!--          <div />-->
+<!--          <div />-->
+<!--        </li>-->
+<!--      </el-tooltip>-->
 
-      <el-tooltip
-        v-if="device !== 'mobile'"
-        :effect="tooltipEffect"
-        class="item"
-        content="顶部模式"
-        placement="bottom"
-        popper-class="pure-tooltip"
-      >
-        <li
-          :class="layoutTheme.layout === 'horizontal' ? 'is-select' : ''"
-          ref="horizontalRef"
-          @click="setLayoutModel('horizontal')"
-        >
-          <div />
-          <div />
-        </li>
-      </el-tooltip>
+<!--      <el-tooltip-->
+<!--        v-if="device !== 'mobile'"-->
+<!--        :effect="tooltipEffect"-->
+<!--        class="item"-->
+<!--        content="顶部模式"-->
+<!--        placement="bottom"-->
+<!--        popper-class="pure-tooltip"-->
+<!--      >-->
+<!--        <li-->
+<!--          :class="layoutTheme.layout === 'horizontal' ? 'is-select' : ''"-->
+<!--          ref="horizontalRef"-->
+<!--          @click="setLayoutModel('horizontal')"-->
+<!--        >-->
+<!--          <div />-->
+<!--          <div />-->
+<!--        </li>-->
+<!--      </el-tooltip>-->
 
-      <el-tooltip
-        v-if="device !== 'mobile'"
-        :effect="tooltipEffect"
-        class="item"
-        content="混合模式"
-        placement="bottom"
-        popper-class="pure-tooltip"
-      >
-        <li
-          :class="layoutTheme.layout === 'mix' ? 'is-select' : ''"
-          ref="mixRef"
-          @click="setLayoutModel('mix')"
-        >
-          <div />
-          <div />
-        </li>
-      </el-tooltip>
-    </ul>
+<!--      <el-tooltip-->
+<!--        v-if="device !== 'mobile'"-->
+<!--        :effect="tooltipEffect"-->
+<!--        class="item"-->
+<!--        content="混合模式"-->
+<!--        placement="bottom"-->
+<!--        popper-class="pure-tooltip"-->
+<!--      >-->
+<!--        <li-->
+<!--          :class="layoutTheme.layout === 'mix' ? 'is-select' : ''"-->
+<!--          ref="mixRef"-->
+<!--          @click="setLayoutModel('mix')"-->
+<!--        >-->
+<!--          <div />-->
+<!--          <div />-->
+<!--        </li>-->
+<!--      </el-tooltip>-->
+<!--    </ul>-->
 
     <el-divider>主题色</el-divider>
     <ul class="theme-color">
@@ -386,20 +386,20 @@ onBeforeMount(() => {
       </li>
     </ul>
 
-    <el-divider />
-    <el-button
-      type="danger"
-      style="width: 90%; margin: 24px 15px"
-      @click="onReset"
-    >
-      <IconifyIconOffline
-        :icon="Logout"
-        width="15"
-        height="15"
-        style="margin-right: 4px"
-      />
-      清空缓存
-    </el-button>
+<!--    <el-divider />-->
+<!--    <el-button-->
+<!--      type="danger"-->
+<!--      style="width: 90%; margin: 24px 15px"-->
+<!--      @click="onReset"-->
+<!--    >-->
+<!--      <IconifyIconOffline-->
+<!--        :icon="Logout"-->
+<!--        width="15"-->
+<!--        height="15"-->
+<!--        style="margin-right: 4px"-->
+<!--      />-->
+<!--      清空缓存-->
+<!--    </el-button>-->
   </panel>
 </template>
 

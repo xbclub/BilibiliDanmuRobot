@@ -137,7 +137,7 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				bullet_girl.PushToBulletSender(ta)
 			}
 
-		// 每1分钟检查一次直播间是否开播
+		// 每10秒检查一次直播间是否开播
 		case <-t.C:
 			if info, err = http.RoomInit(l.svcCtx.Config.RoomId); err != nil || err == errs.RoomIdNotExistErr {
 				logx.Infof("RoomInit错误：%v", err)
@@ -158,7 +158,7 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				l.StartBulletGirl(l.sendBulletCtx,
 					//timingBulletCtx,
 					l.robotBulletCtx, l.catchBulletCtx, l.handleBulletCtx, l.thanksGiftCtx) // 开启弹幕姬
-			} else if info.Data.LiveStatus == types2.NotStarted && preStatus == types2.Live { // 由Live到NotStarted是下播
+			} else if info.Data.LiveStatus != types2.Live && preStatus == types2.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = types2.NotStarted
 				if l.sendBulletCancel != nil {
@@ -187,7 +187,10 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				if l.pkCancel != nil {
 					l.pkCancel()
 				}
-				l.danmustop()
+				if l.corndanmu != nil {
+					l.danmustop()
+				}
+				//l.danmustop()
 			}
 			t.Reset(interval)
 		}
