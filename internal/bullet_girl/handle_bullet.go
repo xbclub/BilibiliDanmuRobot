@@ -142,6 +142,8 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							Uid: entry.Data.Uid,
 							Msg: welcomeCaptain(entry.Data.CopyWriting),
 						})
+						// 加上一句欢迎语句
+						PushToBulletSender(getRandomWelcome(svcCtx))
 					}
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
@@ -271,10 +273,70 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 	}
 }
 
+func getRandomWelcome(svcCtx *svc.ServiceContext) string {
+	s := ""
+	if svcCtx.Config.InteractWordByTime &&
+		svcCtx.Config.WelcomeDanmuByTime != nil &&
+		len(svcCtx.Config.WelcomeDanmuByTime) > 0 {
+
+		now := time.Now().Hour()
+
+		key := ""
+		switch now {
+		case 0, 1:
+			// 午夜
+			key = "midnight"
+
+		case 2, 3, 4:
+			// 凌晨
+			key = "earlymorning"
+
+		case 5, 6, 7, 8:
+			// 早上
+			key = "morning"
+
+		case 9, 10:
+			// 上午
+			key = "latemorning"
+
+		case 11, 12, 13:
+			// 中午
+			key = "noon"
+
+		case 14, 15, 16, 17, 18, 19:
+			// 下午
+			key = "afternoon"
+
+		case 20, 21, 22, 23:
+			// 晚上
+			key = "night"
+		}
+
+		for _, danmuCfg := range svcCtx.Config.WelcomeDanmuByTime {
+			if danmuCfg.Key == key {
+				if danmuCfg.Enabled && len(danmuCfg.Danmu) > 0 {
+					s = danmuCfg.Danmu[rand.Intn(len(danmuCfg.Danmu))]
+				} else {
+					s = svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
+				}
+				break
+			}
+		}
+	} else {
+		s = svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
+	}
+	if len(s) == 0 {
+		s = svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
+	}
+	return s
+}
+
 // 欢迎舰长语句
 func welcomeCaptain(s string) string {
 	s = strings.Replace(s, "\u003c%", "", 1)
 	s = strings.Replace(s, "%\u003e", "", 1)
+
+	s = strings.ReplaceAll(s, "进入直播间", "")
 
 	return s
 }
