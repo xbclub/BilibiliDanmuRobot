@@ -299,6 +299,10 @@ func shortName(uname string, alreadyLen, danmuLen int) string {
 }
 
 func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) string {
+
+	if _, ook := otherSideUid[uid]; ook {
+		return handleInterract(uid, uname, svcCtx)
+	}
 	// 凌晨 - Early morning   2:00--5:00
 	// 早晨 - Morning   5:00--9:00
 	// 上午 - Late morning / Mid-morning  9:00--11:00
