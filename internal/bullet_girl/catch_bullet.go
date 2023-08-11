@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	http2 "net/http"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 	"time"
@@ -46,10 +47,13 @@ const (
 )
 
 type CertificationPackageBody struct {
-	RoomId int    `json:"roomid"`
-	Uid    int64  `json:"uid"`
-	Key    string `json:"key"`
-	//Protover int8   `json:"protover"`
+	RoomId   int    `json:"roomid"`
+	Uid      int64  `json:"uid"`
+	Key      string `json:"key"`
+	Protover int8   `json:"protover"`
+	Buvid    string `json:"buvid,optional"`
+	Platform string `json:"platform,default=web"`
+	Type     int8   `json:"type,default=2"`
 }
 
 // 生成数据包头部
@@ -145,7 +149,10 @@ func StartCatchBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 	// 连接ws服务器
 	//logx.Debug(fmt.Sprintf("wss://%v:%v/sub", token.Data.HostList[0].Host, token.Data.HostList[0].WssPort))
 	//if conn, _, err = websocket.DefaultDialer.Dial(fmt.Sprintf("wss://%v:%v/sub", token.Data.HostList[0].Host, token.Data.HostList[0].WssPort), nil); err != nil {
-	if conn, _, err = websocket.DefaultDialer.Dial(svcCtx.Config.WsServerUrl, nil); err != nil {
+	header := http2.Header{}
+	header.Set("Origin", "https://live.bilibili.com")
+	header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.200")
+	if conn, _, err = websocket.DefaultDialer.Dial(svcCtx.Config.WsServerUrl, header); err != nil {
 		logx.Errorf("websocket连接失败：%v", err)
 		return
 	}
