@@ -143,7 +143,10 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 							Msg: welcomeCaptain(entry.Data.CopyWriting),
 						})
 						// 加上一句欢迎语句
-						PushToBulletSender(getRandomWelcome(svcCtx))
+						pushToInterractChan(&InterractData{
+							Uid: entry.Data.Uid + 1,
+							Msg: getRandomWelcome(svcCtx),
+						})
 					}
 
 				// 欢迎进入房间（该功能会欢迎所有进入房间的人，可能会造成刷屏）
@@ -328,6 +331,12 @@ func getRandomWelcome(svcCtx *svc.ServiceContext) string {
 	if len(s) == 0 {
 		s = svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 	}
+
+	r := "欢迎 {user}"
+	s = strings.ReplaceAll(s, r+", ", "")
+	s = strings.ReplaceAll(s, r+",", "")
+	s = strings.ReplaceAll(s, r+"，", "")
+
 	return s
 }
 
