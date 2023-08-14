@@ -3,6 +3,7 @@ package bullet_girl
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"strings"
 	"sync"
 	"time"
 )
@@ -67,8 +68,11 @@ func Interact(ctx context.Context) {
 			if value, ok := interractGiver.interractFilter[g.Uid]; ok && value.Add(w).Unix() >= time.Now().Unix() {
 				logx.Debugf("用户 %v 10秒内重复欢迎已被过滤", g.Uid)
 			} else {
-				PushToBulletSender(g.Msg)
-				logx.Debug(g.Msg)
+				parts := strings.Split(g.Msg, "\n")
+				for _, s := range parts {
+					PushToBulletSender(s)
+					logx.Debug(s)
+				}
 				interractGiver.interractFilter[g.Uid] = time.Now()
 			}
 			interractGiver.locked.Unlock()

@@ -12,6 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"math/rand"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -127,7 +128,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
-
+					// 实时输出弹幕消息
 					logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
 
 				// 进场特效欢迎
@@ -137,15 +138,10 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(entry.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok && svcCtx.Config.EntryEffect {
 						PushToBulletSender(v)
 					} else if svcCtx.Config.EntryEffect {
-						//PushToBulletSender(welcomeCaptain(entry.Data.CopyWriting))
+						logx.Info("特效欢迎")
 						pushToInterractChan(&InterractData{
 							Uid: entry.Data.Uid,
-							Msg: welcomeCaptain(entry.Data.CopyWriting),
-						})
-						// 加上一句欢迎语句
-						pushToInterractChan(&InterractData{
-							Uid: entry.Data.Uid + 1,
-							Msg: getRandomWelcome(svcCtx),
+							Msg: getRandomWelcome(entry.Data.CopyWriting, svcCtx),
 						})
 					}
 
@@ -163,20 +159,11 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 								!in(interact.Data.Uname, svcCtx.Config.WelcomeBlacklist) {
 								if svcCtx.Config.InteractWordByTime {
 									msg := handleInterractByTime(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx)
-									ms := strings.Split(msg, "\n")
-									if len(ms) > 1 {
-										for i, s := range ms {
-											pushToInterractChan(&InterractData{
-												Uid: interact.Data.Uid + int64(i),
-												Msg: s,
-											})
-										}
-									} else {
-										pushToInterractChan(&InterractData{
-											Uid: interact.Data.Uid,
-											Msg: msg,
-										})
-									}
+									logx.Alert(msg)
+									pushToInterractChan(&InterractData{
+										Uid: interact.Data.Uid,
+										Msg: msg,
+									})
 								} else {
 									msg := handleInterract(interact.Data.Uid, welcomeInteract(interact.Data.Uname), svcCtx)
 									ms := strings.Split(msg, "\n")
@@ -276,44 +263,48 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 	}
 }
 
-func getRandomWelcome(svcCtx *svc.ServiceContext) string {
+// 从分时段弹幕列表里获取当前时间对应的时间KEY
+func getRandomDanmuKeyByTime() (key string) {
+	now := time.Now().Hour()
+	switch now {
+	case 0, 1:
+		// 午夜
+		key = "midnight"
+
+	case 2, 3, 4:
+		// 凌晨
+		key = "earlymorning"
+
+	case 5, 6, 7, 8:
+		// 早上
+		key = "morning"
+
+	case 9, 10:
+		// 上午
+		key = "latemorning"
+
+	case 11, 12, 13:
+		// 中午
+		key = "noon"
+
+	case 14, 15, 16, 17, 18, 19:
+		// 下午
+		key = "afternoon"
+
+	case 20, 21, 22, 23:
+		// 晚上
+		key = "night"
+	}
+	return key
+}
+func getRandomWelcome(msg string, svcCtx *svc.ServiceContext) string {
 	s := ""
+	content := ""
 	if svcCtx.Config.InteractWordByTime &&
 		svcCtx.Config.WelcomeDanmuByTime != nil &&
 		len(svcCtx.Config.WelcomeDanmuByTime) > 0 {
 
-		now := time.Now().Hour()
-
-		key := ""
-		switch now {
-		case 0, 1:
-			// 午夜
-			key = "midnight"
-
-		case 2, 3, 4:
-			// 凌晨
-			key = "earlymorning"
-
-		case 5, 6, 7, 8:
-			// 早上
-			key = "morning"
-
-		case 9, 10:
-			// 上午
-			key = "latemorning"
-
-		case 11, 12, 13:
-			// 中午
-			key = "noon"
-
-		case 14, 15, 16, 17, 18, 19:
-			// 下午
-			key = "afternoon"
-
-		case 20, 21, 22, 23:
-			// 晚上
-			key = "night"
-		}
+		key := getRandomDanmuKeyByTime()
 
 		for _, danmuCfg := range svcCtx.Config.WelcomeDanmuByTime {
 			if danmuCfg.Key == key {
@@ -332,23 +323,36 @@ func getRandomWelcome(svcCtx *svc.ServiceContext) string {
 		s = svcCtx.Config.WelcomeDanmu[rand.Intn(len(svcCtx.Config.WelcomeDanmu))]
 	}
 
-	r := "欢迎 {user}"
-	s = strings.ReplaceAll(s, r+", ", "")
-	s = strings.ReplaceAll(s, r+",", "")
-	s = strings.ReplaceAll(s, r+"，", "")
+	// 定义正则表达式
+	re := regexp.MustCompile(`<%(.*?)%>`)
 
+	// 提取匹配的部分
+	matches := re.FindAllStringSubmatch(msg, -1)
+	// 遍历匹配结果
+	for _, match := range matches {
+		content = match[1]
+		break
+	}
+	if strings.Contains(msg, "舰长") {
+		content = "舰长" + content
+	}
+	r := "{user}"
+	s = strings.ReplaceAll(s, r+", ", r+"\n")
+	s = strings.ReplaceAll(s, r+",", r+"\n")
+	s = strings.ReplaceAll(s, r+"，", r+"\n")
+	s = strings.ReplaceAll(s, r, content)
 	return s
 }
 
 // 欢迎舰长语句
-func welcomeCaptain(s string) string {
-	s = strings.Replace(s, "\u003c%", "", 1)
-	s = strings.Replace(s, "%\u003e", "", 1)
-
-	s = strings.ReplaceAll(s, "进入直播间", "")
-
-	return s
-}
+//func welcomeCaptain(s string) string {
+//	s = strings.Replace(s, "\u003c%", "", 1)
+//	s = strings.Replace(s, "%\u003e", "", 1)
+//
+//	s = strings.ReplaceAll(s, "进入直播间", "")
+//
+//	return s
+//}
 
 func welcomeInteract(name string) string {
 	if strings.Contains(name, "欢迎") {
@@ -389,38 +393,7 @@ func handleInterractByTime(uid int64, uname string, svcCtx *svc.ServiceContext) 
 		svcCtx.Config.WelcomeDanmuByTime != nil &&
 		len(svcCtx.Config.WelcomeDanmuByTime) > 0 {
 
-		now := time.Now().Hour()
-
-		key := ""
-		switch now {
-		case 0, 1:
-			// 午夜
-			key = "midnight"
-
-		case 2, 3, 4:
-			// 凌晨
-			key = "earlymorning"
-
-		case 5, 6, 7, 8:
-			// 早上
-			key = "morning"
-
-		case 9, 10:
-			// 上午
-			key = "latemorning"
-
-		case 11, 12, 13:
-			// 中午
-			key = "noon"
-
-		case 14, 15, 16, 17, 18, 19:
-			// 下午
-			key = "afternoon"
-
-		case 20, 21, 22, 23:
-			// 晚上
-			key = "night"
-		}
+		key := getRandomDanmuKeyByTime()
 
 		for _, danmuCfg := range svcCtx.Config.WelcomeDanmuByTime {
 			if danmuCfg.Key == key {
