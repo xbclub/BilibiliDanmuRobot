@@ -334,7 +334,7 @@ func getRandomWelcome(msg string, svcCtx *svc.ServiceContext) string {
 		break
 	}
 	if strings.Contains(msg, "舰长") {
-		content = "舰长" + content
+		content = "舰长 " + content
 	}
 	r := "{user}"
 	s = strings.ReplaceAll(s, r+", ", r+"\n")
