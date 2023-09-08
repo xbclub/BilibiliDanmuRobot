@@ -31,8 +31,9 @@ const (
 	//welcomeGuard         Cmd     = "WELCOME_GUARD" // 欢迎xxx老爷
 	entryEffect Cmd = "ENTRY_EFFECT" // 欢迎舰长进入房间
 	//welcome              Cmd     = "WELCOME"       // 欢迎xxx进入房间
-	interactWord Cmd = "INTERACT_WORD" // 进入房间
-	sendGift     Cmd = "SEND_GIFT"     // 发现送礼物
+	interactWord Cmd = "INTERACT_WORD"  // 进入房间
+	sendGift     Cmd = "SEND_GIFT"      // 发现送礼物
+	blockUser    Cmd = "ROOM_BLOCK_MSG" // 指定观众禁言
 )
 
 // 关于数据包格式的常量

@@ -193,8 +193,19 @@ WelcomeBlacklistWide:
   - "朲芞"
   - "朲気"
   - "朲氣"
+  - "朲"
 
 # 精确匹配关键字, 名字完全匹配才不欢迎
 WelcomeBlacklist:
   - "小妖网玩"
   - "独家朲芞"
+
+# 关键字回复功能开关
+KeywordReply: true
+# 关键字回复列表
+KeywordReplyList: {
+  "测试": "这是一个测试弹幕发送...",
+  "哎呦": "不错哦~"
+}
+# 是否显示 XX被禁言 的功能开关
+ShowBlockMsg: true

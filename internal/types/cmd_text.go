@@ -10,8 +10,9 @@ type DanmuMsgText struct {
 
 type EntryEffectText struct {
 	Data struct {
-		Uid         int64  `json:"uid"`
-		CopyWriting string `json:"copy_writing"`
+		Uid           int64  `json:"uid"`
+		CopyWriting   string `json:"copy_writing"`
+		CopyWritingV2 string `json:"copy_writing_v2"`
 	} `json:"data"`
 }
 
@@ -120,5 +121,17 @@ type RankListInfo struct {
 		} `json:"ownInfo"`
 		TipsText  string `json:"tips_text"`
 		ValueText string `json:"value_text"`
+	} `json:"data"`
+}
+
+type RoomBlockMsg struct {
+	Cmd   string `json:"cmd"`
+	Uid   string `json:"uid"`
+	UName string `json:"uname"`
+	Data  struct {
+		Uid      int    `json:"uid"`
+		UName    string `json:"uname"`
+		DmScore  int    `json:"dmscore"`
+		Operator int    `json:"operator"`
 	} `json:"data"`
 }

@@ -1,6 +1,7 @@
 package bullet_girl
 
 import (
+	"bili_danmaku/internal/http"
 	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"bytes"
@@ -115,20 +116,46 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					_ = json.Unmarshal(body, danmu)
 					from := danmu.Info[2].([]interface{})
 
-					// @帮助 打出来关键词
-					if strings.Compare("@帮助", danmu.Info[1].(string)) == 0 {
-						s := fmt.Sprintf("发送带有 %s 的弹幕和我互动", svcCtx.Config.TalkRobotCmd)
-						logx.Info(s)
-						PushToBulletSender(" ")
-						PushToBulletSender(s)
-						PushToBulletSender("请尽情调戏我吧!")
-					}
+					for {
+						// @帮助 打出来关键词
+						if strings.Compare("@帮助", danmu.Info[1].(string)) == 0 {
+							s := fmt.Sprintf("发送带有 %s 的弹幕和我互动", svcCtx.Config.TalkRobotCmd)
+							logx.Info(s)
+							PushToBulletSender(" ")
+							PushToBulletSender(s)
+							PushToBulletSender("请尽情调戏我吧!")
 
-					uid := fmt.Sprintf("%.0f", from[0].(float64))
-					// 如果发现弹幕在@我，那么调用机器人进行回复
-					y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
-					if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
-						PushToBulletRobot(content)
+							break
+						}
+
+						uid := fmt.Sprintf("%.0f", from[0].(float64))
+						userId, ok := http.CookieList["DedeUserID"]
+						// 关键字回复
+						if svcCtx.Config.KeywordReply &&
+							svcCtx.Config.KeywordReplyList != nil &&
+							len(svcCtx.Config.KeywordReplyList) > 0 &&
+							userId != uid && ok {
+
+							hit := false
+
+							for k, v := range svcCtx.Config.KeywordReplyList {
+								if strings.Contains(danmu.Info[1].(string), k) {
+									PushToBulletSender(v)
+									hit = true
+									break
+								}
+							}
+							if hit {
+								break
+							}
+						}
+
+						// 如果发现弹幕在@我，那么调用机器人进行回复
+						y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
+						if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
+							PushToBulletRobot(content)
+						}
+						break
 					}
 					// 实时输出弹幕消息
 					logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
@@ -243,6 +270,26 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					// 清空串门列表
 					for k := range otherSideUid {
 						delete(otherSideUid, k)
+					}
+
+				case blockUser:
+					if svcCtx.Config.ShowBlockMsg {
+						info := &entity.RoomBlockMsg{}
+						logx.Info(string(body))
+						err := json.Unmarshal(body, info)
+						if err != nil {
+							logx.Error(err)
+							logx.Errorf("禁言数据解析失败:%s", string(body))
+							return
+						}
+						op := ""
+						if info.Data.Operator == 2 {
+							op = "禁言"
+						} else {
+							op = "解开禁言"
+						}
+						s := fmt.Sprintf("用户 %s 被管理员 %s!", info.Data.UName, op)
+						PushToBulletSender(s)
 					}
 
 				default:

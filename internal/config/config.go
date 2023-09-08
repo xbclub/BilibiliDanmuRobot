@@ -44,8 +44,11 @@ type Config struct {
 		Random  bool     `json:",default=false"`
 		Danmu   []string `json:",optional"`
 	} `json:",optional"`
-	FocusDanmu           []string `json:",optional"`
-	PKNotice             bool     `json:",default=true"`
-	WelcomeBlacklistWide []string `json:",optional"`
-	WelcomeBlacklist     []string `json:",optional"`
+	FocusDanmu           []string          `json:",optional"`
+	PKNotice             bool              `json:",default=true"`
+	WelcomeBlacklistWide []string          `json:",optional"`
+	WelcomeBlacklist     []string          `json:",optional"`
+	KeywordReply         bool              `json:",default=false"`
+	KeywordReplyList     map[string]string `json:",optional"`
+	ShowBlockMsg         bool              `json:",default=false"`
 }
