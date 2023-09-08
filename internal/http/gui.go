@@ -10,6 +10,38 @@ import (
 	"time"
 )
 
+func GetSPI() (spiInfo *entity.SPIInfo) {
+	var resp *resty.Response
+	spiInfo = new(entity.SPIInfo)
+	var url = "https://api.bilibili.com/x/frontend/finger/spi"
+	var err error
+
+	err = retry.Do(func() error {
+		if resp, err = cli.R().
+			SetHeader("user-agent", userAgent).
+			SetHeader("cookie", CookieStr).
+			Get(url); err != nil {
+			return err
+		}
+		logx.Debug(string(resp.Body()))
+		if err = json.Unmarshal(resp.Body(), spiInfo); err != nil {
+			logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
+			return err
+		}
+		return nil
+	}, retry.Attempts(3), retry.Delay(1*time.Second))
+	if err != nil {
+		logx.Error(err)
+		return
+	}
+	if spiInfo.Code == -101 {
+		logx.Info("用户未登录")
+		return spiInfo
+	}
+
+	return spiInfo
+}
+
 func GetUserInfo() (userinfo *entity.UserinfoLite) {
 	var resp *resty.Response
 	userinfo = new(entity.UserinfoLite)

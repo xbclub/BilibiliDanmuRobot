@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	http2 "net/http"
+	"strconv"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 	"time"
@@ -56,6 +57,8 @@ type CertificationPackageBody struct {
 	Type     int8   `json:"type,default=2"`
 }
 
+var sendHeartImmediately = make(chan int)
+
 // 生成数据包头部
 func GeneratePackageHead(bodyLength uint32, opcode Opcode) ([]byte, error) {
 	var err error
@@ -86,16 +89,20 @@ func GeneratePackageHead(bodyLength uint32, opcode Opcode) ([]byte, error) {
 }
 
 // 生成请求数据包，由包头和正文组成
-func GenerateCertificationPackage(svcCtx *svc.ServiceContext, token string, uid int64) ([]byte, error) {
+func GenerateCertificationPackage(svcCtx *svc.ServiceContext, token string, uid int64, buvid string) ([]byte, error) {
 	var err error
 	var head []byte
 	var body []byte
 
+	uid = 0
 	cpb := &CertificationPackageBody{
-		RoomId: svcCtx.Config.RoomId,
-		Key:    token,
-		Uid:    uid,
-		//Protover: 3,
+		RoomId:   svcCtx.Config.RoomId,
+		Key:      token,
+		Uid:      uid,
+		Buvid:    buvid,
+		Protover: 3,
+		Platform: "android",
+		Type:     2,
 	}
 	body, _ = json.Marshal(cpb)
 	logx.Debug(string(body))
@@ -106,26 +113,40 @@ func GenerateCertificationPackage(svcCtx *svc.ServiceContext, token string, uid 
 	return append(head[:], body[:]...), nil
 }
 
-// 30s发送一次心跳包
-func StartHeartBeat(ctx context.Context, conn *websocket.Conn) {
+func SendHeartImmediately() {
+	sendHeartImmediately <- 1
+}
+
+func sendHeart(conn *websocket.Conn) {
 	var hb []byte
 	var err error
+	body := []byte("[object Object]")
+	if hb, err = GeneratePackageHead(uint32(len(body)), heartBeat); err != nil {
+		logx.Errorf("心跳包组装错误：%v", err)
+	}
+	hearPkg := append(hb[:], body[:]...)
+	if err = conn.WriteMessage(websocket.BinaryMessage, hearPkg); err != nil {
+		logx.Errorf("发送心跳包失败：%v", err)
+		return
+	}
+}
+
+// 30s发送一次心跳包
+func StartHeartBeat(ctx context.Context, conn *websocket.Conn) {
+
 	t := time.NewTimer(30 * time.Second)
 	defer t.Stop()
 	for {
 		select {
 		case <-ctx.Done():
 			goto END
+		case <-sendHeartImmediately:
+			// 心跳包
+			sendHeart(conn)
 		case <-t.C:
 			t.Reset(30 * time.Second)
-			// 心跳包无正文
-			if hb, err = GeneratePackageHead(0, heartBeat); err != nil {
-				logx.Errorf("心跳包组装错误：%v", err)
-			}
-			if err = conn.WriteMessage(websocket.BinaryMessage, hb); err != nil {
-				logx.Errorf("发送心跳包失败：%v", err)
-				return
-			}
+			// 心跳包
+			sendHeart(conn)
 		}
 	}
 END:
@@ -146,13 +167,24 @@ func StartCatchBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 		logx.Error("获取登录用户uid失败")
 		return
 	}
-	// 连接ws服务器
-	//logx.Debug(fmt.Sprintf("wss://%v:%v/sub", token.Data.HostList[0].Host, token.Data.HostList[0].WssPort))
-	//if conn, _, err = websocket.DefaultDialer.Dial(fmt.Sprintf("wss://%v:%v/sub", token.Data.HostList[0].Host, token.Data.HostList[0].WssPort), nil); err != nil {
+
+	spi := http.GetSPI()
+	if spi == nil {
+		logx.Error("获取登录用户bvuid失败")
+		return
+	}
+
 	header := http2.Header{}
 	header.Set("Origin", "https://live.bilibili.com")
-	header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.200")
-	if conn, _, err = websocket.DefaultDialer.Dial(svcCtx.Config.WsServerUrl, header); err != nil {
+	header.Set("User-Agent", http.UserAgent)
+	wsAddr := ""
+	if len(token.Data.HostList) > 0 {
+		wsAddr = "wss://" + token.Data.HostList[0].Host + ":" + strconv.Itoa(token.Data.HostList[0].WssPort) + "/sub"
+	} else {
+		wsAddr = svcCtx.Config.WsServerUrl
+	}
+	logx.Info("连接地址:", wsAddr)
+	if conn, _, err = websocket.DefaultDialer.Dial(wsAddr, header); err != nil {
 		logx.Errorf("websocket连接失败：%v", err)
 		return
 	}
@@ -164,7 +196,7 @@ func StartCatchBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 	}(conn)
 
 	// 组装认证包
-	if cert, err = GenerateCertificationPackage(svcCtx, token.Data.Token, user.Uid); err != nil {
+	if cert, err = GenerateCertificationPackage(svcCtx, token.Data.Token, user.Uid, spi.Data.B3); err != nil {
 		logx.Errorf("组装认证包错误：%v", err)
 		return
 	}

@@ -16,6 +16,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/andybalholm/brotli"
 )
 
 var handler *BulletHandler
@@ -149,7 +151,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 				case interactWord:
 					interact := &entity.InteractWordText{}
 					_ = json.Unmarshal(body, interact)
-					// 1 进场 2 关注
+					// 1 进场 2 关注 3 分享
 					if interact.Data.MsgType == 1 {
 						if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 							PushToBulletSender(v)
@@ -243,21 +245,36 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 						delete(otherSideUid, k)
 					}
 
-					//default:
-					//	logx.Debug("---------------------")
-					//	logx.Debug(text.Cmd)
-					//	logx.Debug(string(body))
-					//	logx.Debug("---------------------")
+				default:
+					logx.Debug("---------------------")
+					logx.Debug(text.Cmd)
+					logx.Debug(string(body))
+					logx.Debug("---------------------")
 				}
 			}
 		case heartOrCertification:
 			logx.Infof("心跳回复包")
+			if len(message) > index+int(length) {
+				index += 15 //[object Object]
+			} else {
+				SendHeartImmediately()
+			}
 		case normalZlib:
 			b := bytes.NewReader(body)
 			r, _ := zlib.NewReader(b)
 			var out bytes.Buffer
 			_, _ = io.Copy(&out, r)
 			handle(out.Bytes(), svcCtx) // zlib解压后再进行格式解析
+
+		case 3:
+			b := bytes.NewReader(body)
+			r := brotli.NewReader(b)
+			var out bytes.Buffer
+			_, _ = io.Copy(&out, r)
+			handle(out.Bytes(), svcCtx) // zlib解压后再进行格式解析
+
+		default:
+			logx.Infof(">>>>>>>> 收到不知道的数据数据!!! %d", ver)
 		}
 		index += int(length)
 	}
@@ -442,9 +459,11 @@ func handleInterract(uid int64, uname string, svcCtx *svc.ServiceContext) string
 			szWelcomTmp := strings.ReplaceAll(szWelcomOrig, r+", ", r+"\n")
 			szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+",", r+"\n")
 			szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r+"，", r+"\n")
+			szWelcomTmp = strings.ReplaceAll(szWelcomTmp, r, r+"\n")
 			return strings.ReplaceAll(szWelcomTmp, r, uname)
 		} else {
 			return welcome
 		}
+
 	}
 }
