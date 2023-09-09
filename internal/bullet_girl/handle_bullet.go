@@ -266,7 +266,7 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 
 					}
 
-				case "PK_BATTLE_END", "PK_END", "PK_BATTLE_CRIT":
+				case "PK_BATTLE_END", "PK_BATTLE_SETTLE_NEW", "PK_END", "PK_BATTLE_CRIT":
 					// 清空串门列表
 					for k := range otherSideUid {
 						delete(otherSideUid, k)
