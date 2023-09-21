@@ -1,32 +1,71 @@
 package bullet_girl
 
 import (
+	"bili_danmaku/internal/http"
 	"bili_danmaku/internal/svc"
 	entity "bili_danmaku/internal/types"
 	"bytes"
 	"compress/zlib"
 	"context"
+	"database/sql"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/andybalholm/brotli"
+	"github.com/liuzl/gocc"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/pemistahl/lingua-go"
+	"github.com/ulinoyaped/BaiduTranslate"
 	"github.com/zeromicro/go-zero/core/logx"
+	"golang.org/x/time/rate"
 	"io"
 	"math/rand"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/andybalholm/brotli"
+	"unicode"
 )
 
 var handler *BulletHandler
 
+var limiter = rate.NewLimiter(1, 60)
 var otherSideUid map[int64]bool = make(map[int64]bool)
 var topUid map[int64]bool = make(map[int64]bool)
 
 type BulletHandler struct {
 	BulletChan chan []byte
+}
+
+type RareWord struct {
+	word   string
+	pinyin string
+}
+
+func getRareWord(word string, pRareWord *RareWord) bool {
+	// 打开数据库连接
+	db, err := sql.Open("sqlite3", "etc/word.sqlite")
+	if err == nil {
+		defer db.Close()
+		// 查询数据
+		rows, err := db.Query("SELECT * FROM rare_words WHERE word = ?", word) //"亝")
+		if err == nil {
+			defer rows.Close()
+			// 判断是否找到
+			if rows.Next() {
+				// 输出结果
+				err = rows.Scan(&pRareWord.word, &pRareWord.pinyin)
+				if err == nil {
+					return true
+				} else {
+					panic(err)
+				}
+			}
+		} else {
+			panic(err)
+		}
+	}
+	return false
 }
 
 func pushToBulletHandler(message []byte) {
@@ -38,13 +77,32 @@ func HandleBullet(ctx context.Context, svcCtx *svc.ServiceContext) {
 		BulletChan: make(chan []byte, 1000),
 	}
 
+	languages := []lingua.Language{
+		lingua.English,
+		lingua.French,
+		lingua.German,
+		lingua.Spanish,
+		lingua.Chinese,
+		lingua.Japanese,
+		lingua.Russian,
+		lingua.Korean,
+	}
+
+	detector := lingua.NewLanguageDetectorBuilder().FromLanguages(languages...).Build()
+	pBaiduInfo := new(BaiduTranslate.BaiduInfo)
+
+	if svcCtx.Config.ForeignLanguageTranslationInChinese.Enabled {
+		pBaiduInfo.AppID = svcCtx.Config.ForeignLanguageTranslationInChinese.AppID
+		pBaiduInfo.SecretKey = svcCtx.Config.ForeignLanguageTranslationInChinese.SecretKey
+	}
+
 	var message []byte
 	for {
 		select {
 		case <-ctx.Done():
 			goto END
 		case message = <-handler.BulletChan:
-			handle(message, svcCtx)
+			handle(message, svcCtx, &detector, pBaiduInfo)
 		}
 	}
 END:
@@ -70,7 +128,7 @@ func inWide(target string, src []string) bool {
 	return false
 }
 
-func handle(message []byte, svcCtx *svc.ServiceContext) {
+func handle(message []byte, svcCtx *svc.ServiceContext, pDetector *lingua.LanguageDetector, pBaiduInfo *BaiduTranslate.BaiduInfo) {
 	var err error
 	// 一个正文可能包含多个数据包，需要逐个解析
 	index := 0
@@ -125,13 +183,97 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 					}
 
 					uid := fmt.Sprintf("%.0f", from[0].(float64))
+					robotUid, _ := http.CookieList["DedeUserID"]
+					if uid == robotUid { // || uid == "2164851"
+						logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
+						return
+					}
+
 					// 如果发现弹幕在@我，那么调用机器人进行回复
 					y, content := checkIsAtMe(danmu.Info[1].(string), uid, svcCtx)
 					if y && len(content) > 0 && danmu.Info[1].(string) != svcCtx.Config.EntryMsg {
 						PushToBulletRobot(content)
 					}
-					// 实时输出弹幕消息
-					logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
+					strContent := danmu.Info[1].(string)
+					re := regexp.MustCompile("\\[(.*?)\\]")
+					strContent = re.ReplaceAllString(strContent, "")
+
+					if strContent == "抽签" {
+						var strMeg string
+						iRes := rand.Intn(25)
+						var strRes string
+						switch iRes {
+						case 0:
+							strRes = "上上签"
+						case 1, 2, 3:
+							strRes = "上中签"
+						case 4, 5, 6, 7, 8:
+							strRes = "上下签"
+						case 9, 10, 11, 12, 13, 14, 15:
+							strRes = "中上签"
+						case 16, 17, 18, 19, 20, 21, 22, 23, 24:
+							strRes = "中中签"
+						}
+						strMeg = fmt.Sprintf("%v,结果是%v哟。", from[1], strRes)
+						PushToBulletSender(strMeg)
+					}
+
+					if strContent != "" && svcCtx.Config.TraditionalToSimplifiedConversion && svcCtx.Config.ForeignLanguageTranslationInChinese.Enabled {
+						language, exists := (*pDetector).DetectLanguageOf(strContent)
+
+						if exists {
+							if language != lingua.Chinese && language != lingua.Unknown {
+								if svcCtx.Config.ForeignLanguageTranslationInChinese.Enabled && len(pBaiduInfo.AppID) >= 0 {
+									res := (*pBaiduInfo).NormalTr(strContent, "auto", "zh")
+									if res.Dst != "" && res.Dst != strContent {
+										strMeg := fmt.Sprintf("%v：%v", from[1], res.Dst)
+										logx.Infof("%s", language)
+										PushToBulletSender(strMeg)
+									}
+								}
+							} else if language == lingua.Chinese {
+								if svcCtx.Config.TraditionalToSimplifiedConversion {
+									s2t, err := gocc.New("t2s")
+									if err != nil {
+										logx.Infof(err.Error())
+									}
+									out := strContent
+									out, err = s2t.Convert(strContent)
+									if err != nil {
+										logx.Infof(err.Error())
+									}
+
+									if err == nil && out != strContent {
+										PushToBulletSender(out)
+									} else {
+										isFound := false
+										charMap := make(map[string]int)
+										for _, c := range strContent {
+											if unicode.Is(unicode.Han, c) {
+												charMap[string(c)]++
+											}
+										}
+
+										for k, _ := range charMap {
+											var rareWord RareWord
+											if getRareWord(k, &rareWord) {
+												newString := fmt.Sprintf("%s(%s)", rareWord.word, rareWord.pinyin)
+												strContent = strings.Replace(strContent, rareWord.word, newString, 1)
+												isFound = true
+											}
+										}
+										if isFound {
+											PushToBulletSender(strContent)
+										}
+									}
+								}
+							}
+							// 实时输出弹幕消息
+							logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
+						}
+					}
+					//	// 实时输出弹幕消息
+					//logx.Infof("%.0f %v:%v", from[0].(float64), from[1], danmu.Info[1])
 
 				// 进场特效欢迎
 				case entryEffect:
@@ -151,8 +293,23 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 				case interactWord:
 					interact := &entity.InteractWordText{}
 					_ = json.Unmarshal(body, interact)
+
+					charMap := make(map[string]int)
+					for _, c := range interact.Data.Uname {
+						if unicode.Is(unicode.Han, c) {
+							charMap[string(c)]++
+						}
+					}
+					for k, _ := range charMap {
+						var rareWord RareWord
+						if getRareWord(k, &rareWord) {
+							newString := fmt.Sprintf("%s(%s)", rareWord.word, rareWord.pinyin)
+							interact.Data.Uname = strings.Replace(interact.Data.Uname, rareWord.word, newString, 1)
+						}
+					}
+
 					// 1 进场 2 关注 3 分享
-					if interact.Data.MsgType == 1 {
+					if interact.Data.MsgType == 1 && limiter.AllowN(time.Now(), 25) {
 						if v, ok := svcCtx.Config.WelcomeString[fmt.Sprint(interact.Data.Uid)]; svcCtx.Config.WelcomeSwitch && ok {
 							PushToBulletSender(v)
 						} else if svcCtx.Config.InteractWord {
@@ -264,14 +421,14 @@ func handle(message []byte, svcCtx *svc.ServiceContext) {
 			r, _ := zlib.NewReader(b)
 			var out bytes.Buffer
 			_, _ = io.Copy(&out, r)
-			handle(out.Bytes(), svcCtx) // zlib解压后再进行格式解析
+			handle(out.Bytes(), svcCtx, pDetector, pBaiduInfo) // zlib解压后再进行格式解析
 
 		case 3:
 			b := bytes.NewReader(body)
 			r := brotli.NewReader(b)
 			var out bytes.Buffer
 			_, _ = io.Copy(&out, r)
-			handle(out.Bytes(), svcCtx) // zlib解压后再进行格式解析
+			handle(out.Bytes(), svcCtx, pDetector, pBaiduInfo) // zlib解压后再进行格式解析
 
 		default:
 			logx.Infof(">>>>>>>> 收到不知道的数据数据!!! %d", ver)
@@ -304,11 +461,11 @@ func getRandomDanmuKeyByTime() (key string) {
 		// 中午
 		key = "noon"
 
-	case 14, 15, 16, 17, 18, 19:
+	case 14, 15, 16, 17, 18:
 		// 下午
 		key = "afternoon"
 
-	case 20, 21, 22, 23:
+	case 19, 20, 21, 22, 23:
 		// 晚上
 		key = "night"
 	}

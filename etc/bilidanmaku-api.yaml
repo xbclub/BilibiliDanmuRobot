@@ -55,8 +55,8 @@ CronDanmuList:
   # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
   # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
   # 弹幕列表前必须加 -, 无论是否有多条, 切记
-    # 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
-    # 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
+  # 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
+  # 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
   - Cron: "*/2 * * * *"
     Random: true
     Danmu:
@@ -198,3 +198,17 @@ WelcomeBlacklistWide:
 WelcomeBlacklist:
   - "小妖网玩"
   - "独家朲芞"
+
+# 生癖字识别功能是否开启
+RecognitionOfRareCharacters: false
+
+
+# 繁简转换功能是否开启
+TraditionalToSimplifiedConversion: false
+
+# 外语翻译功能是否开启，需要向百度翻译申请AppID和SecretKey
+ForeignLanguageTranslationInChinese:
+  Enabled: false
+  AppID: ""
+  SecretKey: ""
+
