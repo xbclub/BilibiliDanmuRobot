@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bili_danmaku/internal/config"
-	"bili_danmaku/internal/http"
-	types2 "bili_danmaku/internal/types"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/http"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
@@ -26,7 +26,7 @@ type App struct {
 	Vserion      string
 	ctx          context.Context
 	login        chan bool
-	loginurl     *types2.LoginUrl
+	loginurl     *entity.LoginUrl
 	loginstatus  int
 	channelisrun bool
 	loginCtx     context.Context
@@ -49,7 +49,7 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
-func (l *App) Userlogin() *types2.LoginUrl {
+func (l *App) Userlogin() *entity.LoginUrl {
 	if l.GetloginStatus() {
 		return nil
 	}
@@ -86,12 +86,12 @@ func (l *App) work(ctx context.Context) {
 	var err error
 	var url = "https://passport.bilibili.com/qrcode/getLoginInfo?oauthKey=" + l.loginurl.Data.OauthKey
 	var resp *resty.Response
-	var data *types2.LoginInfoData
+	var data *entity.LoginInfoData
 	var file *os.File
 	var CookieStr string
 	var CookieList = make(map[string]string)
 	cli := resty.New()
-	pre := &types2.LoginInfoPre{}
+	pre := &entity.LoginInfoPre{}
 	logx.Info("等待扫码登录...")
 	nologin := true
 	var w = 1 * time.Second
@@ -120,7 +120,7 @@ func (l *App) work(ctx context.Context) {
 
 			if pre.Status {
 
-				data = &types2.LoginInfoData{}
+				data = &entity.LoginInfoData{}
 				if err = json.Unmarshal(resp.Body(), data); err != nil {
 					logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 					l.loginstatus = 3
@@ -179,7 +179,7 @@ func (l *App) GetloginStatus() bool {
 	}
 
 }
-func (l *App) GetUserInfo() *types2.UserinfoLite {
+func (l *App) GetUserInfo() *entity.UserinfoLite {
 	return http.GetUserInfo()
 }
 func (l *App) WriteConfig(data string) *ConfigResponse {

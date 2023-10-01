@@ -7,6 +7,9 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/svc"
+	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"os"
@@ -21,6 +24,11 @@ var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 var Version string
 
 func init() {
+
+}
+func main() {
+	flag.Parse()
+	var c config.Config
 	dir := "./token"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// Directory does not exist, create it
@@ -58,33 +66,18 @@ func init() {
 		destFile.Close()
 		file.Close()
 	}
-	logconf := logx.LogConf{
-		ServiceName:         "",
-		Mode:                "file",
-		Encoding:            "plain",
-		Path:                "./logs/applog",
-		TimeFormat:          "",
-		Level:               "info",
-		MaxContentLength:    0,
-		Compress:            false,
-		Stat:                true,
-		KeepDays:            0,
-		StackCooldownMillis: 100,
-		MaxBackups:          0,
-		MaxSize:             0,
-		Rotation:            "daily",
-	}
-	logx.MustSetup(logconf)
+	conf.MustLoad(*configFile, &c, conf.UseEnv())
+	logx.MustSetup(c.Log)
 	logx.DisableStat()
-}
-func main() {
+	ctx := svc.NewServiceContext(c)
 	// Create an instance of the app structure
 	logx.Info("当前版本:", Version)
 	app := NewApp(Version)
-	program := NewProgram()
+
+	program := NewProgram(ctx)
 	//test := NewTest()
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "弹幕机器人",
 		Width:  1024,
 		Height: 768,
