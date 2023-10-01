@@ -112,8 +112,8 @@ github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhw
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
 github.com/wailsapp/wails/v2 v2.6.0 h1:EyH0zR/EO6dDiqNy8qU5spaXDfkluiq77xrkabPYD4c=
 github.com/wailsapp/wails/v2 v2.6.0/go.mod h1:WBG9KKWuw0FKfoepBrr/vRlyTmHaMibWesK3yz6nNiM=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.0.0 h1:UpgLVlFvxfXr6HaNJ8N+b1AY0VvU4HigO890F1JuTfI=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.0.0/go.mod h1:pNv6ToCiOun2txacK9Qxd5Vn9o2WC3rqics7PoyeFq4=
+github.com/xbclub/BilibiliDanmuRobot-Core v1.0.2 h1:HFFvijHY439uFpNbGtFktfryfZTTOgVTccbq8/OpwTw=
+github.com/xbclub/BilibiliDanmuRobot-Core v1.0.2/go.mod h1:pNv6ToCiOun2txacK9Qxd5Vn9o2WC3rqics7PoyeFq4=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zeromicro/go-zero v1.5.6 h1:vBzrLaj+xQySBAeMBA6vhPxNgasz0T3WE60s98H0Bb4=
 github.com/zeromicro/go-zero v1.5.6/go.mod h1:FX2a2MQd5EvAYO7neJBm2GAmPU5XfFnj3JMM/qj+kpY=

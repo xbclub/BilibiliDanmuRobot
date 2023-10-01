@@ -20,11 +20,8 @@ type Program struct {
 	cls        handler.WsHandler
 }
 
-func NewProgram(svc *svc.ServiceContext) *Program {
-	return &Program{
-		svcCtx: svc,
-		cls:    handler.NewWsHandler(svc),
-	}
+func NewProgram() *Program {
+	return &Program{}
 }
 
 func (p *Program) Start() bool {
@@ -89,15 +86,21 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 		case <-t.C:
 			if info, err = http.RoomInit(l.svcCtx.Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
+				t.Reset(interval)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
 
-				l.cls = handler.NewWsHandler(l.svcCtx)
+				l.cls = handler.NewWsHandler()
+				if l.cls == nil {
+					t.Reset(interval)
+					continue
+				}
 				err := l.cls.StartWsClient()
 				if err != nil {
 					logx.Error(err)
+					t.Reset(interval)
 					continue
 				}
 				preStatus = entity.Live

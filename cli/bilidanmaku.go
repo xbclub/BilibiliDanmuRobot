@@ -58,7 +58,10 @@ func main() {
 		logx.Info("用户登录成功")
 	}
 	ctx := svc.NewServiceContext(c)
-	cls := handler.NewWsHandler(ctx)
+	cls := handler.NewWsHandler()
+	if cls == nil {
+		os.Exit(1)
+	}
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	var interval = 10 * time.Second
