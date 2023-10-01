@@ -1,167 +1,196 @@
-log:
-    servicename: ""
-    mode: file
-    encoding: plain
-    timeformat: ""
-    path: ./logs/27157735
-    level: info
-    maxcontentlength: 0
-    compress: false
-    stat: true
-    keepdays: 0
-    stackcooldownmillis: 100
-    maxbackups: 0
-    maxsize: 0
-    rotation: daily
-roomid: 27157735
-wsserverurl: wss://broadcastlv.chat.bilibili.com:2245/sub
-talkrobotcmd: 花花
-fuzzymatchcmd: false
-robotname: 花花
-danmulen: 20
-entryeffect: true
-entrymsg: 花花机器人\n进入直播间
-welcomedanmu:
-    - 欢迎 {user}, 你来啦~
-    - 欢迎 {user}, 等你好久了~
-    - 欢迎 {user}, 你好呀~
-    - 欢迎 {user}, 吃饭了嘛~
-    - 欢迎 {user}, 什么星座的呀?
-thanksgift: true
-thanksgifttimeout: 3
-customizebullet: false
-interactword: true
-interactwordbytime: true
-welcomeswitch: true
-welcomestring:
-    "123456": 欢迎宇宙无敌最帅的xxx进入直播间
-robotmode: QingYunKe
-chatgpt:
-    apiurl: https://api.openai.com/v1
-    apitoken: ""
-    prompt: 你是一个非常幽默的机器人助理，可以使用emoji表情，可以使用颜文字
-    limit: true
-crondanmu: false
-crondanmulist:
-    - cron: '*/2 * * * *'
-      random: true
-      danmu:
-        - 喜欢主播请关注, 主播带你去致富~
-        - 万水千山总是情, 上个舰长行不行~
-        - 喜欢主播的小伙伴可以动动小手点个关注~
-        - 喜欢主播的小伙伴，点点关注不迷路~
-        - 你已经是成熟的观众了，该学会自己上船了~
-        - 小礼物和弹幕都是对主播的支持哦，比心心~
-        - 有一种关心叫关注，有一种惦记叫入粉
-        - '有一种陪伴叫: 加入大航海~'
-        - iOS端可关注公众号哗哩哗哩直播姬充值~
-        - 万水千山总是情，点个关注行不行~
-    - cron: '*/1 * * * *'
-      random: true
-      danmu:
-        - 另一个一分钟弹幕测试
-welcomedanmubytime:
-    - enabled: true
-      key: earlymorning
-      random: true
-      danmu:
-        - 欢迎{user}, 凌晨的问候~
-        - 欢迎{user}, 早安，幸福满满
-        - 欢迎{user}, 祝梦想成真
-        - 欢迎{user}, 望快乐起步
-        - 欢迎{user}, 望奋斗加油
-        - 欢迎{user}, 祝充满力量
-        - 欢迎{user}, 祝精神旺盛
-        - 欢迎{user}, 望谦虚前行
-        - 欢迎{user}, 祝青春无限
-        - 欢迎{user}, 祝前程似锦
-    - enabled: true
-      key: morning
-      random: true
-      danmu:
-        - 欢迎 {user}, 早安，美好开始
-        - 欢迎 {user}, 早安，成功在望
-        - 欢迎 {user}, 早安，加油！
-        - 欢迎 {user}, 早安，勇往直前
-        - 欢迎 {user}, 早安，工作愉快
-        - 欢迎 {user}, 早安，眉开眼笑
-        - 欢迎 {user}, 早安，携手前行
-        - 欢迎 {user}, 早安，让生活更好
-        - 欢迎 {user}, 早安，热情满怀
-    - enabled: true
-      key: latemorning
-      random: true
-      danmu:
-        - 欢迎 {user}, 上午好，奋斗有力
-        - 欢迎 {user}, 上午好，朝气蓬勃
-        - 欢迎 {user}, 上午好，加油向前
-        - 欢迎 {user}, 上午好，祝福无限
-        - 欢迎 {user}, 上午好，暖心问候
-        - 欢迎 {user}, 上午好，快乐工作
-        - 欢迎 {user}, 上午好，信心十足
-        - 欢迎 {user}, 上午好，开心一整天
-        - 欢迎 {user}, 上午好，精神满满
-        - 欢迎 {user}, 上午好，工作愉快
-    - enabled: true
-      key: noon
-      random: true
-      danmu:
-        - 欢迎 {user}, 中午好，午餐愉快
-        - 欢迎 {user}, 中午好，美食充盈
-        - 欢迎 {user}, 中午好，快乐午时
-        - 欢迎 {user}, 中午好，记得午间小憩
-        - 欢迎 {user}, 中午好，吃好喝好
-        - 欢迎 {user}, 中午好，百般顺利
-    - enabled: true
-      key: afternoon
-      random: true
-      danmu:
-        - 欢迎 {user}, 下午好，动力十足
-        - 欢迎 {user}, 下午好，活力满满
-        - 欢迎 {user}, 下午好，祝你成功
-        - 欢迎 {user}, 下午好，笑容满面
-        - 欢迎 {user}, 下午好，开心每时
-        - 欢迎 {user}, 下午好，工作顺利
-        - 欢迎 {user}, 下午好，美好心情
-        - 欢迎 {user}, 下午好，活力四射
-        - 欢迎 {user}, 下午好，幸福无限
-    - enabled: true
-      key: night
-      random: true
-      danmu:
-        - 欢迎 {user}, 晚上好，祝福相伴
-        - 欢迎 {user}, 晚上好，幸福安康
-        - 欢迎 {user}, 晚上好，心情愉悦
-        - 欢迎 {user}, 晚上好，生活美满
-        - 欢迎 {user}, 晚上好，夜色温馨
-        - 欢迎 {user}, 晚上好，美梦成真
-        - 欢迎 {user}, 晚上好，美好的晚上
-        - 欢迎 {user}, 祝愿你今晚开心
-    - enabled: true
-      key: midnight
-      random: true
-      danmu:
-        - 欢迎 {user}, 午夜好，月色清朗
-        - 欢迎 {user}, 午夜好，真诚问候
-        - 欢迎 {user}, 午夜好，祝福相随
-        - 欢迎 {user}, 午夜深沉，你不是独自一人
-        - 欢迎 {user}, 午夜好，静夜祝福
-        - 欢迎 {user}, 祝福你坚定向前
-        - 欢迎 {user}, 午夜沉寂，吉祥相随。
-        - 欢迎 {user}, 午夜好，还没休息?
-        - 欢迎 {user}, 拥抱午夜的美好
-focusdanmu:
-    - 啾咪~
-    - 喜欢可以领牌牌哦~
-    - 么么哒~
-    - 入股不亏哦~
-    - 贴贴~
-pknotice: true
-welcomeblacklistwide:
-    - 小妖网
-    - 朲芞
-    - 朲気
-    - 朲氣
-welcomeblacklist:
-    - 小妖网玩
-    - 独家朲芞
+# 房间号
+RoomId: 3
+# 弹幕长度
+DanmuLen: 20
+EntryMsg: "花花机器人进入直播间"
+#大乱斗与视频pk 机器人输出对手信息
+PKNotice: true
+# 欢迎弹幕 true:开 false：关
+InteractWord: true
+# 时间段时间欢迎
+InteractWordByTime: true
+# 自定义欢迎语 列表前必须加 -, 无论是否有多条, 切记，{user}为用户昵称占位符，列表为随机列表
+WelcomeDanmu:
+  - "欢迎 {user} ~"
+  - "欢迎 {user} 木嘛~"
+  - "欢迎 {user} 好诶~"
+# 进场特效欢迎 true:开 false：关，已增加过滤器 两个欢迎同时开启不会重复欢迎
+EntryEffect: true
+# 礼物感谢
+ThanksGift: true
+# 礼物感谢频率(秒)
+ThanksGiftTimeout: 3
+# 手动发送弹幕开关
+CustomizeBullet: false
+#日志输出
+Log:
+  #  Mode: file
+  Encoding: plain
+#  Path: ./logs
+# 指定人欢迎
+WelcomeString: {
+  123456: "欢迎宇宙无敌最帅的xxx进入直播间"
+}
+# 指定欢迎是否启用 true:开 false：关
+WelcomeSwitch: true
+# 机器人的名字
+RobotName: "花花"
+#直播间调用机器人的昵称：例如 "花花今天你吃了吗"，此处填花花
+TalkRobotCmd: "花花"
+#直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答
+FuzzyMatchCmd: false
+#机器人模式仅有QingYunKe/ChatGPT两个选项
+RobotMode: QingYunKe
+#此项配置仅在RobotMode为ChatGPT时生效，使用chatgpt时APItoken为必填项
+ChatGPT:
+  APIToken: # 你的TOKEN
+  APIUrl: # 你的代理地址, 如果没有, 可以删除这个配置项, 程序会使用默认的openai地址
+  Prompt: 你是一个非常幽默的机器人助理，可以使用emoji表情，可以使用颜文字
+  # 尽可能的限制在弹幕允许长度内
+  Limit: true
+# 指定定时弹幕是否启用 true:开 false：关
+CronDanmu: false
+# 指定定时弹幕列表
+CronDanmuList:
+  # 定时弹幕corn表达式 格式为 分 时 日 月 星期 具体参考 https://tool.lu/crontab/ 中的linux格式（此格式支持windows使用）
+  # Random为true表示随机发送列表中的一条弹幕, false则是顺序发送
+  # 弹幕列表前必须加 -, 无论是否有多条, 切记
+  # 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
+  # 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
+  - Cron: "*/2 * * * *"
+    Random: true
+    Danmu:
+      - "喜欢主播请关注, 主播带你去致富~"
+      - "万水千山总是情, 上个舰长行不行~"
+      - "喜欢主播的小伙伴可以动动小手点个关注~"
+      - "喜欢主播的小伙伴，点点关注不迷路~"
+      - "你已经是成熟的观众了，该学会自己上船了~"
+      - "小礼物和弹幕都是对主播的支持哦，比心心~"
+      - "有一种关心叫关注，有一种惦记叫入粉"
+      - "有一种陪伴叫: 加入大航海~"
+      - "iOS端可关注公众号哗哩哗哩直播姬充值~"
+      - "万水千山总是情，点个关注行不行~"
+
+# 指定关注感谢文本列表
+FocusDanmu:
+  - "啾咪~"
+  - "喜欢可以领牌牌哦~"
+  - "么么哒~"
+  - "入股不亏哦~"
+  - "贴贴~"
+
+# 欢迎弹幕列表
+WelcomeDanmu:
+  - "欢迎 {user}, 你来啦~"
+  - "欢迎 {user}, 等你好久了~"
+  - "欢迎 {user}, 你好呀~"
+  - "欢迎 {user}, 吃饭了嘛~"
+  - "欢迎 {user}, 什么星座的呀?"
+
+# 指定定时弹幕列表
+WelcomeDanmuByTime:
+  - Enabled: true
+    Key: "earlymorning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 凌晨的问候~"
+      - "欢迎 {user}, 早安，幸福满满"
+      - "欢迎 {user}, 祝梦想成真"
+      - "欢迎 {user}, 望快乐起步"
+      - "欢迎 {user}, 望奋斗加油"
+      - "欢迎 {user}, 祝充满力量"
+      - "欢迎 {user}, 祝精神旺盛"
+      - "欢迎 {user}, 望谦虚前行"
+      - "欢迎 {user}, 祝青春无限"
+      - "欢迎 {user}, 祝前程似锦"
+  - Enabled: true
+    Key: "morning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 早安，美好开始"
+      - "欢迎 {user}, 早安，成功在望"
+      - "欢迎 {user}, 早安，加油！"
+      - "欢迎 {user}, 早安，勇往直前"
+      - "欢迎 {user}, 早安，工作愉快"
+      - "欢迎 {user}, 早安，眉开眼笑"
+      - "欢迎 {user}, 早安，携手前行"
+      - "欢迎 {user}, 早安，让生活更好"
+      - "欢迎 {user}, 早安，热情满怀"
+  - Enabled: true
+    Key: "latemorning"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 上午好，奋斗有力"
+      - "欢迎 {user}, 上午好，朝气蓬勃"
+      - "欢迎 {user}, 上午好，加油向前"
+      - "欢迎 {user}, 上午好，祝福无限"
+      - "欢迎 {user}, 上午好，暖心问候"
+      - "欢迎 {user}, 上午好，快乐工作"
+      - "欢迎 {user}, 上午好，信心十足"
+      - "欢迎 {user}, 上午好，开心一整天"
+      - "欢迎 {user}, 上午好，精神满满"
+      - "欢迎 {user}, 上午好，工作愉快"
+  - Enabled: true
+    Key: "noon"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 中午好，午餐愉快"
+      - "欢迎 {user}, 中午好，美食充盈"
+      - "欢迎 {user}, 中午好，快乐午时"
+      - "欢迎 {user}, 中午好，记得午间小憩"
+      - "欢迎 {user}, 中午好，吃好喝好"
+      - "欢迎 {user}, 中午好，百般顺利"
+  - Enabled: true
+    Key: "afternoon"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 下午好，动力十足"
+      - "欢迎 {user}, 下午好，活力满满"
+      - "欢迎 {user}, 下午好，祝你成功"
+      - "欢迎 {user}, 下午好，笑容满面"
+      - "欢迎 {user}, 下午好，开心每时"
+      - "欢迎 {user}, 下午好，工作顺利"
+      - "欢迎 {user}, 下午好，美好心情"
+      - "欢迎 {user}, 下午好，活力四射"
+      - "欢迎 {user}, 下午好，幸福无限"
+  - Enabled: true
+    Key: "night"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 晚上好，祝福相伴"
+      - "欢迎 {user}, 晚上好，幸福安康"
+      - "欢迎 {user}, 晚上好，心情愉悦"
+      - "欢迎 {user}, 晚上好，生活美满"
+      - "欢迎 {user}, 晚上好，夜色温馨"
+      - "欢迎 {user}, 晚上好，美梦成真"
+      - "欢迎 {user}, 晚上好，美好的晚上"
+      - "欢迎 {user}, 祝愿你今晚开心"
+  - Enabled: true
+    Key: "midnight"
+    Random: true
+    Danmu:
+      - "欢迎 {user}, 午夜好，月色清朗"
+      - "欢迎 {user}, 午夜好，真诚问候"
+      - "欢迎 {user}, 午夜好，祝福相随"
+      - "欢迎 {user}, 午夜深沉，你不是独自一人"
+      - "欢迎 {user}, 午夜好，静夜祝福"
+      - "欢迎 {user}, 祝福你坚定向前"
+      - "欢迎 {user}, 午夜沉寂，吉祥相随。"
+      - "欢迎 {user}, 午夜好，还没休息?"
+      - "欢迎 {user}, 拥抱午夜的美好"
+
+# 不欢迎的黑名单
+# 以下两种方式
+# 注意, 舰长身份不在黑名单中, 无论什么名字都欢迎
+
+# 模糊匹配关键字, 只要名字中包含任意一条就不欢迎
+WelcomeBlacklistWide:
+  - "小妖网"
+  - "朲芞"
+  - "朲気"
+  - "朲氣"
+
+# 精确匹配关键字, 名字完全匹配才不欢迎
+WelcomeBlacklist:
+  - "小妖网玩"
+  - "独家朲芞"
