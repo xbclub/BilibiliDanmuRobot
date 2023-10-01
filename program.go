@@ -58,6 +58,9 @@ func (p *Program) Monitor() bool {
 }
 
 func (l *Program) Bili_danmaku_Start(workctx context.Context) {
+	if !http.FileExists("token/bili_token.txt") || !http.FileExists("token/bili_token.json") {
+		return
+	}
 	var err error
 	http.InitHttpClient()
 
