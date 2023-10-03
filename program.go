@@ -78,7 +78,9 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 
 		// 程序退出
 		case <-workctx.Done():
-			l.cls.StopWsClient()
+			if l.cls != nil {
+				l.cls.StopWsClient()
+			}
 			l.running = false
 			logx.Info("弹幕姬进程停止")
 
