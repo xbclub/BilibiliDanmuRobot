@@ -730,4 +730,10 @@ onMounted(() => {
   font-size: 32px;
   font-weight: 600;
 }
+.el-tabs__header{
+  position: sticky;
+    margin: 0 0 15px;
+    top: 0;
+    z-index: 2;
+}
 </style>
