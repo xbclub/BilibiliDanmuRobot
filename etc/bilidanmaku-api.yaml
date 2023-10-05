@@ -206,3 +206,9 @@ ForeignLanguageTranslationInChinese:
   Enabled: false
   AppID: ""
   SecretKey: ""
+
+# 最短多长时间发出下一条的欢迎弹幕，避免欢迎弹幕刷屏
+WelcomeTimeLimiter: 30
+
+# 是否开启签到功能
+SignInEnable: false
