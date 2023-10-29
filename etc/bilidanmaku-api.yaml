@@ -212,3 +212,9 @@ WelcomeTimeLimiter: 30
 
 # 是否开启签到功能
 SignInEnable: false
+
+# sqlite3数据库目录
+DBPath: "./db"
+
+# sqlite3数据库文件名
+DBName: "sqliteDataBase.db"
