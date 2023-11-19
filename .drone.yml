@@ -183,34 +183,6 @@ steps:
         - tag
     depends_on:
       - prebuild
-  - name: build-windows-386
-    image: golang:1.21.1-alpine
-    volumes:
-      - name: cache
-        path: /gobuild
-    environment:
-      GOOS: windows
-      GOARCH: 386
-      GOCACHE: /gobuild/gocache
-      GOPATH: /gobuild/gopath
-    commands:
-      - export outputpath=./dist/$GOOS-$GOARCH
-      - apk add --no-cache git gcc musl-dev zip
-      - cd cli && mkdir -p $outputpath
-#      - go mod tidy
-      - go build -v -o $outputpath/BilibiliDanmuRobot.exe -ldflags "-X main.Version=${DRONE_TAG}" --trimpath
-      - cp -r ../etc $outputpath
-      - cp ../readme.md $outputpath
-      - cd $outputpath
-      - md5sum BilibiliDanmuRobot.exe
-      - zip -r ../BilibiliDanmuRobot_Windows_i386_${DRONE_TAG}.zip ./*
-      - cd ../../
-      - rm -rf $outputpath
-    when:
-      event:
-        - tag
-    depends_on:
-      - prebuild
   - name: build-windows-amd64
     image: golang:1.21.1-alpine
     volumes:
