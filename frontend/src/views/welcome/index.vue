@@ -68,7 +68,16 @@ const data = reactive({
     WelcomeBlacklistWide: [],
     WelcomeBlacklist: [],
     InteractWordByTime: false,
-    WelcomeDanmuByTime: []
+    WelcomeDanmuByTime: [],
+    SignInEnable: true,
+    DBPath: "./db",
+    DBName: "sqliteDataBase.db",
+    DrawByLot: true,
+    ForeignLanguageTranslationInChinese: {
+      Enabled: false,
+      AppID: "",
+      SecretKey: ""
+    }
   }
 });
 const WelcomeDanmuByTimeTemplate = [{
@@ -228,14 +237,14 @@ const deleteWelcomeDanmu = (item: number) => {
     data.form.WelcomeDanmu.splice(item, 1);
   }
 };
-const deleteWelcomeDanmuByTime = (index1,index2) => {
+const deleteWelcomeDanmuByTime = (index1, index2) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (index1 !== -1 && index2 !== -1) {
     data.form.WelcomeDanmuByTime[index1].Danmu.splice(index2, 1);
   }
 };
 const initWelcomeDanmuByTime = () => {
-  if (data.form.WelcomeDanmuByTime == null){
+  if (data.form.WelcomeDanmuByTime == null) {
     data.form.WelcomeDanmuByTime = WelcomeDanmuByTimeTemplate;
     return;
   }
@@ -350,7 +359,7 @@ function deleteDanmu(item: number, row: number) {
 async function saveConfig() {
   data.savestatus = false;
   data.savemsg = "";
-  console.log(data.form.ChatGPT.APIUrl)
+  console.log(data.form.ChatGPT.APIUrl);
   if (data.form.ChatGPT.APIUrl.length == 0) {
     data.form.ChatGPT.APIUrl = "https://api.openai.com/v1";
   }
@@ -459,17 +468,32 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="礼物感谢频率" prop="RoomId">
           <el-col :span="3">
-          <el-input v-model.number="data.form.ThanksGiftTimeout" >
-            <template #append>
-              <div class="input-append">秒</div>
-            </template>
-          </el-input>
+            <el-input v-model.number="data.form.ThanksGiftTimeout">
+              <template #append>
+                <div class="input-append">秒</div>
+              </template>
+            </el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="PK提醒">
           <el-switch v-model="data.form.PKNotice" />
         </el-form-item>
-
+        <el-form-item label="抽签">
+          <el-switch v-model="data.form.DrawByLot" />
+        </el-form-item>
+        <el-form-item label="签到">
+          <el-switch v-model="data.form.SignInEnable" />
+        </el-form-item>
+        <el-form-item
+          label="数据库目录"
+        >
+          <el-input v-model="data.form.DBPath" />
+        </el-form-item>
+        <el-form-item
+          label="数据库文件名"
+        >
+          <el-input v-model="data.form.DBName" />
+        </el-form-item>
       </el-tab-pane>
 
       <el-tab-pane label="欢迎弹幕自定义" name="second">
@@ -494,7 +518,9 @@ onMounted(() => {
           </el-button>
         </el-form-item>
         <div v-if="data.form.InteractWordByTime == true" v-for="(items, index) in data.form.WelcomeDanmuByTime">
-          <el-text class="el-text--large" type="primary">{{getWelcomeDanmuByTimeDescribe(data.form.WelcomeDanmuByTime[index].Key)}}</el-text>
+          <el-text class="el-text--large" type="primary">
+            {{ getWelcomeDanmuByTimeDescribe(data.form.WelcomeDanmuByTime[index].Key) }}
+          </el-text>
           <el-form-item>
             <el-button type="primary" @click="addWelcomeDanmuByTime(index)">新增</el-button>
           </el-form-item>
@@ -601,7 +627,7 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-tag>
-          Tips3: 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
+            Tips3: 不想用秒的时候, 应该是 */1 * * * * 共五项 表示每1分钟执行一次
           </el-tag>
         </el-form-item>
         <el-form-item>
@@ -693,6 +719,20 @@ onMounted(() => {
           >
         </el-form-item>
       </el-tab-pane>
+      <el-tab-pane label="翻译功能" name="nighth">
+        <el-form-item>
+          <el-tag>Tips: 外语翻译功能需要向百度翻译申请 AppID 和 SecretKey</el-tag>
+        </el-form-item>
+        <el-form-item label="翻译开关">
+          <el-switch v-model="data.form.ForeignLanguageTranslationInChinese.Enabled" />
+        </el-form-item>
+        <el-form-item label="AppID">
+          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.AppID" />
+        </el-form-item>
+        <el-form-item label="SecretKey">
+          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.SecretKey" />
+        </el-form-item>
+      </el-tab-pane>
       <center>
         <el-button type="success" @click="saveConfig">保存</el-button>
       </center>
@@ -730,10 +770,11 @@ onMounted(() => {
   font-size: 32px;
   font-weight: 600;
 }
-.el-tabs__header{
+
+.el-tabs__header {
   position: sticky;
-    margin: 0 0 15px;
-    top: 0;
-    z-index: 2;
+  margin: 0 0 15px;
+  top: 0;
+  z-index: 2;
 }
 </style>
