@@ -72,12 +72,12 @@ const data = reactive({
     SignInEnable: true,
     DBPath: "./db",
     DBName: "sqliteDataBase.db",
-    DrawByLot: true,
-    ForeignLanguageTranslationInChinese: {
-      Enabled: false,
-      AppID: "",
-      SecretKey: ""
-    }
+    DrawByLot: true
+    // ForeignLanguageTranslationInChinese: {
+    //   Enabled: false,
+    //   AppID: "",
+    //   SecretKey: ""
+    // }
   }
 });
 const WelcomeDanmuByTimeTemplate = [{
@@ -478,8 +478,14 @@ onMounted(() => {
         <el-form-item label="PK提醒">
           <el-switch v-model="data.form.PKNotice" />
         </el-form-item>
+        <el-form-item>
+          <el-tag>Tips: 弹幕发送： 抽签 即可抽签</el-tag>
+        </el-form-item>
         <el-form-item label="抽签">
           <el-switch v-model="data.form.DrawByLot" />
+        </el-form-item>
+        <el-form-item>
+          <el-tag>Tips: 弹幕发送： 签到 即可签到</el-tag>
         </el-form-item>
         <el-form-item label="签到">
           <el-switch v-model="data.form.SignInEnable" />
@@ -719,20 +725,20 @@ onMounted(() => {
           >
         </el-form-item>
       </el-tab-pane>
-      <el-tab-pane label="翻译功能" name="nighth">
-        <el-form-item>
-          <el-tag>Tips: 外语翻译功能需要向百度翻译申请 AppID 和 SecretKey</el-tag>
-        </el-form-item>
-        <el-form-item label="翻译开关">
-          <el-switch v-model="data.form.ForeignLanguageTranslationInChinese.Enabled" />
-        </el-form-item>
-        <el-form-item label="AppID">
-          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.AppID" />
-        </el-form-item>
-        <el-form-item label="SecretKey">
-          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.SecretKey" />
-        </el-form-item>
-      </el-tab-pane>
+<!--      <el-tab-pane label="翻译功能" name="nighth">-->
+<!--        <el-form-item>-->
+<!--          <el-tag>Tips: 外语翻译功能需要向百度翻译申请 AppID 和 SecretKey</el-tag>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="翻译开关">-->
+<!--          <el-switch v-model="data.form.ForeignLanguageTranslationInChinese.Enabled" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="AppID">-->
+<!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.AppID" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="SecretKey">-->
+<!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.SecretKey" />-->
+<!--        </el-form-item>-->
+<!--      </el-tab-pane>-->
       <center>
         <el-button type="success" @click="saveConfig">保存</el-button>
       </center>
