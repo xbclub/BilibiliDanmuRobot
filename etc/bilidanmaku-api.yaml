@@ -198,12 +198,6 @@ WelcomeBlacklist:
 # 抽签功能是否开启
 DrawByLot: true
 
-# 外语翻译功能是否开启，需要向百度翻译申请 AppID 和 SecretKey
-ForeignLanguageTranslationInChinese:
-  Enabled: false
-  AppID: ""
-  SecretKey: ""
-
 # 是否开启签到功能
 SignInEnable: true
 
