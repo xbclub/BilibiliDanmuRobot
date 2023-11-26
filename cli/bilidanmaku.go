@@ -21,6 +21,7 @@ import (
 
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 var Version string
+var cls handler.WsHandler
 
 func main() {
 	flag.Parse()
@@ -58,10 +59,6 @@ func main() {
 		logx.Info("用户登录成功")
 	}
 	ctx := svc.NewServiceContext(c)
-	cls := handler.NewWsHandler()
-	if cls == nil {
-		os.Exit(1)
-	}
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	var interval = 10 * time.Second
@@ -98,11 +95,17 @@ func main() {
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", ctx.Config.RoomId)
 				preStatus = entity.Live
+				cls := handler.NewWsHandler()
+				if cls == nil {
+					os.Exit(1)
+				}
 				cls.StartWsClient() // 开启弹幕姬
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
-				cls.StopWsClient()
+				if cls != nil {
+					cls.StopWsClient()
+				}
 			}
 		}
 	}
