@@ -21,6 +21,7 @@ import (
 
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 var Version string
+var cls handler.WsHandler
 
 func main() {
 	flag.Parse()
@@ -58,10 +59,6 @@ func main() {
 		logx.Info("用户登录成功")
 	}
 	ctx := svc.NewServiceContext(c)
-	cls := handler.NewWsHandler()
-	if cls == nil {
-		os.Exit(1)
-	}
 	sig := make(chan os.Signal)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	var interval = 10 * time.Second
@@ -90,20 +87,32 @@ func main() {
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
-			t.Reset(interval)
-			if info, err = http.RoomInit(ctx.Config.RoomId); err != nil || err != nil {
+			if info, err = http.RoomInit(ctx.Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
+				t.Reset(interval)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", ctx.Config.RoomId)
+				//preStatus = entity.Live
+				cls = handler.NewWsHandler()
+				if cls == nil {
+					t.Reset(interval)
+					continue
+				}
+				err := cls.StartWsClient() // 开启弹幕姬
+				if err != nil {
+					logx.Error(err)
+					t.Reset(interval)
+					continue
+				}
 				preStatus = entity.Live
-				cls.StartWsClient() // 开启弹幕姬
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
 				cls.StopWsClient()
 			}
+			t.Reset(interval)
 		}
 	}
 END:
