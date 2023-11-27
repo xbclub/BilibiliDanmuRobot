@@ -87,26 +87,32 @@ func main() {
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
-			t.Reset(interval)
-			if info, err = http.RoomInit(ctx.Config.RoomId); err != nil || err != nil {
+			if info, err = http.RoomInit(ctx.Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
+				t.Reset(interval)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", ctx.Config.RoomId)
-				preStatus = entity.Live
-				cls := handler.NewWsHandler()
+				//preStatus = entity.Live
+				cls = handler.NewWsHandler()
 				if cls == nil {
-					os.Exit(1)
+					t.Reset(interval)
+					continue
 				}
-				cls.StartWsClient() // 开启弹幕姬
+				err := cls.StartWsClient() // 开启弹幕姬
+				if err != nil {
+					logx.Error(err)
+					t.Reset(interval)
+					continue
+				}
+				preStatus = entity.Live
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
-				if cls != nil {
-					cls.StopWsClient()
-				}
+				cls.StopWsClient()
 			}
+			t.Reset(interval)
 		}
 	}
 END:
