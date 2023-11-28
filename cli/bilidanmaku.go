@@ -30,6 +30,7 @@ func main() {
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
+
 	logx.Infof("当前版本: %s", Version)
 	logx.Infof("监听直播间: %d", c.RoomId)
 	dir := "./token"
@@ -38,6 +39,15 @@ func main() {
 		err = os.Mkdir(dir, 0755)
 		if err != nil {
 			panic(fmt.Sprintf("无法创建token文件夹 请手动创建:%s", err))
+		}
+	}
+	//配置数据库文件夹
+	dbdir, err := os.Stat(c.DBPath)
+	if os.IsNotExist(err) || !dbdir.IsDir() {
+		err = os.MkdirAll(c.DBPath, 0777)
+		if err != nil {
+			logx.Errorf("数据库文件夹创建失败：%s", c.DBPath)
+			panic(fmt.Sprintf("无法创建数据库文件夹 请手动创建:%s", err))
 		}
 	}
 	http.InitHttpClient()
