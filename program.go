@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/handler"
@@ -9,6 +10,7 @@ import (
 	"github.com/xbclub/BilibiliDanmuRobot-Core/svc"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/utiles"
 	"github.com/zeromicro/go-zero/core/logx"
+	"os"
 	"time"
 )
 
@@ -36,6 +38,14 @@ func (p *Program) Start() bool {
 	}
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
+	dbdir, err := os.Stat(c.DBPath)
+	if os.IsNotExist(err) || !dbdir.IsDir() {
+		err = os.MkdirAll(c.DBPath, 0777)
+		if err != nil {
+			logx.Errorf("数据库文件夹创建失败：%s", c.DBPath)
+			panic(fmt.Sprintf("无法创建数据库文件夹 请手动创建:%s", err))
+		}
+	}
 	p.svcCtx = svc.NewServiceContext(c)
 	p.workCtx, p.workCancel = context.WithCancel(context.Background())
 	p.running = true
