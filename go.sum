@@ -127,8 +127,6 @@ github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhw
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
 github.com/wailsapp/wails/v2 v2.6.0 h1:EyH0zR/EO6dDiqNy8qU5spaXDfkluiq77xrkabPYD4c=
 github.com/wailsapp/wails/v2 v2.6.0/go.mod h1:WBG9KKWuw0FKfoepBrr/vRlyTmHaMibWesK3yz6nNiM=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.0.10 h1:cdisv9cqTQ/puYVnx9teOtuMlEr1QO9KMuZ8e5I0Tyg=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.0.10/go.mod h1:m0xFjnI5JVpt+WBVwj+fdTvwWGo9P0hoP0BpltgTVfI=
 github.com/xbclub/BilibiliDanmuRobot-Core v1.0.11 h1:Kv1eUJ1txSyCgJvslb1S8gLvPXra7blzMrEOme+BzBE=
 github.com/xbclub/BilibiliDanmuRobot-Core v1.0.11/go.mod h1:m0xFjnI5JVpt+WBVwj+fdTvwWGo9P0hoP0BpltgTVfI=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
