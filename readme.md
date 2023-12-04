@@ -26,7 +26,7 @@
 mkdir -p <your path>/etc
 wget -O <your path>/etc/bilidanmaku-api.yaml  https://github.moeyy.xyz/https://raw.githubusercontent.com/xbclub/BilibiliDanmuRobot/master/etc/bilidanmaku-api.yaml
 # 启动容器
-docker run -itd --name bilibilidanmurobot  -v <your path>:/app/data xbclub/bilibilidanmurobot:latest
+docker run -itd --name bilibilidanmurobot --restart=always -v <your path>:/app/data xbclub/bilibilidanmurobot:latest
 # 扫码登录
 docker logs bilibilidanmurobot
 ```
