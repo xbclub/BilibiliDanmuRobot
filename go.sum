@@ -127,10 +127,6 @@ github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhw
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
 github.com/wailsapp/wails/v2 v2.6.0 h1:EyH0zR/EO6dDiqNy8qU5spaXDfkluiq77xrkabPYD4c=
 github.com/wailsapp/wails/v2 v2.6.0/go.mod h1:WBG9KKWuw0FKfoepBrr/vRlyTmHaMibWesK3yz6nNiM=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.0 h1:XxEtYRQkd5b1L2OW1A0jJ743fcZP1hnfDwbUFRBKTtU=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.0/go.mod h1:m0xFjnI5JVpt+WBVwj+fdTvwWGo9P0hoP0BpltgTVfI=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.1 h1:egxe2HSVNAQaar8go5kK65sqB5dcS8vKYOy28BVZyO8=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.1/go.mod h1:m0xFjnI5JVpt+WBVwj+fdTvwWGo9P0hoP0BpltgTVfI=
 github.com/xbclub/BilibiliDanmuRobot-Core v1.1.2 h1:joASw7IJ485IvYPz8qppiJb3eM1uFZ/Ha1RZpfsDcBU=
 github.com/xbclub/BilibiliDanmuRobot-Core v1.1.2/go.mod h1:m0xFjnI5JVpt+WBVwj+fdTvwWGo9P0hoP0BpltgTVfI=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

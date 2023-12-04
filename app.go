@@ -84,7 +84,7 @@ func (l *App) Getlogin() int {
 }
 func (l *App) work(ctx context.Context) {
 	var err error
-	var url = "https://passport.bilibili.com/qrcode/getLoginInfo?oauthKey=" + l.loginurl.Data.OauthKey
+	var url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=" + l.loginurl.Data.OauthKey
 	var resp *resty.Response
 	var data *entity.LoginInfoData
 	var file *os.File
@@ -108,7 +108,7 @@ func (l *App) work(ctx context.Context) {
 
 			if resp, err = cli.R().
 				SetHeader("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36").
-				Post(url); err != nil {
+				Get(url); err != nil {
 				logx.Error("请求getLoginInfo失败：", err)
 				l.loginstatus = 3
 			}
@@ -118,38 +118,44 @@ func (l *App) work(ctx context.Context) {
 				l.loginstatus = 3
 			}
 
-			if pre.Status {
+			if pre.Code == 0 {
 
 				data = &entity.LoginInfoData{}
 				if err = json.Unmarshal(resp.Body(), data); err != nil {
 					logx.Error("Unmarshal失败：", err, "body:", string(resp.Body()))
 					l.loginstatus = 3
 				}
-				logx.Info("登录成功！")
-				for _, v := range resp.Header().Values("Set-Cookie") {
-					pair := strings.Split(v, ";")
-					kv := strings.Split(pair[0], "=")
-					CookieList[kv[0]] = kv[1]
-					CookieStr += pair[0] + ";"
+				if data.Data.Code == 86038 {
+					logx.Error(data.Data.Message)
 				}
-				//使用追加模式打开文件
-				file, err = os.OpenFile("token/bili_token.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-				if err != nil {
-					logx.Errorf("打开文件错误：", err)
+				if data.Data.Code == 0 {
+					logx.Info("登录成功！")
+
+					for _, v := range resp.Header().Values("Set-Cookie") {
+						pair := strings.Split(v, ";")
+						kv := strings.Split(pair[0], "=")
+						CookieList[kv[0]] = kv[1]
+						CookieStr += pair[0] + ";"
+					}
+					//使用追加模式打开文件
+					file, err = os.OpenFile("token/bili_token.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+					if err != nil {
+						logx.Errorf("打开文件错误：", err)
+					}
+					file.WriteString(CookieStr)
+					file.Close()
+					//使用追加模式打开文件
+					file, err = os.OpenFile("token/bili_token.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+					if err != nil {
+						logx.Errorf("打开文件错误：", err)
+						l.loginstatus = 3
+					}
+					tokenstr, _ := json.Marshal(CookieList)
+					file.WriteString(string(tokenstr))
+					file.Close()
+					l.loginstatus = 1
+					l.Stopwork()
 				}
-				file.WriteString(CookieStr)
-				file.Close()
-				//使用追加模式打开文件
-				file, err = os.OpenFile("token/bili_token.json", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-				if err != nil {
-					logx.Errorf("打开文件错误：", err)
-					l.loginstatus = 3
-				}
-				tokenstr, _ := json.Marshal(CookieList)
-				file.WriteString(string(tokenstr))
-				file.Close()
-				l.loginstatus = 1
-				l.Stopwork()
 				//l.Stopwork()
 			}
 			t.Reset(w)
