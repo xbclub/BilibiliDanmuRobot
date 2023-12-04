@@ -20,7 +20,16 @@
 - [x] 秒级定时弹幕
 - [x] 自动更新（GUI）
 - [ ] 弹幕指令控制
-
+### Docker
+```bash
+# 创建配置文件
+mkdir -p <your path>/etc
+wget -O <your path>/etc/bilidanmaku-api.yaml  https://https://github.moeyy.xyz/https://raw.githubusercontent.com/xbclub/BilibiliDanmuRobot/master/etc/bilidanmaku-api.yaml
+# 启动容器
+docker run -itd --name bilibilidanmurobot  -v <your path>:/app/data xbclub/bilibilidanmurobot:latest
+# 扫码登录
+docker logs bilibilidanmurobot
+```
 ###  构建环境
  * golang version 1.21+
 ### 构建指令
