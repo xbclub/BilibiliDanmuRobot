@@ -10,6 +10,14 @@ const data = reactive({
   savestatus: false,
   savemsg: "",
   tabledata: [],
+  KeywordReplyTemp: [],
+  keywordDialogData: {
+    keyword: "",
+    replyword: ""
+  },
+  keywordReplyDialogtitle: "",
+  keywordReplyDialogVisible: false,
+  keywordReplyDialogAction: false,
   dialogdata: {
     uid: "",
     msg: ""
@@ -49,22 +57,24 @@ const data = reactive({
       "贴贴~"
     ],
     CronDanmu: false,
-    CronDanmuList: [{
-      Cron: "*/2 * * * *",
-      Random: true,
-      Danmu: [
-        "喜欢主播请关注, 主播带你去致富~",
-        "万水千山总是情, 上个舰长行不行~",
-        "喜欢主播的小伙伴可以动动小手点个关注~",
-        "喜欢主播的小伙伴，点点关注不迷路~",
-        "你已经是成熟的观众了，该学会自己上船了~",
-        "小礼物和弹幕都是对主播的支持哦，比心心~",
-        "有一种关心叫关注，有一种惦记叫入粉",
-        "有一种陪伴叫: 加入大航海~",
-        "iOS端可关注公众号哗哩哗哩直播姬充值~",
-        "万水千山总是情，点个关注行不行~"
-      ]
-    }],
+    CronDanmuList: [
+      {
+        Cron: "*/2 * * * *",
+        Random: true,
+        Danmu: [
+          "喜欢主播请关注, 主播带你去致富~",
+          "万水千山总是情, 上个舰长行不行~",
+          "喜欢主播的小伙伴可以动动小手点个关注~",
+          "喜欢主播的小伙伴，点点关注不迷路~",
+          "你已经是成熟的观众了，该学会自己上船了~",
+          "小礼物和弹幕都是对主播的支持哦，比心心~",
+          "有一种关心叫关注，有一种惦记叫入粉",
+          "有一种陪伴叫: 加入大航海~",
+          "iOS端可关注公众号哗哩哗哩直播姬充值~",
+          "万水千山总是情，点个关注行不行~"
+        ]
+      }
+    ],
     WelcomeBlacklistWide: [],
     WelcomeBlacklist: [],
     InteractWordByTime: false,
@@ -72,7 +82,10 @@ const data = reactive({
     SignInEnable: true,
     DBPath: "./db",
     DBName: "sqliteDataBase.db",
-    DrawByLot: true
+    DrawByLot: true,
+    ShowBlockMsg: true,
+    KeywordReply: false,
+    KeywordReplyList: {}
     // ForeignLanguageTranslationInChinese: {
     //   Enabled: false,
     //   AppID: "",
@@ -80,23 +93,24 @@ const data = reactive({
     // }
   }
 });
-const WelcomeDanmuByTimeTemplate = [{
-  Enabled: true,
-  Key: "earlymorning",
-  Random: true,
-  Danmu: [
-    "欢迎 {user}, 凌晨的问候~",
-    "欢迎 {user}, 早安，幸福满满",
-    "欢迎 {user}, 祝梦想成真",
-    "欢迎 {user}, 望快乐起步",
-    "欢迎 {user}, 望奋斗加油",
-    "欢迎 {user}, 祝充满力量",
-    "欢迎 {user}, 祝精神旺盛",
-    "欢迎 {user}, 望谦虚前行",
-    "欢迎 {user}, 祝青春无限",
-    "欢迎 {user}, 祝前程似锦"
-  ]
-},
+const WelcomeDanmuByTimeTemplate = [
+  {
+    Enabled: true,
+    Key: "earlymorning",
+    Random: true,
+    Danmu: [
+      "欢迎 {user}, 凌晨的问候~",
+      "欢迎 {user}, 早安，幸福满满",
+      "欢迎 {user}, 祝梦想成真",
+      "欢迎 {user}, 望快乐起步",
+      "欢迎 {user}, 望奋斗加油",
+      "欢迎 {user}, 祝充满力量",
+      "欢迎 {user}, 祝精神旺盛",
+      "欢迎 {user}, 望谦虚前行",
+      "欢迎 {user}, 祝青春无限",
+      "欢迎 {user}, 祝前程似锦"
+    ]
+  },
   {
     Enabled: true,
     Key: "morning",
@@ -222,7 +236,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 const addWelcomeDanmu = () => {
   data.form.WelcomeDanmu.unshift("{user}");
 };
-const addWelcomeDanmuByTime = (index) => {
+const addWelcomeDanmuByTime = index => {
   data.form.WelcomeDanmuByTime[index].Danmu.unshift("{user}");
 };
 const addWelcomeBlacklist = () => {
@@ -256,7 +270,10 @@ const initWelcomeDanmuByTime = () => {
     for (let i = 0; i < WelcomeDanmuByTimeTemplate.length; i++) {
       let x = true;
       for (let a = 0; i < data.form.WelcomeDanmuByTime.length; i++) {
-        if (data.form.WelcomeDanmuByTime[a].Key === WelcomeDanmuByTimeTemplate[i].Key) {
+        if (
+          data.form.WelcomeDanmuByTime[a].Key ===
+          WelcomeDanmuByTimeTemplate[i].Key
+        ) {
           x = false;
           break;
         }
@@ -289,7 +306,7 @@ const deleteFocusDanmu = (item: number) => {
     data.form.FocusDanmu.splice(item, 1);
   }
 };
-const getWelcomeDanmuByTimeDescribe = (key) => {
+const getWelcomeDanmuByTimeDescribe = key => {
   return WelcomeDanmuByTimeDescribe[key];
 };
 
@@ -306,7 +323,6 @@ function addWelcomeString() {
   data.dialogtitle = "新增";
   data.dialogAction = false;
   data.dialogVisible = true;
-
 }
 
 function saveWelcomeString() {
@@ -334,9 +350,7 @@ function addDanmulist() {
   data.form.CronDanmuList.push({
     Cron: "*/2 * * * *",
     Random: true,
-    Danmu: [
-      ""
-    ]
+    Danmu: [""]
   });
 }
 
@@ -354,6 +368,46 @@ function deleteDanmu(item: number, row: number) {
   if (item !== -1 && row !== -1) {
     data.form.CronDanmuList[item].Danmu.splice(row, 1);
   }
+}
+
+// 关键词回复
+function formatKeywordReply() {
+  if (data.form.KeywordReplyList) {
+    const arr = Object.entries(data.form.KeywordReplyList);
+    data.KeywordReplyTemp = arr.map(([key, value]) => ({ key, value }));
+  } else {
+    data.form.KeywordReplyList = {};
+  }
+}
+function addKeyword() {
+  data.keywordDialogData = {
+    keyword: "",
+    replyword: ""
+  };
+  data.keywordReplyDialogtitle = "新增";
+  data.keywordReplyDialogAction = false;
+  data.keywordReplyDialogVisible = true;
+}
+
+function saveKeyword() {
+  data.form.KeywordReplyList[data.keywordDialogData.keyword] = data.keywordDialogData.replyword;
+  formatKeywordReply();
+  data.keywordReplyDialogVisible = false;
+}
+
+function deleteKeyword(item: string) {
+  // console.log(item)
+  if (data.form.WelcomeString.hasOwnProperty(item)) {
+    delete data.form.KeywordReplyList[item];
+  }
+  formatKeywordReply();
+}
+function editKeyword(keyword, replyword) {
+  data.keywordReplyDialogtitle = "编辑";
+  data.keywordDialogData.keyword = keyword;
+  data.keywordDialogData.replyword = replyword;
+  data.keywordReplyDialogAction = true;
+  data.keywordReplyDialogVisible = true;
 }
 
 async function saveConfig() {
@@ -436,6 +490,7 @@ onMounted(() => {
       data.form = res.Form;
       formatWelcomeString();
       initWelcomeDanmuByTime();
+      formatKeywordReply()
       if (data.form.ChatGPT.APIUrl.length == 0) {
         data.form.ChatGPT.APIUrl = "https://api.openai.com/v1";
       }
@@ -445,8 +500,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-form :model="data.form" label-width="120px" ref="formRef" class="el-form" :rules="rules">
-    <el-tabs v-model="activeName" class="demo-tabs" type="border-card" @tab-click="handleClick">
+  <el-form
+    :model="data.form"
+    label-width="120px"
+    ref="formRef"
+    class="el-form"
+    :rules="rules"
+  >
+    <el-tabs
+      v-model="activeName"
+      class="demo-tabs"
+      type="border-card"
+      @tab-click="handleClick"
+    >
       <el-tab-pane label="基础配置" name="first">
         <el-form-item label="直播间号" prop="RoomId">
           <el-input v-model.number="data.form.RoomId" autocomplete="off" />
@@ -478,6 +544,9 @@ onMounted(() => {
         <el-form-item label="PK提醒">
           <el-switch v-model="data.form.PKNotice" />
         </el-form-item>
+        <el-form-item label="禁言提醒">
+          <el-switch v-model="data.form.ShowBlockMsg" />
+        </el-form-item>
         <el-form-item>
           <el-tag>Tips: 弹幕发送： 抽签 即可抽签</el-tag>
         </el-form-item>
@@ -490,22 +559,19 @@ onMounted(() => {
         <el-form-item label="签到">
           <el-switch v-model="data.form.SignInEnable" />
         </el-form-item>
-        <el-form-item
-          label="数据库目录"
-        >
+        <el-form-item label="数据库目录">
           <el-input v-model="data.form.DBPath" />
         </el-form-item>
-        <el-form-item
-          label="数据库文件名"
-        >
+        <el-form-item label="数据库文件名">
           <el-input v-model="data.form.DBName" />
         </el-form-item>
       </el-tab-pane>
 
       <el-tab-pane label="欢迎弹幕自定义" name="second">
-
         <el-form-item>
-          <el-tag>Tips: 自定义欢迎语 {user}为用户昵称占位符，列表为随机列表</el-tag>
+          <el-tag
+            >Tips: 自定义欢迎语 {user}为用户昵称占位符，列表为随机列表</el-tag
+          >
         </el-form-item>
         <el-form-item label="时间段时间欢迎">
           <el-switch v-model="data.form.InteractWordByTime" />
@@ -516,19 +582,28 @@ onMounted(() => {
         <el-form-item
           v-if="data.form.InteractWordByTime == false"
           v-for="(items, index) in data.form.WelcomeDanmu"
-          :label="'欢迎弹幕 ' + (index+1)"
+          :label="'欢迎弹幕 ' + (index + 1)"
         >
           <el-input v-model="data.form.WelcomeDanmu[index]" />
           <el-button class="mt-2" @click="deleteWelcomeDanmu(index)"
-          >删除
+            >删除
           </el-button>
         </el-form-item>
-        <div v-if="data.form.InteractWordByTime == true" v-for="(items, index) in data.form.WelcomeDanmuByTime">
+        <div
+          v-if="data.form.InteractWordByTime == true"
+          v-for="(items, index) in data.form.WelcomeDanmuByTime"
+        >
           <el-text class="el-text--large" type="primary">
-            {{ getWelcomeDanmuByTimeDescribe(data.form.WelcomeDanmuByTime[index].Key) }}
+            {{
+              getWelcomeDanmuByTimeDescribe(
+                data.form.WelcomeDanmuByTime[index].Key
+              )
+            }}
           </el-text>
           <el-form-item>
-            <el-button type="primary" @click="addWelcomeDanmuByTime(index)">新增</el-button>
+            <el-button type="primary" @click="addWelcomeDanmuByTime(index)"
+              >新增</el-button
+            >
           </el-form-item>
           <el-form-item label="启用">
             <el-switch v-model="data.form.WelcomeDanmuByTime[index].Enabled" />
@@ -538,16 +613,44 @@ onMounted(() => {
           </el-form-item>
           <el-form-item
             v-for="(items, index2) in data.form.WelcomeDanmuByTime[index].Danmu"
-            :label="'欢迎弹幕 ' + (index2+1)"
+            :label="'欢迎弹幕 ' + (index2 + 1)"
           >
-            <el-input v-model="data.form.WelcomeDanmuByTime[index].Danmu[index2]" />
-            <el-button class="mt-2" @click="deleteWelcomeDanmuByTime(index,index2)"
-            >删除
+            <el-input
+              v-model="data.form.WelcomeDanmuByTime[index].Danmu[index2]"
+            />
+            <el-button
+              class="mt-2"
+              @click="deleteWelcomeDanmuByTime(index, index2)"
+              >删除
             </el-button>
           </el-form-item>
-
         </div>
+      </el-tab-pane>
+      <el-tab-pane label="关键词回复" name="keywordReply">
+        <el-form-item label="功能开关">
+          <el-switch v-model="data.form.KeywordReply" />
+        </el-form-item>
+        <el-button @click="addKeyword" type="primary">添加</el-button>
 
+        <el-table :data="data.KeywordReplyTemp" border>
+          <el-table-column prop="key" label="关键词" />
+          <el-table-column prop="value" label="回复内容" />
+          <el-table-column label="操作">
+            <template #default="scope">
+              <el-button
+                type="primary"
+                @click="editKeyword(scope.row.key, scope.row.value)"
+              >编辑
+              </el-button>
+              <el-button
+                type="danger"
+                @click="deleteKeyword(scope.row.key)"
+              >删除
+              </el-button>
+            </template>
+          </el-table-column>
+          <!--            <el-table-column prop="address" label="Address" />-->
+        </el-table>
       </el-tab-pane>
       <el-tab-pane label="指定人欢迎" name="third">
         <!--        <template>-->
@@ -560,8 +663,16 @@ onMounted(() => {
           <el-table-column prop="value" label="欢迎语" />
           <el-table-column label="操作">
             <template #default="scope">
-              <el-button type="primary" @click="editWelcomeString(scope.row.key,scope.row.value)">编辑</el-button>
-              <el-button type="danger" @click="deleteWelcomeString(scope.row.key)">删除</el-button>
+              <el-button
+                type="primary"
+                @click="editWelcomeString(scope.row.key, scope.row.value)"
+                >编辑</el-button
+              >
+              <el-button
+                type="danger"
+                @click="deleteWelcomeString(scope.row.key)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
           <!--            <el-table-column prop="address" label="Address" />-->
@@ -570,7 +681,10 @@ onMounted(() => {
       </el-tab-pane>
       <el-tab-pane label="ai机器人" name="fourth">
         <el-form-item>
-          <el-tag>Tips: 直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答</el-tag>
+          <el-tag
+            >Tips:
+            直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答</el-tag
+          >
         </el-form-item>
         <el-form-item label="机器人名称">
           <el-input v-model.number="data.form.RobotName" />
@@ -596,7 +710,10 @@ onMounted(() => {
         <el-form-item label="prompt" v-if="data.form.RobotMode == 'ChatGPT'">
           <el-input v-model="data.form.ChatGPT.Prompt" />
         </el-form-item>
-        <el-form-item label="弹幕长度限制" v-if="data.form.RobotMode == 'ChatGPT'">
+        <el-form-item
+          label="弹幕长度限制"
+          v-if="data.form.RobotMode == 'ChatGPT'"
+        >
           <el-switch v-model="data.form.ChatGPT.Limit" />
         </el-form-item>
       </el-tab-pane>
@@ -606,14 +723,12 @@ onMounted(() => {
         </el-form-item>
         <el-form-item
           v-for="(items, index) in data.form.FocusDanmu"
-          :label="'关注答谢语 ' + (index+1)"
+          :label="'关注答谢语 ' + (index + 1)"
         >
           <el-input v-model="data.form.FocusDanmu[index]" />
-          <el-button class="mt-2"
-                     @click="deleteFocusDanmu(index)"
-          >删除
-          </el-button
-          >
+          <el-button class="mt-2" @click="deleteFocusDanmu(index)"
+            >删除
+          </el-button>
         </el-form-item>
       </el-tab-pane>
       <el-tab-pane label="定时弹幕" name="sixth">
@@ -621,14 +736,16 @@ onMounted(() => {
           <el-switch v-model="data.form.CronDanmu" />
         </el-form-item>
         <el-form-item>
-          <el-tag>Tips1: 定时弹幕corn表达式 格式为 秒 分 时 日 月 星期 其中秒是可选的 具体参考 https://tool.lu/crontab/
+          <el-tag
+            >Tips1: 定时弹幕corn表达式 格式为 秒 分 时 日 月 星期 其中秒是可选的
+            具体参考 https://tool.lu/crontab/
             中的linux格式（此格式支持windows使用）
           </el-tag>
-
         </el-form-item>
         <el-form-item>
           <el-tag>
-            Tips2: 想要用秒的时候, 应该是 30 * * * * * * 共六项 表示每分钟的第30秒执行
+            Tips2: 想要用秒的时候, 应该是 30 * * * * * * 共六项
+            表示每分钟的第30秒执行
           </el-tag>
         </el-form-item>
         <el-form-item>
@@ -637,54 +754,46 @@ onMounted(() => {
           </el-tag>
         </el-form-item>
         <el-form-item>
-          <el-tag>Tips4: 随机开关打开表示随机发送列表中的一条弹幕, 关闭则是顺序发送</el-tag>
+          <el-tag
+            >Tips4: 随机开关打开表示随机发送列表中的一条弹幕,
+            关闭则是顺序发送</el-tag
+          >
         </el-form-item>
         <el-form-item>
-          <el-button
-            type="primary"
-            @click="addDanmulist"
-          >新增弹幕列表
-          </el-button
-          >
+          <el-button type="primary" @click="addDanmulist"
+            >新增弹幕列表
+          </el-button>
         </el-form-item>
-        <div
-          v-for="(items, index) in data.form.CronDanmuList"
-        >
-          <el-form-item :label="'弹幕列表'+ (index+1)">
+        <div v-for="(items, index) in data.form.CronDanmuList">
+          <el-form-item :label="'弹幕列表' + (index + 1)">
             <el-button type="danger" @click="deleteDanmulist(index)"
-            >删除
-            </el-button
-            >
+              >删除
+            </el-button>
           </el-form-item>
-          <el-form-item
-            :label="'发送时间'"
-          >
+          <el-form-item :label="'发送时间'">
             <el-input v-model="data.form.CronDanmuList[index].Cron" />
           </el-form-item>
-          <el-form-item
-            :label="'随机开关'"
-          >
+          <el-form-item :label="'随机开关'">
             <el-switch v-model="data.form.CronDanmuList[index].Random" />
           </el-form-item>
           <el-form-item>
-            <el-button
-              type="primary"
-              @click="addDanmu(index)"
-            >新增弹幕
-            </el-button
-            >
+            <el-button type="primary" @click="addDanmu(index)"
+              >新增弹幕
+            </el-button>
           </el-form-item>
 
-          <el-form-item :label="'弹幕'+(index2+1)" v-for="(items, index2) in data.form.CronDanmuList[index].Danmu">
+          <el-form-item
+            :label="'弹幕' + (index2 + 1)"
+            v-for="(items, index2) in data.form.CronDanmuList[index].Danmu"
+          >
             <el-input v-model="data.form.CronDanmuList[index].Danmu[index2]" />
-            <el-button class="mt-2"
-                       @click="deleteDanmu(index,index2)"
-                       type="danger"
-            >删除
-            </el-button
-            >
+            <el-button
+              class="mt-2"
+              @click="deleteDanmu(index, index2)"
+              type="danger"
+              >删除
+            </el-button>
           </el-form-item>
-
         </div>
       </el-tab-pane>
       <el-tab-pane label="欢迎黑名单-模糊匹配" name="seventh">
@@ -692,18 +801,18 @@ onMounted(() => {
           <el-tag>Tips: 模糊匹配关键字, 只要名字中包含任意一条就不欢迎</el-tag>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addWelcomeBlacklistWide">新增</el-button>
+          <el-button type="primary" @click="addWelcomeBlacklistWide"
+            >新增</el-button
+          >
         </el-form-item>
         <el-form-item
           v-for="(items, index) in data.form.WelcomeBlacklistWide"
-          :label="'模糊关键词 ' + (index+1)"
+          :label="'模糊关键词 ' + (index + 1)"
         >
           <el-input v-model="data.form.WelcomeBlacklistWide[index]" />
-          <el-button class="mt-2"
-                     @click="deleteWelcomeBlacklistWide(index)"
-          >删除
-          </el-button
-          >
+          <el-button class="mt-2" @click="deleteWelcomeBlacklistWide(index)"
+            >删除
+          </el-button>
         </el-form-item>
       </el-tab-pane>
       <el-tab-pane label="欢迎黑名单-精确匹配" name="eighth">
@@ -711,59 +820,70 @@ onMounted(() => {
           <el-tag>Tips: 精确匹配关键字, 名字完全匹配才不欢迎</el-tag>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addWelcomeBlacklist">新增</el-button>
+          <el-button type="primary" @click="addWelcomeBlacklist"
+            >新增</el-button
+          >
         </el-form-item>
         <el-form-item
           v-for="(items, index) in data.form.WelcomeBlacklist"
-          :label="'精确关键词 ' + (index+1)"
+          :label="'精确关键词 ' + (index + 1)"
         >
           <el-input v-model="data.form.WelcomeBlacklist[index]" />
-          <el-button class="mt-2"
-                     @click="deleteWelcomeBlacklist(index)"
-          >删除
-          </el-button
-          >
+          <el-button class="mt-2" @click="deleteWelcomeBlacklist(index)"
+            >删除
+          </el-button>
         </el-form-item>
       </el-tab-pane>
-<!--      <el-tab-pane label="翻译功能" name="nighth">-->
-<!--        <el-form-item>-->
-<!--          <el-tag>Tips: 外语翻译功能需要向百度翻译申请 AppID 和 SecretKey</el-tag>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="翻译开关">-->
-<!--          <el-switch v-model="data.form.ForeignLanguageTranslationInChinese.Enabled" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="AppID">-->
-<!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.AppID" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="SecretKey">-->
-<!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.SecretKey" />-->
-<!--        </el-form-item>-->
-<!--      </el-tab-pane>-->
+      <!--      <el-tab-pane label="翻译功能" name="nighth">-->
+      <!--        <el-form-item>-->
+      <!--          <el-tag>Tips: 外语翻译功能需要向百度翻译申请 AppID 和 SecretKey</el-tag>-->
+      <!--        </el-form-item>-->
+      <!--        <el-form-item label="翻译开关">-->
+      <!--          <el-switch v-model="data.form.ForeignLanguageTranslationInChinese.Enabled" />-->
+      <!--        </el-form-item>-->
+      <!--        <el-form-item label="AppID">-->
+      <!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.AppID" />-->
+      <!--        </el-form-item>-->
+      <!--        <el-form-item label="SecretKey">-->
+      <!--          <el-input v-model="data.form.ForeignLanguageTranslationInChinese.SecretKey" />-->
+      <!--        </el-form-item>-->
+      <!--      </el-tab-pane>-->
       <center>
         <el-button type="success" @click="saveConfig">保存</el-button>
       </center>
-
-
     </el-tabs>
-
   </el-form>
-  <el-dialog
-    v-model="data.dialogVisible"
-    :title="data.dialogtitle"
-    width="30%"
-  >
+  <el-dialog v-model="data.dialogVisible" :title="data.dialogtitle" width="30%">
     <el-form-item label="用户uid">
-      <el-input v-model.number="data.dialogdata.uid" :disabled=data.dialogAction></el-input>
+      <el-input
+        v-model.number="data.dialogdata.uid"
+        :disabled="data.dialogAction"
+      />
     </el-form-item>
     <el-form-item label="欢迎语">
-      <el-input v-model="data.dialogdata.msg"></el-input>
+      <el-input v-model="data.dialogdata.msg" />
     </el-form-item>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="data.dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveWelcomeString">
-          保存
-        </el-button>
+        <el-button type="primary" @click="saveWelcomeString"> 保存 </el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="data.keywordReplyDialogVisible" :title="data.keywordReplyDialogtitle" width="30%">
+    <el-form-item label="关键词">
+      <el-input
+        v-model="data.keywordDialogData.keyword"
+        :disabled="data.keywordReplyDialogAction"
+      />
+    </el-form-item>
+    <el-form-item label="回复内容">
+      <el-input v-model="data.keywordDialogData.replyword" />
+    </el-form-item>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="data.keywordReplyDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveKeyword"> 保存 </el-button>
       </span>
     </template>
   </el-dialog>

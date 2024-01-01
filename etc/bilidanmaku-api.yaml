@@ -206,3 +206,12 @@ DBPath: "./db"
 
 # sqlite3数据库文件名
 DBName: "sqliteDataBase.db"
+
+# 禁言用户弹幕提醒
+ShowBlockMsg: true
+# 关键词回复开关
+KeywordReply: false
+# 关键词回复列表
+KeywordReplyList:
+  "回复关键词1": "回复内容1"
+  "回复关键词2": "回复内容2"

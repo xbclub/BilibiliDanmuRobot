@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/go-resty/resty/v2 v2.9.1
 	github.com/wailsapp/wails/v2 v2.6.0
-	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.2
+	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.3
 	github.com/zeromicro/go-zero v1.5.6
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -60,7 +60,6 @@ require (
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/term v0.12.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
