@@ -233,85 +233,70 @@ onBeforeMount(() => {
 <template>
   <panel>
     <el-divider>主题</el-divider>
-    <el-switch
-      v-model="dataTheme"
-      inline-prompt
-      class="pure-datatheme"
-      :active-icon="dayIcon"
-      :inactive-icon="darkIcon"
-      @change="dataThemeChange"
-    />
+    <el-switch v-model="dataTheme" inline-prompt class="pure-datatheme" :active-icon="dayIcon" :inactive-icon="darkIcon"
+      @change="dataThemeChange" />
 
-<!--    <el-divider>导航栏模式</el-divider>-->
-<!--    <ul class="pure-theme">-->
-<!--      <el-tooltip-->
-<!--        :effect="tooltipEffect"-->
-<!--        class="item"-->
-<!--        content="左侧模式"-->
-<!--        placement="bottom"-->
-<!--        popper-class="pure-tooltip"-->
-<!--      >-->
-<!--        <li-->
-<!--          :class="layoutTheme.layout === 'vertical' ? 'is-select' : ''"-->
-<!--          ref="verticalRef"-->
-<!--          @click="setLayoutModel('vertical')"-->
-<!--        >-->
-<!--          <div />-->
-<!--          <div />-->
-<!--        </li>-->
-<!--      </el-tooltip>-->
+    <!--    <el-divider>导航栏模式</el-divider>-->
+    <!--    <ul class="pure-theme">-->
+    <!--      <el-tooltip-->
+    <!--        :effect="tooltipEffect"-->
+    <!--        class="item"-->
+    <!--        content="左侧模式"-->
+    <!--        placement="bottom"-->
+    <!--        popper-class="pure-tooltip"-->
+    <!--      >-->
+    <!--        <li-->
+    <!--          :class="layoutTheme.layout === 'vertical' ? 'is-select' : ''"-->
+    <!--          ref="verticalRef"-->
+    <!--          @click="setLayoutModel('vertical')"-->
+    <!--        >-->
+    <!--          <div />-->
+    <!--          <div />-->
+    <!--        </li>-->
+    <!--      </el-tooltip>-->
 
-<!--      <el-tooltip-->
-<!--        v-if="device !== 'mobile'"-->
-<!--        :effect="tooltipEffect"-->
-<!--        class="item"-->
-<!--        content="顶部模式"-->
-<!--        placement="bottom"-->
-<!--        popper-class="pure-tooltip"-->
-<!--      >-->
-<!--        <li-->
-<!--          :class="layoutTheme.layout === 'horizontal' ? 'is-select' : ''"-->
-<!--          ref="horizontalRef"-->
-<!--          @click="setLayoutModel('horizontal')"-->
-<!--        >-->
-<!--          <div />-->
-<!--          <div />-->
-<!--        </li>-->
-<!--      </el-tooltip>-->
+    <!--      <el-tooltip-->
+    <!--        v-if="device !== 'mobile'"-->
+    <!--        :effect="tooltipEffect"-->
+    <!--        class="item"-->
+    <!--        content="顶部模式"-->
+    <!--        placement="bottom"-->
+    <!--        popper-class="pure-tooltip"-->
+    <!--      >-->
+    <!--        <li-->
+    <!--          :class="layoutTheme.layout === 'horizontal' ? 'is-select' : ''"-->
+    <!--          ref="horizontalRef"-->
+    <!--          @click="setLayoutModel('horizontal')"-->
+    <!--        >-->
+    <!--          <div />-->
+    <!--          <div />-->
+    <!--        </li>-->
+    <!--      </el-tooltip>-->
 
-<!--      <el-tooltip-->
-<!--        v-if="device !== 'mobile'"-->
-<!--        :effect="tooltipEffect"-->
-<!--        class="item"-->
-<!--        content="混合模式"-->
-<!--        placement="bottom"-->
-<!--        popper-class="pure-tooltip"-->
-<!--      >-->
-<!--        <li-->
-<!--          :class="layoutTheme.layout === 'mix' ? 'is-select' : ''"-->
-<!--          ref="mixRef"-->
-<!--          @click="setLayoutModel('mix')"-->
-<!--        >-->
-<!--          <div />-->
-<!--          <div />-->
-<!--        </li>-->
-<!--      </el-tooltip>-->
-<!--    </ul>-->
+    <!--      <el-tooltip-->
+    <!--        v-if="device !== 'mobile'"-->
+    <!--        :effect="tooltipEffect"-->
+    <!--        class="item"-->
+    <!--        content="混合模式"-->
+    <!--        placement="bottom"-->
+    <!--        popper-class="pure-tooltip"-->
+    <!--      >-->
+    <!--        <li-->
+    <!--          :class="layoutTheme.layout === 'mix' ? 'is-select' : ''"-->
+    <!--          ref="mixRef"-->
+    <!--          @click="setLayoutModel('mix')"-->
+    <!--        >-->
+    <!--          <div />-->
+    <!--          <div />-->
+    <!--        </li>-->
+    <!--      </el-tooltip>-->
+    <!--    </ul>-->
 
     <el-divider>主题色</el-divider>
     <ul class="theme-color">
-      <li
-        v-for="(item, index) in themeColors"
-        :key="index"
-        v-show="showThemeColors(item.themeColor)"
-        :style="getThemeColorStyle(item.color)"
-        @click="setLayoutThemeColor(item.themeColor)"
-      >
-        <el-icon
-          style="margin: 0.1em 0.1em 0 0"
-          :size="17"
-          :color="getThemeColor(item.themeColor)"
-        >
+      <li v-for="(item, index) in themeColors" :key="index" v-show="showThemeColors(item.themeColor)"
+        :style="getThemeColorStyle(item.color)" @click="setLayoutThemeColor(item.themeColor)">
+        <el-icon style="margin: 0.1em 0.1em 0 0" :size="17" :color="getThemeColor(item.themeColor)">
           <IconifyIconOffline :icon="Check" />
         </el-icon>
       </li>
@@ -321,60 +306,28 @@ onBeforeMount(() => {
     <ul class="setting">
       <li>
         <span class="dark:text-white">灰色模式</span>
-        <el-switch
-          v-model="settings.greyVal"
-          inline-prompt
-          inactive-color="#a6a6a6"
-          active-text="开"
-          inactive-text="关"
-          @change="greyChange"
-        />
+        <el-switch v-model="settings.greyVal" inline-prompt inactive-color="#a6a6a6" active-text="开" inactive-text="关"
+          @change="greyChange" />
       </li>
       <li>
         <span class="dark:text-white">色弱模式</span>
-        <el-switch
-          v-model="settings.weakVal"
-          inline-prompt
-          inactive-color="#a6a6a6"
-          active-text="开"
-          inactive-text="关"
-          @change="weekChange"
-        />
+        <el-switch v-model="settings.weakVal" inline-prompt inactive-color="#a6a6a6" active-text="开" inactive-text="关"
+          @change="weekChange" />
       </li>
       <li>
         <span class="dark:text-white">隐藏标签页</span>
-        <el-switch
-          v-model="settings.tabsVal"
-          inline-prompt
-          inactive-color="#a6a6a6"
-          active-text="开"
-          inactive-text="关"
-          @change="tagsChange"
-        />
+        <el-switch v-model="settings.tabsVal" inline-prompt inactive-color="#a6a6a6" active-text="开" inactive-text="关"
+          @change="tagsChange" />
       </li>
       <li>
         <span class="dark:text-white">侧边栏Logo</span>
-        <el-switch
-          v-model="logoVal"
-          inline-prompt
-          :active-value="true"
-          :inactive-value="false"
-          inactive-color="#a6a6a6"
-          active-text="开"
-          inactive-text="关"
-          @change="logoChange"
-        />
+        <el-switch v-model="logoVal" inline-prompt :active-value="true" :inactive-value="false" inactive-color="#a6a6a6"
+          active-text="开" inactive-text="关" @change="logoChange" />
       </li>
       <li>
         <span class="dark:text-white">标签页持久化</span>
-        <el-switch
-          v-model="settings.multiTagsCache"
-          inline-prompt
-          inactive-color="#a6a6a6"
-          active-text="开"
-          inactive-text="关"
-          @change="multiTagsCacheChange"
-        />
+        <el-switch v-model="settings.multiTagsCache" inline-prompt inactive-color="#a6a6a6" active-text="开"
+          inactive-text="关" @change="multiTagsCacheChange" />
       </li>
 
       <li>
@@ -386,20 +339,20 @@ onBeforeMount(() => {
       </li>
     </ul>
 
-<!--    <el-divider />-->
-<!--    <el-button-->
-<!--      type="danger"-->
-<!--      style="width: 90%; margin: 24px 15px"-->
-<!--      @click="onReset"-->
-<!--    >-->
-<!--      <IconifyIconOffline-->
-<!--        :icon="Logout"-->
-<!--        width="15"-->
-<!--        height="15"-->
-<!--        style="margin-right: 4px"-->
-<!--      />-->
-<!--      清空缓存-->
-<!--    </el-button>-->
+    <!--    <el-divider />-->
+    <!--    <el-button-->
+    <!--      type="danger"-->
+    <!--      style="width: 90%; margin: 24px 15px"-->
+    <!--      @click="onReset"-->
+    <!--    >-->
+    <!--      <IconifyIconOffline-->
+    <!--        :icon="Logout"-->
+    <!--        width="15"-->
+    <!--        height="15"-->
+    <!--        style="margin-right: 4px"-->
+    <!--      />-->
+    <!--      清空缓存-->
+    <!--    </el-button>-->
   </panel>
 </template>
 

@@ -42,12 +42,19 @@
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
   font-size: 14px;
   color: var(--el-text-color-primary);
   background: #fff;
+  overflow: hidden;
+  z-index: 990;
+  height: 40px;
+  overflow: hidden;
   box-shadow: 0 0 1px #888;
-
+  border-radius: 10px;
+  margin:  10px;
+  > .scroll-item:nth-of-type(1){
+    width: 48px !important;
+  }
   .scroll-item {
     position: relative;
     display: inline-block;

@@ -27,7 +27,7 @@ const { $storage } = useGlobal<GlobalPropertiesApi>();
 const set: setType = reactive({
   sidebar: computed(() => {
     const x = useAppStoreHook().sidebar
-    x.opened = false
+    x.opened = true
     x.isClickCollapse = true
     return x;
   }),
@@ -71,7 +71,7 @@ function toggle(device: string, bool: boolean) {
 }
 
 // 判断是否可自动关闭菜单栏
-let isAutoCloseSidebar = true;
+let isAutoCloseSidebar = false;
 
 // 监听容器
 emitter.on("resize", ({ detail }) => {
@@ -83,19 +83,13 @@ emitter.on("resize", ({ detail }) => {
    * 760 < width <= 990 折叠侧边栏
    * width > 990 展开侧边栏
    */
-  if (width > 0 && width <= 760) {
-    toggle("mobile", false);
+
+  if (width <= 850) {
+    toggle("desktop", false);
+    isAutoCloseSidebar = false;
+  } else if (width > 850) {
+    toggle("desktop", true);
     isAutoCloseSidebar = true;
-  } else if (width > 760 && width <= 990) {
-    if (isAutoCloseSidebar) {
-      toggle("desktop", false);
-      isAutoCloseSidebar = false;
-    }
-  } else if (width > 990) {
-    if (!set.sidebar.isClickCollapse) {
-      toggle("desktop", true);
-      isAutoCloseSidebar = true;
-    }
   }
 });
 
@@ -122,7 +116,7 @@ const layoutHeader = defineComponent({
       {
         default: () => [
           !pureSetting.hiddenSideBar &&
-          (layout.value.includes("vertical") || layout.value.includes("mix"))
+            (layout.value.includes("vertical") || layout.value.includes("mix"))
             ? h(navbar)
             : null,
           !pureSetting.hiddenSideBar && layout.value.includes("horizontal")
@@ -138,37 +132,21 @@ const layoutHeader = defineComponent({
 
 <template>
   <div :class="['app-wrapper', set.classes]" v-resize>
-    <div
-      v-show="
-        set.device === 'mobile' &&
-        set.sidebar.opened &&
-        layout.includes('vertical')
-      "
-      class="app-mask"
-      @click="useAppStoreHook().toggleSideBar()"
-    />
-    <Vertical
-      v-show="
-        !pureSetting.hiddenSideBar &&
-        (layout.includes('vertical') || layout.includes('mix'))
-      "
-    />
-    <div
-      :class="[
-        'main-container',
-        pureSetting.hiddenSideBar ? 'main-hidden' : ''
-      ]"
-    >
+    <div v-show="set.device === 'mobile' &&
+    set.sidebar.opened &&
+    layout.includes('vertical')
+    " class="app-mask" @click="useAppStoreHook().toggleSideBar()" />
+    <Vertical v-show="!pureSetting.hiddenSideBar &&
+    (layout.includes('vertical') || layout.includes('mix'))
+    " />
+    <div :class="['main-container', pureSetting.hiddenSideBar ? 'main-hidden' : '']">
       <div v-if="set.fixedHeader">
         <layout-header />
         <!-- 主体内容 -->
         <app-main :fixed-header="set.fixedHeader" />
       </div>
       <el-scrollbar v-else>
-        <el-backtop
-          title="回到顶部"
-          target=".main-container .el-scrollbar__wrap"
-        >
+        <el-backtop title="回到顶部" target=".main-container .el-scrollbar__wrap">
           <backTop />
         </el-backtop>
         <layout-header />

@@ -59,8 +59,8 @@ const getsubMenuIconStyle = computed((): CSSProperties => {
       layout.value === "horizontal"
         ? "0 5px 0 0"
         : isCollapse.value
-        ? "0 auto"
-        : "0 5px 0 0"
+          ? "0 auto"
+          : "0 5px 0 0"
   };
 });
 
@@ -83,21 +83,21 @@ const getSubMenuDivStyle = computed((): any => {
   return item => {
     return !isCollapse.value
       ? {
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          overflow: "hidden"
-        }
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        overflow: "hidden"
+      }
       : {
-          width: "100%",
-          textAlign:
-            item?.parentId === null
-              ? "center"
-              : layout.value === "mix" && item?.pathList?.length === 2
+        width: "100%",
+        textAlign:
+          item?.parentId === null
+            ? "center"
+            : layout.value === "mix" && item?.pathList?.length === 2
               ? "center"
               : ""
-        };
+      };
   };
 });
 
@@ -125,11 +125,11 @@ function hoverMenu(key) {
     // 如果文本内容的整体宽度大于其可视宽度，则文本溢出
     menuTextRef.value?.scrollWidth > menuTextRef.value?.clientWidth
       ? Object.assign(key, {
-          showTooltip: true
-        })
+        showTooltip: true
+      })
       : Object.assign(key, {
-          showTooltip: false
-        });
+        showTooltip: false
+      });
     hoverMenuMap.set(key, true);
   });
 }
@@ -181,49 +181,30 @@ function resolvePath(routePath) {
 </script>
 
 <template>
-  <el-menu-item
-    v-if="
-      hasOneShowingChild(props.item.children, props.item) &&
-      (!onlyOneChild.children || onlyOneChild.noShowingChildren)
-    "
-    :index="resolvePath(onlyOneChild.path)"
-    :class="{ 'submenu-title-noDropdown': !isNest }"
-    :style="getNoDropdownStyle"
-  >
-    <div
-      v-if="toRaw(props.item.meta.icon)"
-      class="sub-menu-icon"
-      :style="getsubMenuIconStyle"
-    >
-      <component
-        :is="
+  <el-menu-item v-if="hasOneShowingChild(props.item.children, props.item) &&
+    (!onlyOneChild.children || onlyOneChild.noShowingChildren)
+    " :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }"
+    :style="getNoDropdownStyle">
+    <div v-if="toRaw(props.item.meta.icon)" class="sub-menu-icon" :style="getsubMenuIconStyle">
+      <component :is="
           useRenderIcon(
             toRaw(onlyOneChild.meta.icon) ||
               (props.item.meta && toRaw(props.item.meta.icon))
           )
-        "
-      />
+        " />
     </div>
-    <span
-      v-if="
-        !props.item?.meta.icon &&
-        isCollapse &&
-        layout === 'vertical' &&
-        props.item?.pathList?.length === 1
-      "
-      :style="getSpanStyle"
-    >
+    <span v-if="!props.item?.meta.icon &&
+    isCollapse &&
+    layout === 'vertical' &&
+    props.item?.pathList?.length === 1
+    " :style="getSpanStyle">
       {{ overflowSlice(onlyOneChild.meta.title) }}
     </span>
-    <span
-      v-if="
-        !onlyOneChild.meta.icon &&
-        isCollapse &&
-        layout === 'mix' &&
-        props.item?.pathList?.length === 2
-      "
-      :style="getSpanStyle"
-    >
+    <span v-if="!onlyOneChild.meta.icon &&
+    isCollapse &&
+    layout === 'mix' &&
+    props.item?.pathList?.length === 2
+    " :style="getSpanStyle">
       {{ overflowSlice(onlyOneChild.meta.title) }}
     </span>
     <template #title>
@@ -231,21 +212,11 @@ function resolvePath(routePath) {
         <span v-if="layout === 'horizontal'">
           {{ onlyOneChild.meta.title }}
         </span>
-        <el-tooltip
-          v-else
-          placement="top"
-          :effect="tooltipEffect"
-          :offset="-10"
-          :disabled="!onlyOneChild.showTooltip"
-        >
+        <el-tooltip v-else placement="top" :effect="tooltipEffect" :offset="-10" :disabled="!onlyOneChild.showTooltip">
           <template #content>
             {{ onlyOneChild.meta.title }}
           </template>
-          <span
-            ref="menuTextRef"
-            :style="getMenuTextStyle"
-            @mouseover="hoverMenu(onlyOneChild)"
-          >
+          <span ref="menuTextRef" :style="getMenuTextStyle" @mouseover="hoverMenu(onlyOneChild)">
             {{ onlyOneChild.meta.title }}
           </span>
         </el-tooltip>
@@ -254,63 +225,34 @@ function resolvePath(routePath) {
     </template>
   </el-menu-item>
 
-  <el-sub-menu
-    v-else
-    ref="subMenu"
-    v-bind="expandCloseIcon"
-    :index="resolvePath(props.item.path)"
-  >
+  <el-sub-menu v-else ref="subMenu" v-bind="expandCloseIcon" :index="resolvePath(props.item.path)">
+
     <template #title>
-      <div
-        v-if="toRaw(props.item.meta.icon)"
-        :style="getsubMenuIconStyle"
-        class="sub-menu-icon"
-      >
-        <component
-          :is="useRenderIcon(props.item.meta && toRaw(props.item.meta.icon))"
-        />
+      <div v-if="toRaw(props.item.meta.icon)" :style="getsubMenuIconStyle" class="sub-menu-icon">
+        <component :is="useRenderIcon(props.item.meta && toRaw(props.item.meta.icon))" />
       </div>
       <span v-if="layout === 'horizontal'">
         {{ props.item.meta.title }}
       </span>
-      <div
-        :style="getSubMenuDivStyle(props.item)"
-        v-if="
-          !(
-            isCollapse &&
-            toRaw(props.item.meta.icon) &&
-            props.item.parentId === null
-          )
-        "
-      >
-        <el-tooltip
-          v-if="layout !== 'horizontal'"
-          placement="top"
-          :effect="tooltipEffect"
-          :offset="-10"
-          :disabled="!props.item.showTooltip"
-        >
+      <div :style="getSubMenuDivStyle(props.item)" v-if="!(
+    isCollapse &&
+    toRaw(props.item.meta.icon) &&
+    props.item.parentId === null
+  )
+    ">
+        <el-tooltip v-if="layout !== 'horizontal'" placement="top" :effect="tooltipEffect" :offset="-10"
+          :disabled="!props.item.showTooltip">
           <template #content>
             {{ props.item.meta.title }}
           </template>
-          <span
-            ref="menuTextRef"
-            :style="getSubTextStyle"
-            @mouseover="hoverMenu(props.item)"
-          >
+          <span ref="menuTextRef" :style="getSubTextStyle" @mouseover="hoverMenu(props.item)">
             {{ overflowSlice(props.item.meta.title, props.item) }}
           </span>
         </el-tooltip>
         <extraIcon v-if="!isCollapse" :extraIcon="props.item.meta.extraIcon" />
       </div>
     </template>
-    <sidebar-item
-      v-for="child in props.item.children"
-      :key="child.path"
-      :is-nest="true"
-      :item="child"
-      :base-path="resolvePath(child.path)"
-      class="nest-menu"
-    />
+    <sidebar-item v-for="child in props.item.children" :key="child.path" :is-nest="true" :item="child"
+      :base-path="resolvePath(child.path)" class="nest-menu" />
   </el-sub-menu>
 </template>

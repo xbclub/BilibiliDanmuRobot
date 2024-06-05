@@ -3,6 +3,7 @@ import { useGlobal } from "@pureadmin/utils";
 import backTop from "@/assets/svg/back_top.svg?component";
 import { h, computed, Transition, defineComponent } from "vue";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { RouterView } from 'vue-router'
 
 const props = defineProps({
   fixedHeader: Boolean
@@ -30,11 +31,11 @@ const layout = computed(() => {
 
 const getSectionStyle = computed(() => {
   return [
-    hideTabs.value && layout ? "padding-top: 48px;" : "",
-    !hideTabs.value && layout ? "padding-top: 85px;" : "",
-    hideTabs.value && !layout.value ? "padding-top: 48px" : "",
-    !hideTabs.value && !layout.value ? "padding-top: 85px;" : "",
-    props.fixedHeader ? "" : "padding-top: 0;"
+    hideTabs.value && layout ? "margin-top: 115px;" : "",
+    !hideTabs.value && layout ? "margin-top: 165px;" : "",
+    hideTabs.value && !layout.value ? "margin-top:  115px" : "",
+    !hideTabs.value && !layout.value ? "margin-top: 165px;" : "",
+    props.fixedHeader ? "" : "margin-top: 0;"
   ];
 });
 
@@ -45,11 +46,11 @@ const transitionMain = defineComponent({
       {
         name:
           transitions.value(this.route) &&
-          this.route.meta.transition.enterTransition
+            this.route.meta.transition.enterTransition
             ? "pure-classes-transition"
             : (transitions.value(this.route) &&
-                this.route.meta.transition.name) ||
-              "fade-transform",
+              this.route.meta.transition.name) ||
+            "fade-transform",
         enterActiveClass:
           transitions.value(this.route) &&
           `animate__animated ${this.route.meta.transition.enterTransition}`,
@@ -74,66 +75,27 @@ const transitionMain = defineComponent({
 </script>
 
 <template>
-  <section
-    :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
-    :style="getSectionStyle"
-  >
-    <router-view>
-      <template #default="{ Component, route }">
-        <el-scrollbar v-if="props.fixedHeader">
-          <el-backtop title="回到顶部" target=".app-main .el-scrollbar__wrap">
-            <backTop />
-          </el-backtop>
-          <transitionMain :route="route">
-            <keep-alive
-              v-if="keepAlive"
-              :include="usePermissionStoreHook().cachePageList"
-            >
-              <component
-                :is="Component"
-                :key="route.fullPath"
-                class="main-content"
-              />
-            </keep-alive>
-            <component
-              v-else
-              :is="Component"
-              :key="route.fullPath"
-              class="main-content"
-            />
-          </transitionMain>
-        </el-scrollbar>
-        <div v-else>
-          <transitionMain :route="route">
-            <keep-alive
-              v-if="keepAlive"
-              :include="usePermissionStoreHook().cachePageList"
-            >
-              <component
-                :is="Component"
-                :key="route.fullPath"
-                class="main-content"
-              />
-            </keep-alive>
-            <component
-              v-else
-              :is="Component"
-              :key="route.fullPath"
-              class="main-content"
-            />
-          </transitionMain>
-        </div>
-      </template>
+  <section :class="[props.fixedHeader ? 'app-main' : 'app-main-nofixed-header']" :style="getSectionStyle">
+    <router-view v-slot="{ Component, route }" >
+      <transition>
+        <keep-alive>
+          <component :is="Component" some-prop="a value" />
+        </keep-alive>
+      </transition>
     </router-view>
   </section>
 </template>
 
 <style scoped>
 .app-main {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow-x: hidden;
+  z-index: 998;
+  height: calc(100% - 175px);
+  overflow: hidden;
+  box-shadow: 0 0 1px #888;
+  border-radius: 10px;
+  position: fixed;
+  background-color: #fff;
+  margin: 10px;
 }
 
 .app-main-nofixed-header {

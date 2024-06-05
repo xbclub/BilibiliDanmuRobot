@@ -4,12 +4,8 @@ import {context} from '../models';
 
 export function Bili_danmaku_Start(arg1:context.Context):Promise<void>;
 
-export function Bili_danmaku_Stop():Promise<void>;
-
 export function Monitor():Promise<boolean>;
 
 export function Start():Promise<boolean>;
-
-export function StartBulletGirl(arg1:context.Context,arg2:context.Context,arg3:context.Context,arg4:context.Context,arg5:context.Context):Promise<void>;
 
 export function Stop():Promise<boolean>;

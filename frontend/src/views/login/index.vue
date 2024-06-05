@@ -3,143 +3,55 @@ import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
 import { useNav } from "@/layout/hooks/useNav";
 import { useLayout } from "@/layout/hooks/useLayout";
-import { bg, avatar, illustration } from "./utils/static";
-import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
+import { ref} from "vue";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
+import { bgblue, bgpink, boy, girl, flowerPink, flowerBlue } from "@/utils/static";
+import {
+  Female,
+  Male,
+} from '@element-plus/icons-vue'
 import QrCode from "@/views/login/components/qrCode.vue";
-import {useUserStore} from "@/store/modules/user";
 defineOptions({
   name: "Login"
 });
 const router = useRouter();
-const loading = ref(false);
+const girlOrBoy = ref(true);
 
 const { initStorage } = useLayout();
 initStorage();
 const { dataTheme, dataThemeChange } = useDataThemeChange();
 dataThemeChange();
+function change(val: any) {
+  console.log(val);
+  girlOrBoy.value = val
+}
 const { title } = useNav();
-// const ruleForm = reactive({
-//   username: "admin",
-//   password: "admin123"
-// });
-//
-// const onLogin = async (formEl: FormInstance | undefined) => {
-//   loading.value = true;
-//   if (!formEl) return;
-//   await formEl.validate((valid, fields) => {
-//     if (valid) {
-//       useUserStoreHook()
-//         .loginByUsername({ username: ruleForm.username, password: "admin123" })
-//         .then(res => {
-//           // if (res.success) {
-//           //   // 获取后端路由
-//           //   initRouter().then(() => {
-//           //     router.push(getTopMenu(true).path);
-//           //     message("登录成功", { type: "success" });
-//           //   });
-//           // }
-//         });
-//     } else {
-//       loading.value = false;
-//       return fields;
-//     }
-//   });
-// };
-
-// /** 使用公共函数，避免`removeEventListener`失效 */
-// function onkeypress({ code }: KeyboardEvent) {
-//   if (code === "Enter") {
-//     onLogin(ruleFormRef.value);
-//   }
-// }
-//
-// onMounted(() => {
-//   window.document.addEventListener("keypress", onkeypress);
-// });
-//
-// onBeforeUnmount(() => {
-//   window.document.removeEventListener("keypress", onkeypress);
-// });
 </script>
 
 <template>
   <div class="select-none">
-    <img :src="bg" class="wave" />
+    <img :src="bgpink" class="wave" v-if="girlOrBoy" />
+    <img :src="bgblue" class="wave" v-else />
     <div class="flex-c absolute right-5 top-3">
       <!-- 主题 -->
-      <el-switch
-        v-model="dataTheme"
-        inline-prompt
-        :active-icon="dayIcon"
-        :inactive-icon="darkIcon"
-        @change="dataThemeChange"
-      />
+      <el-switch v-model="girlOrBoy" style="--el-switch-on-color: #f88597; --el-switch-off-color: #5ed6de" inline-prompt
+        :active-icon="Female" :inactive-icon="Male" @change="change" />
     </div>
     <div class="login-container">
-      <div class="img">
-        <component :is="toRaw(illustration)" />
+      <div v-if="girlOrBoy">
+        <img :src="girl" class="wave" />
+      </div>
+      <div v-else>
+        <img :src="boy" class="wave" />
       </div>
       <div class="login-box">
         <div class="login-form">
-          <avatar class="avatar" />
+          <img :src="flowerPink" class="avatar" v-if="girlOrBoy" />
+          <img :src="flowerBlue" class="avatar" v-else />
           <Motion>
-            <h2 class="outline-none">{{ title }}</h2>
+            <h2 class="outline-none">花花机器人</h2>
           </Motion>
-          <qrCode  />
-<!--          <el-form-->
-<!--            ref="ruleFormRef"-->
-<!--            :model="ruleForm"-->
-<!--            :rules="loginRules"-->
-<!--            size="large"-->
-<!--          >-->
-<!--            <Motion :delay="100">-->
-<!--              <el-form-item-->
-<!--                :rules="[-->
-<!--                  {-->
-<!--                    required: true,-->
-<!--                    message: '请输入账号',-->
-<!--                    trigger: 'blur'-->
-<!--                  }-->
-<!--                ]"-->
-<!--                prop="username"-->
-<!--              >-->
-<!--                <el-input-->
-<!--                  clearable-->
-<!--                  v-model="ruleForm.username"-->
-<!--                  placeholder="账号"-->
-<!--                  :prefix-icon="useRenderIcon(User)"-->
-<!--                />-->
-<!--              </el-form-item>-->
-<!--            </Motion>-->
-
-<!--            <Motion :delay="150">-->
-<!--              <el-form-item prop="password">-->
-<!--                <el-input-->
-<!--                  clearable-->
-<!--                  show-password-->
-<!--                  v-model="ruleForm.password"-->
-<!--                  placeholder="密码"-->
-<!--                  :prefix-icon="useRenderIcon(Lock)"-->
-<!--                />-->
-<!--              </el-form-item>-->
-<!--            </Motion>-->
-
-<!--            <Motion :delay="250">-->
-<!--              <el-button-->
-<!--                class="w-full mt-4"-->
-<!--                size="default"-->
-<!--                type="primary"-->
-<!--                :loading="loading"-->
-<!--                @click="onLogin(ruleFormRef)"-->
-<!--              >-->
-<!--                登录-->
-<!--              </el-button>-->
-<!--            </Motion>-->
-<!--          </el-form>-->
+          <qrCode />
         </div>
       </div>
     </div>

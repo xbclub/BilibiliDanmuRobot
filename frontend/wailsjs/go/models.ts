@@ -1,7 +1,7 @@
-export namespace types {
+export namespace entity {
 	
 	export class LoginUrl {
-	    // Go type: struct { Url string "json:\"url\""; OauthKey string "json:\"oauthKey\"" }
+	    // Go type: struct { Url string "json:\"url\""; OauthKey string "json:\"qrcode_key\"" }
 	    data: any;
 	
 	    static createFrom(source: any = {}) {
@@ -17,7 +17,7 @@ export namespace types {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {

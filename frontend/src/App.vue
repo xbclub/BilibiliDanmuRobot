@@ -1,6 +1,8 @@
 <template>
   <el-config-provider :locale="currentLocale">
-    <router-view />
+    <keep-alive>
+      <router-view />
+    </keep-alive>
     <ReDialog />
   </el-config-provider>
 </template>
@@ -23,3 +25,10 @@ export default defineComponent({
   }
 });
 </script>
+<style>
+.between {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+</style>
