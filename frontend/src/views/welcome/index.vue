@@ -41,7 +41,7 @@ const data = reactive({
     BlindBoxProfitLossStat: true,
     InteractWord: true,
     EntryEffect: true,
-    GoodbyeInfo: true,
+    GoodbyeInfo: "",
     InteractSelf: true,
     ThanksShare: true,
     ThanksGift: true,

@@ -397,7 +397,7 @@ function saveKeyword() {
 
 function deleteKeyword(item: string) {
   // console.log(item)
-  if (data.form.WelcomeString.hasOwnProperty(item)) {
+  if (data.form.KeywordReplyList.hasOwnProperty(item)) {
     delete data.form.KeywordReplyList[item];
   }
   formatKeywordReply();

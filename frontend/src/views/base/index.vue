@@ -30,14 +30,15 @@ const data = reactive({
     DanmuLen: 20,
     EntryMsg: "花花机器人进入直播间",
     GoodbyeInfo: "下播啦~ 感谢大家的陪伴~ 下次见哦~",
+    ThanksFocus: false,
     PKNotice: true,
     InteractWord: true,
     EntryEffect: true,
     ThanksGift: true,
     InteractSelf: true,
     ThanksShare: true,
-    welcomehighwealthy: true,
-    welcomehighwealthylevel: 26,
+    WelcomeHighWealthy: true,
+    WelcomeHighWealthyLevel: 26,
     ThanksGiftTimeout: 3,
     WelcomeSwitch: true,
     WelcomeString: {
@@ -231,7 +232,7 @@ import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
 import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
 import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
-import { ElMessage } from 'element-plus'
+import { ElMessage } from "element-plus";
 // import { func } from "vue-types";
 
 const activeName = ref("first");
@@ -396,7 +397,8 @@ function addKeyword() {
 }
 
 function saveKeyword() {
-  data.form.KeywordReplyList[data.keywordDialogData.keyword] = data.keywordDialogData.replyword;
+  data.form.KeywordReplyList[data.keywordDialogData.keyword] =
+    data.keywordDialogData.replyword;
   formatKeywordReply();
   data.keywordReplyDialogVisible = false;
 }
@@ -418,7 +420,7 @@ function editKeyword(keyword, replyword) {
 
 async function saveConfig() {
   if (!data.form.RoomId || data.form.RoomId == 3) {
-    ElMessage.warning('直播间号错误')
+    ElMessage.warning("直播间号错误");
     return;
   }
   data.savestatus = false;
@@ -500,7 +502,7 @@ onActivated(() => {
       data.form = res.Form;
       formatWelcomeString();
       initWelcomeDanmuByTime();
-      formatKeywordReply()
+      formatKeywordReply();
       if (data.form.ChatGPT.APIUrl.length == 0) {
         data.form.ChatGPT.APIUrl = "https://api.openai.com/v1";
       }
@@ -511,9 +513,14 @@ onActivated(() => {
 
 <template>
   <el-scrollbar class="my-scrollbar">
-    <div style="margin: 20px;">
-
-      <el-form :model="data.form" label-width="120px" ref="formRef" class="el-form" :rules="rules">
+    <div style="margin: 20px">
+      <el-form
+        :model="data.form"
+        label-width="120px"
+        ref="formRef"
+        class="el-form"
+        :rules="rules"
+      >
         <el-form-item label="直播间号" prop="RoomId">
           <el-input v-model.number="data.form.RoomId" autocomplete="off" />
         </el-form-item>
@@ -524,7 +531,7 @@ onActivated(() => {
           <el-input v-model.number="data.form.EntryMsg" />
         </el-form-item>
         <el-form-item label="下播感谢" prop="GoodbyeInfo">
-          <el-input v-model.number="data.form.GoodbyeInfo" />
+          <el-input v-model="data.form.GoodbyeInfo" />
         </el-form-item>
         <el-form-item label="不欢迎自己">
           <el-switch v-model="data.form.InteractSelf" />
@@ -532,20 +539,27 @@ onActivated(() => {
         <el-form-item label="分享感谢">
           <el-switch v-model="data.form.ThanksShare" />
         </el-form-item>
+        <el-form-item label="关注感谢">
+          <el-switch v-model="data.form.ThanksFocus" />
+        </el-form-item>
         <el-form-item label="荣耀等级欢迎">
-          <el-switch v-model="data.form.welcomehighwealthy" />
+          <el-switch v-model="data.form.WelcomeHighWealthy" />
         </el-form-item>
         <el-form-item label="指定等级">
-          <el-input-number v-model="data.form.welcomehighwealthylevel" :min="1" :max="100"/>
+          <el-input-number
+            v-model="data.form.WelcomeHighWealthyLevel"
+            :min="1"
+            :max="100"
+          />
         </el-form-item>
         <el-form-item label="礼物感谢频率" prop="RoomId">
-          <el-col :span="3">
-            <el-input v-model.number="data.form.ThanksGiftTimeout">
-              <template #append>
-                <div class="input-append">秒</div>
-              </template>
-            </el-input>
-          </el-col>
+          
+            <el-input-number
+              v-model="data.form.ThanksGiftTimeout"
+              :min="1"
+              :max="100"
+            />秒
+
         </el-form-item>
         <el-form-item label="数据库目录">
           <el-input v-model="data.form.DBPath" />
@@ -559,11 +573,10 @@ onActivated(() => {
       </center>
     </div>
   </el-scrollbar>
-
 </template>
 
 <style>
-.demo-tabs>.el-tabs__content {
+.demo-tabs > .el-tabs__content {
   padding: 32px;
   color: #6b778c;
   font-size: 32px;
