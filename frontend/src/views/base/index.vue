@@ -553,7 +553,7 @@ onActivated(() => {
           />
         </el-form-item>
         <el-form-item label="礼物感谢频率" prop="RoomId">
-          
+
             <el-input-number
               v-model="data.form.ThanksGiftTimeout"
               :min="1"
