@@ -59,6 +59,28 @@ const data = reactive({
       "入股不亏哦~",
       "贴贴~"
     ],
+    DrawLotsList: [
+      "恭喜您抽到吉签，好运常伴，心想事成！",
+      "恭喜您获得上上签，一帆风顺，万事如意！",
+      "喜获佳签，吉星高照，未来可期！",
+      "抽到福签，福运亨通，好事连连！",
+      "吉签在手，好运相随，笑口常开！",
+      "恭喜您抽中好签，好运不断，步步高升！",
+      "喜得吉签，好运自来，前程似锦！",
+      "抽到吉签啦，事事顺心，幸福安康！",
+      "恭喜您抽中如意签，心想事成，万事如意！",
+      "喜获吉祥签，好运连连，快乐无边！",
+      "抽到小凶签，近期小心行事。",
+      "遗憾，下签，请保持警惕。",
+      "不吉之签，需谨慎处理。",
+      "抽到凶签，冷静应对挑战。",
+      "抽到稍逊签，行事需谨慎。",
+      "抽到小凶签，请留意周围事物。",
+      "抽到下签，调整心态面对。",
+      "运势不佳，努力克服困难。",
+      "抽到下下签，但也请信心面对未来。",
+      "我是签，抽我抽我"
+    ],
     CronDanmu: false,
     ThanksFocus: false,
     CronDanmuList: [
@@ -301,13 +323,13 @@ const deleteWelcomeBlacklistWide = (item: number) => {
     data.form.WelcomeBlacklistWide.splice(item, 1);
   }
 };
-const addFocusDanmu = () => {
-  data.form.FocusDanmu.push("");
+const addDrawLotsList = () => {
+  data.form.DrawLotsList.push("");
 };
-const deleteFocusDanmu = (item: number) => {
+const deleteDrawLotsList = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
-    data.form.FocusDanmu.splice(item, 1);
+    data.form.DrawLotsList.splice(item, 1);
   }
 };
 const getWelcomeDanmuByTimeDescribe = key => {
@@ -502,19 +524,19 @@ onActivated(() => {
 <template>
   <el-scrollbar class="my-scrollbar">
     <div style="margin: 20px;">
-      <el-form :model="data.form" label-width="120px" ref="formRef" class="el-form" :rules="rules">
+      <el-form :model="data.form" label-width="80px" ref="formRef" class="el-form" :rules="rules">
         <el-form-item label="功能开关">
           <div class="between">
-            <el-switch v-model="data.form.ThanksFocus" />
-            <el-button type="primary" @click="addFocusDanmu">新增</el-button>
+            <el-switch v-model="data.form.DrawByLot" />
+            <el-button type="primary" @click="addDrawLotsList">新增</el-button>
           </div>
         </el-form-item>
         <el-form-item>
         </el-form-item>
-        <el-form-item v-for="(items, index) in data.form.FocusDanmu" :label="'关注答谢语 ' + (index + 1)">
+        <el-form-item v-for="(items, index) in data.form.DrawLotsList" :label="'抽签词 ' + (index + 1)">
           <div class="between">
-            <el-input v-model="data.form.FocusDanmu[index]" />
-            <el-button class="mt-2" @click="deleteFocusDanmu(index)" plain type="danger" :icon="Delete" circle
+            <el-input v-model="data.form.DrawLotsList[index]" />
+            <el-button class="mt-2" @click="deleteDrawLotsList(index)" plain type="danger" :icon="Delete" circle
               style="margin-left: 20px;">
             </el-button>
           </div>

@@ -85,5 +85,14 @@ export default {
         showLink: VITE_HIDE_HOME === "true" ? false : true
       }
     },
+    {
+      path: "/drawlist",
+      name: "Drawlist",
+      component: () => import("@/views/drawList/index.vue"),
+      meta: {
+        title: "抽签词",
+        showLink: VITE_HIDE_HOME === "true" ? false : true
+      }
+    },
   ]
 } as RouteConfigsTable;

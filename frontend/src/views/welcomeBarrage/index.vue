@@ -227,7 +227,7 @@ import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
 import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
-import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 // import { func } from "vue-types";
 
 const activeName = ref("first");
@@ -461,12 +461,8 @@ async function pgstop() {
   }
 }
 
-async function restart() {
-  await pgstop();
-  console.log(data.isrunning);
-  if (data.isrunning == false) {
-    pgstart();
-  }
+function restart() {
+  Restart();
 }
 
 const rules = reactive<FormRules>({

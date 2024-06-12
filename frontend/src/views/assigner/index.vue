@@ -225,7 +225,7 @@ import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
 import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
-import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 // import { func } from "vue-types";
 
 const activeName = ref("first");
@@ -460,12 +460,8 @@ async function pgstop() {
   }
 }
 
-async function restart() {
-  await pgstop();
-  console.log(data.isrunning);
-  if (data.isrunning == false) {
-    pgstart();
-  }
+function restart() {
+  Restart();
 }
 
 const rules = reactive<FormRules>({
@@ -527,7 +523,7 @@ onActivated(() => {
       </center>
     </div>
   </el-scrollbar>
-  <el-dialog v-model="data.dialogVisible" :title="data.dialogtitle" width="30%">
+  <el-dialog v-model="data.dialogVisible" :title="data.dialogtitle" width="30%" top="30vh" :modal="false">
     <el-form-item label="用户uid">
       <el-input v-model.number="data.dialogdata.uid" :disabled="data.dialogAction" />
     </el-form-item>

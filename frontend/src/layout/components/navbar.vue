@@ -17,7 +17,7 @@ import {
   ReadConfig
 } from "../../../wailsjs/go/main/App";
 import router from "@/router";
-import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 import { ElNotification, ElMessageBox } from "element-plus";
 
 const {
@@ -127,7 +127,7 @@ onMounted(() => {
   GetVersion().then(res => {
     data.version = res;
   });
-  setInterval(() => {  
+  setInterval(() => {
     Monitor().then(res => {
       data.isrunning = res;
     });
@@ -174,12 +174,12 @@ async function getuserinfo() {
       }
       console.log(data);
     });
+    pgstart();
   } else {
     window.localStorage.removeItem("userInfo");
     router.push("/login");
     return;
   }
-  pgstart();
 }
 async function pgstart() {
   await Monitor().then(res => {
@@ -202,11 +202,13 @@ async function pgstop() {
   }
 }
 async function restart() {
-  await pgstop();
-  console.log(data.isrunning);
-  if (data.isrunning == false) {
-    pgstart();
-  }
+  Restart();
+  data.isrunning = false;
+  await sleep(600);
+  data.isrunning = true;
+}
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 </script>
 
@@ -243,8 +245,7 @@ async function restart() {
     </div>
     <div v-if="layout === 'vertical'" class="vertical-header-right">
       <el-button size="small" type="warning" plain @click="restart">重启</el-button>
-      <el-button size="small" type="danger" @click="pgstop" plain v-if="data.isrunning">停止</el-button>
-      <el-button size="small" type="success" @click="pgstart" plain v-else>启动</el-button>
+<!--      <el-button size="small" type="success" @click="pgstart" plain  v-if="data.isrunning==false">启动</el-button>-->
       <el-button size="small" type="primary" @click="checkupdates(true)" plain>更新</el-button>
 
       <span class="set-icon navbar-bg-hover" title="打开项目配置" @click="onPanel">

@@ -231,7 +231,7 @@ import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
 import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
-import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 import { ElMessage } from "element-plus";
 // import { func } from "vue-types";
 
@@ -471,12 +471,8 @@ async function pgstop() {
   }
 }
 
-async function restart() {
-  await pgstop();
-  console.log(data.isrunning);
-  if (data.isrunning == false) {
-    pgstart();
-  }
+function restart() {
+  Restart();
 }
 
 const rules = reactive<FormRules>({
@@ -514,13 +510,7 @@ onActivated(() => {
 <template>
   <el-scrollbar class="my-scrollbar">
     <div style="margin: 20px">
-      <el-form
-        :model="data.form"
-        label-width="120px"
-        ref="formRef"
-        class="el-form"
-        :rules="rules"
-      >
+      <el-form :model="data.form" label-width="120px" ref="formRef" class="el-form" :rules="rules">
         <el-form-item label="直播间号" prop="RoomId">
           <el-input v-model.number="data.form.RoomId" autocomplete="off" />
         </el-form-item>
@@ -546,20 +536,10 @@ onActivated(() => {
           <el-switch v-model="data.form.WelcomeHighWealthy" />
         </el-form-item>
         <el-form-item label="指定等级">
-          <el-input-number
-            v-model="data.form.WelcomeHighWealthyLevel"
-            :min="1"
-            :max="100"
-          />
+          <el-input-number v-model="data.form.WelcomeHighWealthyLevel" :min="1" :max="100" />
         </el-form-item>
         <el-form-item label="礼物感谢频率" prop="RoomId">
-
-            <el-input-number
-              v-model="data.form.ThanksGiftTimeout"
-              :min="1"
-              :max="100"
-            />秒
-
+          <el-input-number v-model="data.form.ThanksGiftTimeout" :min="1" :max="100" style="margin-right: 10px;"/>秒
         </el-form-item>
         <el-form-item label="数据库目录">
           <el-input v-model="data.form.DBPath" />
@@ -576,7 +556,7 @@ onActivated(() => {
 </template>
 
 <style>
-.demo-tabs > .el-tabs__content {
+.demo-tabs>.el-tabs__content {
   padding: 32px;
   color: #6b778c;
   font-size: 32px;

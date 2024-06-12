@@ -120,6 +120,7 @@ func main() {
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
+				cls.SayGoodbye()
 				cls.StopWsClient()
 			}
 			t.Reset(interval)

@@ -5,7 +5,7 @@ import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
 import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
-import { Monitor, Start, Stop } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 import { Menu, Setting } from '@element-plus/icons-vue'
 import { onActivated } from "vue";
 import { ElMessage } from 'element-plus'
@@ -108,7 +108,7 @@ const data = reactive({
 });
 
 async function saveConfig() {
-  if(!data.form.RoomId || data.form.RoomId==3 ){
+  if (!data.form.RoomId || data.form.RoomId == 3) {
     ElMessage.warning('直播间号错误')
     return;
   }
@@ -163,12 +163,8 @@ async function pgstop() {
   }
 }
 
-async function restart() {
-  await pgstop();
-  console.log(data.isrunning);
-  if (data.isrunning == false) {
-    pgstart();
-  }
+function restart() {
+  Restart();
 }
 
 const rules = reactive<FormRules>({
@@ -250,7 +246,6 @@ onActivated(() => {
             <Menu class="icon" />新增弹幕开关
           </span>
         </template>
-        <p>下播感谢<el-switch v-model="data.form.GoodbyeInfo" size="small" @click="saveConfig" /></p>
         <p>拉黑自己<el-switch v-model="data.form.InteractSelf" size="small" @click="saveConfig" /></p>
         <p>分享感谢<el-switch v-model="data.form.ThanksShare" size="small" @click="saveConfig" /></p>
         <p>盲盒盈亏<el-switch v-model="data.form.BlindBoxProfitLossStat" size="small" @click="saveConfig" /></p>
@@ -347,7 +342,7 @@ onActivated(() => {
           </div>
         </template>
         <p v-for="(items, index) in data.form.FocusDanmu.slice(0, 3)">
-          {{ index + 1 + '. ' + data.form.FocusDanmu[index] }}
+          <el-text truncated>{{ index + 1 + '. ' + data.form.FocusDanmu[index] }}</el-text>
         </p>
       </el-card>
       <el-card shadow="hover">
@@ -363,7 +358,8 @@ onActivated(() => {
           </div>
         </template>
         <p v-for="(items, index) in data.form.CronDanmuList[0].Danmu.slice(0, 3)">
-          {{ index + 1 + '. ' + stringChange(items, 12) }}
+          <el-text truncated>{{ index + 1 + '. ' + items }}</el-text>
+          <!-- {{ index + 1 + '. ' + stringChange(items, 12) }} -->
         </p>
       </el-card>
       <el-card shadow="hover">
@@ -392,7 +388,14 @@ onActivated(() => {
             <Menu class="icon" />功能开关
           </span>
         </template>
-        <p>抽签<el-switch v-model="data.form.DrawByLot" size="small" @click="saveConfig" /></p>
+        <p>抽签
+          <span style="display: flex;">
+            <el-switch v-model="data.form.DrawByLot" size="small" @click="saveConfig" />
+            <router-link to="/drawlist">
+              <Setting class="icon2" />
+            </router-link>
+          </span>
+        </p>
         <p>签到<el-switch v-model="data.form.SignInEnable" size="small" @click="saveConfig" /></p>
       </el-card>
     </div>

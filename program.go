@@ -23,13 +23,14 @@ type Program struct {
 }
 
 func NewProgram() *Program {
-	return &Program{}
+	return &Program{cls: handler.NewWsHandler()}
 }
 
 func (p *Program) Start() bool {
+	p.cls = handler.NewWsHandler()
 	if p.running {
-		return true
 		logx.Info("已启动跳过")
+		return true
 	}
 	var c config.Config
 	if err := Mustload(&c); err != nil {
@@ -54,12 +55,34 @@ func (p *Program) Start() bool {
 }
 
 func (p *Program) Stop() bool {
-	if p.workCancel != nil {
-		p.workCancel()
+	//p.locked.Lock()
+	//if p.workCancel != nil {
+	//	p.workCancel()
+	//}
+	//for p.running {
+	//	time.Sleep(1 * time.Second)
+	//	logx.Info("等待机器关闭中.....")
+	//}
+	logx.Info("手动停止已经不让用了 别请求了")
+	//p.locked.Unlock()
+	return false
+}
+func (p *Program) Restart() bool {
+	if p.cls != nil {
+		err := p.cls.ReloadConfig()
+		if err != nil {
+			logx.Error(err)
+			return false
+		}
+		logx.Info("重载配置已完成")
 	}
+
+	//if err != nil {
+	//	logx.Error(err)
+	//	return false
+	//}
 	return true
 }
-
 func (p *Program) Monitor() bool {
 	return p.running
 }
@@ -96,19 +119,13 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 
 		// 每10秒检查一次直播间是否开播
 		case <-t.C:
-			if info, err = http.RoomInit(l.svcCtx.Config.RoomId); err != nil {
+			if info, err = http.RoomInit(l.cls.GetSvc().Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
 				t.Reset(interval)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
-
-				l.cls = handler.NewWsHandler()
-				if l.cls == nil {
-					t.Reset(interval)
-					continue
-				}
 				err := l.cls.StartWsClient()
 				if err != nil {
 					logx.Error(err)
@@ -120,6 +137,7 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
 				preStatus = entity.NotStarted
+				l.cls.SayGoodbye()
 				l.cls.StopWsClient()
 				//l.danmustop()
 			}
