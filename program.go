@@ -126,6 +126,7 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
+				l.cls = handler.NewWsHandler()
 				err := l.cls.StartWsClient()
 				if err != nil {
 					logx.Error(err)
