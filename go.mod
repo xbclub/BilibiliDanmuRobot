@@ -4,8 +4,8 @@ go 1.21.1
 
 require (
 	github.com/go-resty/resty/v2 v2.9.1
-	github.com/wailsapp/wails/v2 v2.8.2
-	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.15
+	github.com/wailsapp/wails/v2 v2.9.1
+	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.16
 	github.com/zeromicro/go-zero v1.6.5
 	gopkg.in/yaml.v3 v3.0.1
 )

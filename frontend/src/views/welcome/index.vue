@@ -98,7 +98,12 @@ const data = reactive({
     DrawByLot: true,
     ShowBlockMsg: true,
     KeywordReply: false,
-    KeywordReplyList: {}
+    KeywordReplyList: {},
+    InteractAnchor: false,
+    ThanksGiftUseAt: false,
+    BlindBoxStat: false,
+    DanmuCntEnable: false,
+    WelcomeUseAt: false
     // ForeignLanguageTranslationInChinese: {
     //   Enabled: false,
     //   AppID: "",
@@ -397,6 +402,31 @@ onActivated(() => {
           </span>
         </p>
         <p>签到<el-switch v-model="data.form.SignInEnable" size="small" @click="saveConfig" /></p>
+        <p>欢迎主播进房
+          <span style="display: flex;">
+            <el-switch v-model="data.form.InteractAnchor" size="small" @click="saveConfig" />
+          </span>
+        </p>
+        <p>@模式感谢礼物
+          <span style="display: flex;">
+            <el-switch v-model="data.form.ThanksGiftUseAt" size="small" @click="saveConfig" />
+          </span>
+        </p>
+        <p>盲盒信息统计
+          <span style="display: flex;">
+            <el-switch v-model="data.form.BlindBoxStat" size="small" @click="saveConfig" />
+          </span>
+        </p>
+        <p>@欢迎模式
+          <span style="display: flex;">
+            <el-switch v-model="data.form.WelcomeUseAt" size="small" @click="saveConfig" />
+          </span>
+        </p>
+        <p>弹幕计数统计
+          <span style="display: flex;">
+            <el-switch v-model="data.form.DanmuCntEnable" size="small" @click="saveConfig" />
+          </span>
+        </p>
       </el-card>
     </div>
   </el-scrollbar>
