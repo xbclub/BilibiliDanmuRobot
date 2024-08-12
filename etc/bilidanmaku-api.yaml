@@ -9,11 +9,7 @@ PKNotice: true
 InteractWord: true
 # 时间段时间欢迎
 InteractWordByTime: true
-# 自定义欢迎语 列表前必须加 -, 无论是否有多条, 切记，{user}为用户昵称占位符，列表为随机列表
-WelcomeDanmu:
-  - "欢迎 {user} ~"
-  - "欢迎 {user} 木嘛~"
-  - "欢迎 {user} 好诶~"
+
 # 进场特效欢迎 true:开 false：关，已增加过滤器 两个欢迎同时开启不会重复欢迎
 EntryEffect: true
 # 礼物感谢
@@ -80,6 +76,7 @@ FocusDanmu:
   - "贴贴~"
 
 # 欢迎弹幕列表
+# 自定义欢迎语 列表前必须加 -, 无论是否有多条, 切记，{user}为用户昵称占位符，列表为随机列表
 WelcomeDanmu:
   - "欢迎 {user}, 你来啦~"
   - "欢迎 {user}, 等你好久了~"
@@ -249,3 +246,13 @@ ThanksShare: true
 #荣耀等级开关
 WelcomeHighWealthy: false
 WelcomeHighWealthyLevel: 20
+# 使用@模式欢迎
+WelcomeUseAt: false
+#  欢迎主播
+InteractAnchor: true
+#  使用@模式感谢
+ThanksGiftUseAt: false
+#  弹幕计数设置
+DanmuCntEnable: false
+#  盲盒统计开关(只影响是否输出结果, 不影响记录)
+BlindBoxStat: true
