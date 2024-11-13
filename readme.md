@@ -43,5 +43,25 @@ docker logs bilibilidanmurobot
  # 构建软件
  go build cli/bilidanmaku.go
 ```
+#### linux使用musl工具链编译musl全静态可执行文件指令
+##### 以下以x64为例
+```bash
+# 指定编译工具链，可通过https://musl.cc/下载
+export CC=/home/user/下载/x86_64-linux-musl-native/bin/gcc
+export CXX=/home/user/下载/x86_64-linux-musl-native/bin/g++
+export CFLAGS="-I/home/user/下载/x86_64-linux-musl-native/include"
+export LDFLAGS="-I/home/user/下载/x86_64-linux-musl-native/lib -Wl,-Bstatic"
+
+# 禁用 Cgo，避免引入动态库
+export CGO_ENABLED=0                                      
+export GOOS=linux
+# 指定编译架构
+export GOARCH=amd64
+
+ # 获取构建依赖
+ go mod download
+ # 构建软件
+ go build cli/bilidanmaku.go
+```
 ### 鸣谢
 - github.com/k-si/bilibili_live
