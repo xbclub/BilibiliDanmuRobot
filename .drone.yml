@@ -3,7 +3,7 @@ type: kubernetes
 name: default
 steps:
   - name: prebuild
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
