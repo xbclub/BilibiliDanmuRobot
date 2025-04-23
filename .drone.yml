@@ -16,7 +16,7 @@ steps:
       event:
         - tag
   - name: build-linux-arm64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
@@ -44,7 +44,7 @@ steps:
     depends_on:
       - prebuild
   - name: build-linux-amd64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
@@ -72,7 +72,7 @@ steps:
     depends_on:
       - prebuild
   - name: build-darwin-amd64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
@@ -100,7 +100,7 @@ steps:
     depends_on:
       - prebuild
   - name: build-darwin-arm64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
@@ -128,7 +128,7 @@ steps:
     depends_on:
       - prebuild
   - name: build-windows-arm64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
@@ -156,7 +156,7 @@ steps:
     depends_on:
       - prebuild
   - name: build-windows-amd64
-    image: golang:1.23-alpine
+    image: golang:1.24-alpine
     volumes:
       - name: cache
         path: /gobuild
