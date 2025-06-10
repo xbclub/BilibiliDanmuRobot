@@ -11,6 +11,7 @@ import (
 	"github.com/xbclub/BilibiliDanmuRobot-Core/utiles"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -20,10 +21,13 @@ type Program struct {
 	workCtx    context.Context
 	workCancel context.CancelFunc
 	cls        handler.WsHandler
+	mutex      *sync.Mutex
 }
 
 func NewProgram() *Program {
-	return &Program{cls: handler.NewWsHandler()}
+	return &Program{cls: handler.NewWsHandler(),
+		mutex: new(sync.Mutex),
+	}
 }
 
 func (p *Program) Start() bool {
@@ -68,6 +72,7 @@ func (p *Program) Stop() bool {
 	return false
 }
 func (p *Program) Restart() bool {
+	p.mutex.Lock()
 	if p.cls != nil {
 		err := p.cls.ReloadConfig()
 		if err != nil {
@@ -76,7 +81,7 @@ func (p *Program) Restart() bool {
 		}
 		logx.Info("重载配置已完成")
 	}
-
+	p.mutex.Unlock()
 	//if err != nil {
 	//	logx.Error(err)
 	//	return false
@@ -104,7 +109,8 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 	var preStatus int
 
 	logx.Info("正在检测直播间是否开播...")
-
+	l.cls = handler.NewWsHandler()
+	l.cls.InitStartWsClient()
 	// 循环监听直播间情况
 	for l.running {
 		select {
@@ -126,7 +132,8 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
-				l.cls = handler.NewWsHandler()
+				l.mutex.Lock()
+				l.cls.StopWsClient()
 				err := l.cls.StartWsClient()
 				if err != nil {
 					logx.Error(err)
@@ -134,6 +141,7 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 					continue
 				}
 				preStatus = entity.Live
+				l.mutex.Unlock()
 				// 开启弹幕姬
 			} else if info.Data.LiveStatus != entity.Live && preStatus == entity.Live { // 由Live到NotStarted是下播
 				logx.Info("下播啦！")
