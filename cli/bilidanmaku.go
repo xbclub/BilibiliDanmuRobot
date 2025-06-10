@@ -83,6 +83,8 @@ func main() {
 		go getTerminalInput(input)
 	}
 	logx.Info("正在检测直播间是否开播...")
+	cls = handler.NewWsHandler()
+	cls.InitStartWsClient()
 	for {
 		select {
 
@@ -105,7 +107,7 @@ func main() {
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
 				logx.Infof("开播啦！%v", ctx.Config.RoomId)
 				//preStatus = entity.Live
-				cls = handler.NewWsHandler()
+
 				if cls == nil {
 					t.Reset(interval)
 					continue
