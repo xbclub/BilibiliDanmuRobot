@@ -62,6 +62,11 @@ async function getqrcode() {
       <p class="text-gray-500 text-xs" style="white-space: pre-wrap;">哔哩哔哩APP<br>扫码登录</p>
     </el-divider>
   </Motion>
+      <Motion :delay="150" >
+        <el-text>
+         <p class="text-red-500 text-m"   style="white-space: pre-wrap;">本项目永久免费!!!!</p>
+        </el-text>
+      </Motion>
   <Motion :delay="150">
     <el-button
       class="w-full mt-4"
@@ -71,6 +76,7 @@ async function getqrcode() {
       点击刷新验证码
     </el-button>
   </Motion>
+
 <!--  <Motion :delay="150">-->
 <!--    <el-divider>-->
 <!--      <p class="text-gray-500 text-xs"  style="white-space: pre-wrap;">当前状态<br>{{data.islogin}}</p>-->
