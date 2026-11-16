@@ -41,6 +41,11 @@ const data = reactive({
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
+    WelcomeTier: false,
+    WelcomeNew: ["欢迎呀~{at}恭喜你发现了{anchor}"],
+    WelcomeBack: ["哈喽呀~{at}等你很久喽~"],
+    WelcomeFan: ["哈喽{at}今天有没有更想{anchor}呀~"],
+    WelcomeFanMedalLevel: 0,
     RobotName: "花花",
     TalkRobotCmd: "花花",
     RobotMode: "QingYunKe",
@@ -251,6 +256,15 @@ const deleteWelcomeDanmu = (item: number) => {
   // const index = data.form.WelcomeDanmu.indexOf(item)
   if (item !== -1) {
     data.form.WelcomeDanmu.splice(item, 1);
+  }
+};
+type TierWelcomeKey = "WelcomeNew" | "WelcomeBack" | "WelcomeFan";
+const addTierWelcome = (key: TierWelcomeKey) => {
+  data.form[key].push("{at}");
+};
+const deleteTierWelcome = (key: TierWelcomeKey, index: number) => {
+  if (index !== -1) {
+    data.form[key].splice(index, 1);
   }
 };
 const deleteWelcomeDanmuByTime = (index1, index2) => {
@@ -486,6 +500,11 @@ onActivated(() => {
       });
     } else {
       data.form = res.Form;
+      data.form.WelcomeTier = !!data.form.WelcomeTier;
+      data.form.WelcomeNew = data.form.WelcomeNew || [];
+      data.form.WelcomeBack = data.form.WelcomeBack || [];
+      data.form.WelcomeFan = data.form.WelcomeFan || [];
+      data.form.WelcomeFanMedalLevel = data.form.WelcomeFanMedalLevel || 0;
       formatWelcomeString();
       initWelcomeDanmuByTime();
       formatKeywordReply()
@@ -546,6 +565,67 @@ onActivated(() => {
             </el-card>
           </el-timeline-item>
         </el-timeline>
+        <el-divider content-position="left">三档欢迎（新人 / 回头客 / 老粉）</el-divider>
+        <el-alert type="info" :closable="false" show-icon style="margin-bottom: 16px;">
+          <template #title>
+            按“老粉 → 新人 → 回头客”顺序匹配；某一档列表为空时回退到上方的随机/分时段欢迎。
+            占位符：{at}（@用户，@模式下自动省略）、{anchor}（主播昵称）、{user}（昵称）、{medal}/{medal_level}（粉丝牌）。
+            每条建议不超过弹幕最大长度（常见 20 字，部分账号 40 字），超出会被拆成多条。
+          </template>
+        </el-alert>
+        <el-form-item label="启用三档欢迎">
+          <el-switch v-model="data.form.WelcomeTier" />
+          <el-tag type="info" style="margin-left: 12px;">需同时开启“欢迎弹幕”开关</el-tag>
+        </el-form-item>
+        <el-form-item label="老粉最低粉丝牌等级">
+          <el-input-number v-model="data.form.WelcomeFanMedalLevel" :min="0" :max="60" />
+          <span style="margin-left: 12px; color: #909399;">0 表示不限</span>
+        </el-form-item>
+        <el-card shadow="never" style="margin-bottom: 16px;">
+          <template #header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>新人欢迎（首次进入直播间）</span>
+              <el-button type="primary" size="small" @click="addTierWelcome('WelcomeNew')">新增</el-button>
+            </div>
+          </template>
+          <el-form-item v-for="(items, index) in data.form.WelcomeNew" :label="'第 ' + (index + 1) + ' 条'">
+            <div class="between">
+              <el-input v-model="data.form.WelcomeNew[index]" />
+              <el-button class="mt-2" @click="deleteTierWelcome('WelcomeNew', index)" plain type="danger"
+                :icon="Delete" circle style="margin-left: 20px;" />
+            </div>
+          </el-form-item>
+        </el-card>
+        <el-card shadow="never" style="margin-bottom: 16px;">
+          <template #header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>回头客欢迎（来过但未佩戴本直播间粉丝牌）</span>
+              <el-button type="primary" size="small" @click="addTierWelcome('WelcomeBack')">新增</el-button>
+            </div>
+          </template>
+          <el-form-item v-for="(items, index) in data.form.WelcomeBack" :label="'第 ' + (index + 1) + ' 条'">
+            <div class="between">
+              <el-input v-model="data.form.WelcomeBack[index]" />
+              <el-button class="mt-2" @click="deleteTierWelcome('WelcomeBack', index)" plain type="danger"
+                :icon="Delete" circle style="margin-left: 20px;" />
+            </div>
+          </el-form-item>
+        </el-card>
+        <el-card shadow="never" style="margin-bottom: 16px;">
+          <template #header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>老粉欢迎（佩戴本直播间粉丝牌）</span>
+              <el-button type="primary" size="small" @click="addTierWelcome('WelcomeFan')">新增</el-button>
+            </div>
+          </template>
+          <el-form-item v-for="(items, index) in data.form.WelcomeFan" :label="'第 ' + (index + 1) + ' 条'">
+            <div class="between">
+              <el-input v-model="data.form.WelcomeFan[index]" />
+              <el-button class="mt-2" @click="deleteTierWelcome('WelcomeFan', index)" plain type="danger"
+                :icon="Delete" circle style="margin-left: 20px;" />
+            </div>
+          </el-form-item>
+        </el-card>
       </el-form>
       <center>
         <el-button type="success" @click="saveConfig" >保存</el-button>

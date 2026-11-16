@@ -8,6 +8,8 @@
     - [x] 荣耀等级欢迎
     - [x] 分时段欢迎词
     - [x] 自定义欢迎词
+    - [x] 三档欢迎（新人 / 回头客 / 老粉）
+    - [x] 兼容 INTERACT_WORD_V2
     - [x] 欢迎黑名单（模糊匹配，精准匹配）
 - [x] 关注答谢
 - [x] 分享感谢
@@ -24,6 +26,33 @@
 - [x] 秒级定时弹幕
 - [x] 自动更新（GUI）
 - [x] 弹幕指令控制
+### 三档进房欢迎
+
+在 `etc/bilidanmaku-api.yaml` 中开启（需要同时开启 `InteractWord: true`）：
+
+```yaml
+WelcomeTier: true
+# 按账号实际权限设置，常见 20，部分账号 40
+DanmuLen: 40
+WelcomeNew:
+  - "欢迎呀~{at}恭喜你发现了{anchor}"
+WelcomeBack:
+  - "哈喽呀~{at}等你很久喽~"
+WelcomeFan:
+  - "哈喽{at}今天有没有更想{anchor}呀~"
+WelcomeFanMedalLevel: 0
+```
+
+- 老粉：进场事件里带有本直播间粉丝牌（`fans_medal.target_id == 主播 UID`）
+- 新人：本地 SQLite 的 `visit_<房间号>` 表里第一次出现
+- 回头客：来过，但没有本直播间粉丝牌
+- 匹配顺序：老粉 → 新人 → 回头客；某一档列表为空时回退到 `WelcomeDanmu` / `WelcomeDanmuByTime`
+- 占位符：`{at}`、`{anchor}`、`{user}`、`{medal}`、`{medal_level}`
+- `WelcomeUseAt: true` 时通过 `reply_mid` 实现 @，正文里的 `{at}` 会自动省略；否则 `{at}` 会展开成 `@昵称 `
+- 弹幕长度按 Unicode 字符计数，`DanmuLen` 设置为账号实际允许的长度（20 或 40）
+- 同时支持旧版 JSON `INTERACT_WORD` 和新版 `INTERACT_WORD_V2`（protobuf）
+- 粉丝牌只有佩戴时才会出现在进场事件里；未佩戴但有牌的用户会被归为回头客
+
 ### Docker
 ```bash
 # 创建配置文件

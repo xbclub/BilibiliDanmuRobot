@@ -52,6 +52,11 @@ const data = reactive({
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
+    WelcomeTier: false,
+    WelcomeNew: ["欢迎呀~{at}恭喜你发现了{anchor}"],
+    WelcomeBack: ["哈喽呀~{at}等你很久喽~"],
+    WelcomeFan: ["哈喽{at}今天有没有更想{anchor}呀~"],
+    WelcomeFanMedalLevel: 0,
     RobotName: "花花",
     TalkRobotCmd: "花花",
     RobotMode: "QingYunKe",
@@ -205,6 +210,11 @@ onActivated(() => {
       });
     } else {
       data.form = res.Form;
+      data.form.WelcomeTier = !!data.form.WelcomeTier;
+      data.form.WelcomeNew = data.form.WelcomeNew || [];
+      data.form.WelcomeBack = data.form.WelcomeBack || [];
+      data.form.WelcomeFan = data.form.WelcomeFan || [];
+      data.form.WelcomeFanMedalLevel = data.form.WelcomeFanMedalLevel || 0;
       if (!data.form.RoomId || data.form.RoomId == 3) {
         data.dialogVisible = true;
       }
@@ -267,6 +277,14 @@ onActivated(() => {
             </router-link>
           </div>
         </template>
+        <p>三档欢迎
+          <span style="display: flex;">
+            <el-switch v-model="data.form.WelcomeTier" size="small" @click="saveConfig" />
+            <router-link to="/welcomebarrage">
+              <Setting class="icon2" />
+            </router-link>
+          </span>
+        </p>
         <p>分时间段欢迎
           <span style="display: flex;">
             <el-switch v-model="data.form.InteractWordByTime" size="small" @click="saveConfig" />

@@ -1,6 +1,6 @@
 # 房间号
 RoomId: 3
-# 弹幕长度
+# 弹幕长度上限（按账号权限设置，常见 20，部分账号 40）
 DanmuLen: 20
 EntryMsg: "花花机器人进入直播间"
 #大乱斗与视频pk 机器人输出对手信息
@@ -83,6 +83,19 @@ WelcomeDanmu:
   - "欢迎 {user}, 你好呀~"
   - "欢迎 {user}, 吃饭了嘛~"
   - "欢迎 {user}, 什么星座的呀?"
+
+# 三档欢迎（需要同时开启 InteractWord）
+# 顺序：老粉 → 新人 → 回头客；某一档列表为空时回退到上面的 WelcomeDanmu / WelcomeDanmuByTime
+# 占位符：{at} @用户（@模式下由 reply_mid 实现，正文自动省略）；{anchor} 主播昵称；{user} 昵称；{medal}/{medal_level} 粉丝牌
+WelcomeTier: false
+WelcomeNew:
+  - "欢迎呀~{at}恭喜你发现了{anchor}"
+WelcomeBack:
+  - "哈喽呀~{at}等你很久喽~"
+WelcomeFan:
+  - "哈喽{at}今天有没有更想{anchor}呀~"
+# 老粉最低粉丝牌等级，0 表示不限
+WelcomeFanMedalLevel: 0
 
 # 指定定时弹幕列表
 WelcomeDanmuByTime:
