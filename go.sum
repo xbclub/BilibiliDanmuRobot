@@ -17,8 +17,8 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
-github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261116104155-71f43487c20c h1:gsyyQOBLQ6ArsoGKgsUmD6r2G0B6XCWPAaY/UfJGs7k=
-github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261116104155-71f43487c20c/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
+github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261117172903-bac4e3826b4e h1:nTjFGRUQxNN9vff3EGEOIo0sFxqfH+SBeCW1UtTXgQs=
+github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261117172903-bac4e3826b4e/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
 github.com/glebarez/go-sqlite v1.21.2 h1:3a6LFC4sKahUunAmynQKLZceZCOzUthkRkEAl9gAXWo=
 github.com/glebarez/go-sqlite v1.21.2/go.mod h1:sfxdZyhQjTM2Wry3gVYWaW072Ri1WMdWJi0k6+3382k=
 github.com/glebarez/sqlite v1.10.0 h1:u4gt8y7OND/cCei/NMHmfbLxF6xP2wgKcT/BJf2pYkc=
@@ -153,10 +153,6 @@ github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhw
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
 github.com/wailsapp/wails/v2 v2.10.1 h1:QWHvWMXII2nI/nXz77gpPG8P3ehl6zKe+u4su5BWIns=
 github.com/wailsapp/wails/v2 v2.10.1/go.mod h1:zrebnFV6MQf9kx8HI4iAv63vsR5v67oS7GTEZ7Pz1TY=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.20 h1:zegG4M3EXA9ssWf2JEGcshIhAYFQX03gx/8M20qmoZk=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.20/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.21 h1:54bWypBUEEzPda1SIM0ElY6NAvfYsG9xeFeEVIcScY4=
-github.com/xbclub/BilibiliDanmuRobot-Core v1.1.21/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zeromicro/go-zero v1.6.5 h1:JgsBa25/knnEL7+KQksbwktudIkNQvaAin0nisVgnSA=
 github.com/zeromicro/go-zero v1.6.5/go.mod h1:XjbssEVEzFKueAh0Fie5kNf+cRqFlQQk46fY9WgEGaM=
