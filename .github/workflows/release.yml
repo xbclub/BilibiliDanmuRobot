@@ -1,0 +1,130 @@
+name: Release
+
+# 打 tag 触发：构建 6 个平台的 CLI + Windows GUI，并创建预发布（pre-release）
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  cli:
+    name: CLI ${{ matrix.display }}_${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { goos: linux, goarch: amd64, display: Linux, arch: x86_64, ext: tar.gz }
+          - { goos: linux, goarch: arm64, display: Linux, arch: arm64, ext: tar.gz }
+          - { goos: darwin, goarch: amd64, display: Darwin, arch: x86_64, ext: tar.gz }
+          - { goos: darwin, goarch: arm64, display: Darwin, arch: arm64, ext: tar.gz }
+          - { goos: windows, goarch: amd64, display: Windows, arch: x86_64, ext: zip }
+          - { goos: windows, goarch: arm64, display: Windows, arch: arm64, ext: zip }
+    env:
+      CGO_ENABLED: "0"
+      GOOS: ${{ matrix.goos }}
+      GOARCH: ${{ matrix.goarch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        working-directory: cli
+        run: |
+          bin=BilibiliDanmuRobot
+          if [ "$GOOS" = "windows" ]; then bin=BilibiliDanmuRobot.exe; fi
+          go build -trimpath -ldflags "-X main.Version=${GITHUB_REF_NAME}" -o "dist/$bin"
+
+      # 与旧 Drone 产物保持一致：压缩包内为扁平结构（二进制 + etc + readme.md）
+      - name: Package
+        working-directory: cli
+        run: |
+          name="BilibiliDanmuRobot_${{ matrix.display }}_${{ matrix.arch }}_${GITHUB_REF_NAME}"
+          bin=BilibiliDanmuRobot
+          if [ "$GOOS" = "windows" ]; then bin=BilibiliDanmuRobot.exe; fi
+          mkdir -p dist/stage
+          mv "dist/$bin" dist/stage/
+          cp -r ../etc ../readme.md dist/stage/
+          md5sum dist/stage/"$bin"
+          if [ "${{ matrix.ext }}" = "zip" ]; then
+            (cd dist/stage && zip -r "../${name}.zip" "$bin" etc readme.md)
+          else
+            (cd dist/stage && tar -czf "../${name}.tar.gz" "$bin" etc readme.md)
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: cli/dist/BilibiliDanmuRobot_*
+          if-no-files-found: error
+
+  gui-windows:
+    name: GUI Windows amd64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.1
+
+      - name: Build GUI
+        shell: bash
+        run: wails build -platform windows/amd64 -ldflags "-X main.Version=${GITHUB_REF_NAME}"
+
+      # 与旧产物保持一致：外层目录（与 zip 同名）内含 exe + etc
+      - name: Package
+        shell: pwsh
+        run: |
+          $tag = ${env:GITHUB_REF_NAME}
+          $name = "GUI-BilibiliDanmuRobot_Windows_amd64_$tag"
+          New-Item -ItemType Directory -Force -Path "build/pkg/$name/etc" | Out-Null
+          Copy-Item "build/bin/GUI-BilibiliDanmuRobot.exe" "build/pkg/$name/"
+          Copy-Item -Recurse "etc/*" "build/pkg/$name/etc/"
+          Get-FileHash "build/pkg/$name/GUI-BilibiliDanmuRobot.exe" -Algorithm MD5
+          Compress-Archive -Path "build/pkg/$name" -DestinationPath "build/$name.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gui-windows-amd64
+          path: build/GUI-BilibiliDanmuRobot_*.zip
+          if-no-files-found: error
+
+  release:
+    name: Create pre-release
+    needs: [cli, gui-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la dist/
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --prerelease \
+            --generate-notes \
+            --title "${GITHUB_REF_NAME}"
