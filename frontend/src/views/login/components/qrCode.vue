@@ -7,7 +7,7 @@ import {onMounted, reactive} from "vue";
 import {Userlogin, Getlogin, GetloginStatus} from "../../../../wailsjs/go/main/App"
 import {bool} from "vue-types";
 import router from "@/router";
-import {getTopMenu} from "@/router/utils";
+import {getTopMenu, initRouter} from "@/router/utils";
 // const { t } = useI18n();
 const data = reactive({
   qrcode: "",
@@ -17,19 +17,26 @@ const data = reactive({
 onMounted(()=>{
   getqrcode()
   const id = setInterval(() => {
-    checkLogin()
     if (data.islogin) {
       clearInterval(id)
+      return
     }
+    checkLogin()
   }, 5000)
 })
+/** 登录成功后必须先构建菜单再跳转，否则侧边栏会因 wholeMenus 为空一直转圈 */
+function toHome(){
+  window.localStorage.setItem("userInfo","true")
+  initRouter().then(() => {
+    router.push(getTopMenu(true).path)
+  })
+}
 function checkLogin(){
   Getlogin().then(res => {
     switch (res){
       case 1:
         data.islogin = true
-        window.localStorage.setItem("userInfo","true")
-        router.push("/welcome")
+        toHome()
         return
       case 3:
         getqrcode()
@@ -41,11 +48,13 @@ async function getqrcode() {
     data.islogin = res
   })
   if (data.islogin) {
-    window.localStorage.setItem("userInfo","true")
-    router.push("/welcome")
+    toHome()
+    return
   }
   Userlogin().then(result => {
-    data.qrcode = result.data.url
+    if (result?.data?.url) {
+      data.qrcode = result.data.url
+    }
   })
 }
 </script>

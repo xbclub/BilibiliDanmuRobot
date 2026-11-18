@@ -194,19 +194,30 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
-          handleAsyncRoutes(cloneDeep(data));
-          storageSession().setItem(key, data);
-          resolve(router);
-        });
+        getAsyncRoutes()
+          .then(({ data }) => {
+            handleAsyncRoutes(cloneDeep(data));
+            storageSession().setItem(key, data);
+            resolve(router);
+          })
+          // 请求失败时退化为只用静态路由生成菜单，避免侧边栏永久转圈
+          .catch(() => {
+            handleAsyncRoutes([]);
+            resolve(router);
+          });
       });
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data));
-        resolve(router);
-      });
+      getAsyncRoutes()
+        .then(({ data }) => {
+          handleAsyncRoutes(cloneDeep(data));
+          resolve(router);
+        })
+        .catch(() => {
+          handleAsyncRoutes([]);
+          resolve(router);
+        });
     });
   }
 }
