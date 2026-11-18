@@ -6,9 +6,9 @@ import (
 	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/handler"
-	"github.com/xbclub/BilibiliDanmuRobot-Core/http"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/biliapi"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/svc"
-	"github.com/xbclub/BilibiliDanmuRobot-Core/utiles"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/qrcode"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
 	"sync"
@@ -93,11 +93,11 @@ func (p *Program) Monitor() bool {
 }
 
 func (l *Program) Bili_danmaku_Start(workctx context.Context) {
-	if !http.FileExists("token/bili_token.txt") || !http.FileExists("token/bili_token.json") {
+	if !biliapi.FileExists("token/bili_token.txt") || !biliapi.FileExists("token/bili_token.json") {
 		return
 	}
 	var err error
-	http.InitHttpClient()
+	biliapi.InitHttpClient()
 
 	// 准备select中用到的变量
 	//sig := make(chan os.Signal)
@@ -125,13 +125,13 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 
 		// 每10秒检查一次直播间是否开播
 		case <-t.C:
-			if info, err = http.RoomInit(l.cls.GetSvc().Config.RoomId); err != nil {
+			if info, err = biliapi.RoomInit(l.cls.GetSvc().Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
 				t.Reset(interval)
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
-				logx.Infof("开播啦！%v", l.svcCtx.Config.RoomId)
+				logx.Infof("开播啦！%v", l.cls.GetSvc().Config.RoomId)
 				l.mutex.Lock()
 				l.cls.StopWsClient()
 				err := l.cls.StartWsClient()
@@ -158,19 +158,19 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 }
 func (l *Program) userlogin() error {
 	var err error
-	http.InitHttpClient()
+	biliapi.InitHttpClient()
 	var loginUrl *entity.LoginUrl
-	if loginUrl, err = http.GetLoginUrl(); err != nil {
+	if loginUrl, err = biliapi.GetLoginUrl(); err != nil {
 		logx.Error(err)
 		return err
 	}
 
-	if err = utiles.GenerateQr(loginUrl.Data.Url); err != nil {
+	if err = qrcode.Generate(loginUrl.Data.Url); err != nil {
 		logx.Error(err)
 		return err
 	}
 
-	if _, err = http.GetLoginInfo(loginUrl.Data.OauthKey); err != nil {
+	if _, err = biliapi.GetLoginInfo(loginUrl.Data.OauthKey); err != nil {
 		logx.Error(err)
 		return err
 	}

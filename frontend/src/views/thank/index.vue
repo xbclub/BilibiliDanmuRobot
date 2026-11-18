@@ -59,6 +59,9 @@ const data = reactive({
       "入股不亏哦~",
       "贴贴~"
     ],
+    ThanksGiftDanmu: ["感谢{user}的{gift}~"],
+    ThanksBlindBoxDanmu: ["感谢{user}的{gift}~"],
+    ThanksGuardDanmu: ["感谢{user}的{gift}~"],
     CronDanmu: false,
     ThanksFocus: false,
     CronDanmuList: [
@@ -310,6 +313,15 @@ const deleteFocusDanmu = (item: number) => {
     data.form.FocusDanmu.splice(item, 1);
   }
 };
+type ThanksTemplateKey = "ThanksGiftDanmu" | "ThanksBlindBoxDanmu" | "ThanksGuardDanmu";
+const addThanksTemplate = (key: ThanksTemplateKey) => {
+  data.form[key].push("感谢{user}的{gift}~");
+};
+const deleteThanksTemplate = (key: ThanksTemplateKey, index: number) => {
+  if (index !== -1) {
+    data.form[key].splice(index, 1);
+  }
+};
 const getWelcomeDanmuByTimeDescribe = key => {
   return WelcomeDanmuByTimeDescribe[key];
 };
@@ -488,6 +500,9 @@ onActivated(() => {
       });
     } else {
       data.form = res.Form;
+      data.form.ThanksGiftDanmu = data.form.ThanksGiftDanmu || [];
+      data.form.ThanksBlindBoxDanmu = data.form.ThanksBlindBoxDanmu || [];
+      data.form.ThanksGuardDanmu = data.form.ThanksGuardDanmu || [];
       formatWelcomeString();
       initWelcomeDanmuByTime();
       formatKeywordReply()
@@ -517,6 +532,42 @@ onActivated(() => {
             <el-button class="mt-2" @click="deleteFocusDanmu(index)" plain type="danger" :icon="Delete" circle
               style="margin-left: 20px;">
             </el-button>
+          </div>
+        </el-form-item>
+        <el-divider content-position="left">礼物感谢话术</el-divider>
+        <el-alert type="info" :closable="false" show-icon style="margin-bottom: 16px;">
+          <template #title>
+            可选，留空时使用默认文案。普通礼物支持 {user}、{gift}、{num}、{cost}（金额，元）；盲盒/舰长只支持 {user}、{gift}。
+          </template>
+        </el-alert>
+        <el-form-item label="普通礼物感谢">
+          <el-button type="primary" @click="addThanksTemplate('ThanksGiftDanmu')">新增</el-button>
+        </el-form-item>
+        <el-form-item v-for="(items, index) in data.form.ThanksGiftDanmu" :label="'礼物感谢 ' + (index + 1)">
+          <div class="between">
+            <el-input v-model="data.form.ThanksGiftDanmu[index]" />
+            <el-button class="mt-2" @click="deleteThanksTemplate('ThanksGiftDanmu', index)" plain type="danger"
+              :icon="Delete" circle style="margin-left: 20px;" />
+          </div>
+        </el-form-item>
+        <el-form-item label="盲盒感谢">
+          <el-button type="primary" @click="addThanksTemplate('ThanksBlindBoxDanmu')">新增</el-button>
+        </el-form-item>
+        <el-form-item v-for="(items, index) in data.form.ThanksBlindBoxDanmu" :label="'盲盒感谢 ' + (index + 1)">
+          <div class="between">
+            <el-input v-model="data.form.ThanksBlindBoxDanmu[index]" />
+            <el-button class="mt-2" @click="deleteThanksTemplate('ThanksBlindBoxDanmu', index)" plain type="danger"
+              :icon="Delete" circle style="margin-left: 20px;" />
+          </div>
+        </el-form-item>
+        <el-form-item label="舰长感谢">
+          <el-button type="primary" @click="addThanksTemplate('ThanksGuardDanmu')">新增</el-button>
+        </el-form-item>
+        <el-form-item v-for="(items, index) in data.form.ThanksGuardDanmu" :label="'舰长感谢 ' + (index + 1)">
+          <div class="between">
+            <el-input v-model="data.form.ThanksGuardDanmu[index]" />
+            <el-button class="mt-2" @click="deleteThanksTemplate('ThanksGuardDanmu', index)" plain type="danger"
+              :icon="Delete" circle style="margin-left: 20px;" />
           </div>
         </el-form-item>
       </el-form>

@@ -3,7 +3,7 @@ import { onBeforeMount, reactive } from "vue";
 
 import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
-import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
+import { ExportLogs, ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
 import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 import { Menu, Setting } from '@element-plus/icons-vue'
@@ -51,9 +51,16 @@ const data = reactive({
     WelcomeString: {
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
+    UserNicknames: {},
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
+    WelcomeTier: false,
+    WelcomeNew: ["欢迎呀~{at}恭喜你发现了{anchor}"],
+    WelcomeBack: ["哈喽呀~{at}等你很久喽~"],
+    WelcomeFan: ["哈喽{at}今天有没有更想{anchor}呀~"],
+    WelcomeFanMedalLevel: 0,
     RobotName: "花花",
     TalkRobotCmd: "花花",
+    RobotEnable: true,
     RobotMode: "QingYunKe",
     FuzzyMatchCmd: false,
     ChatGPT: {
@@ -69,6 +76,9 @@ const data = reactive({
       "入股不亏哦~",
       "贴贴~"
     ],
+    ThanksGiftDanmu: ["感谢{user}的{gift}~"],
+    ThanksBlindBoxDanmu: ["感谢{user}的{gift}~"],
+    ThanksGuardDanmu: ["感谢{user}的{gift}~"],
     CronDanmu: false,
     CronDanmuList: [
       {
@@ -146,6 +156,25 @@ async function saveConfig() {
   }
 }
 
+async function exportLogs() {
+  try {
+    const path = await ExportLogs();
+    ElNotification({
+      title: "日志已导出",
+      message: "文件位置：" + path,
+      type: "success",
+      duration: 10000
+    });
+  } catch (e: any) {
+    ElNotification({
+      title: "导出失败",
+      message: e?.message || String(e),
+      type: "error",
+      duration: 10000
+    });
+  }
+}
+
 async function pgstart() {
   await Monitor().then(res => {
     data.isrunning = res;
@@ -205,6 +234,11 @@ onActivated(() => {
       });
     } else {
       data.form = res.Form;
+      data.form.WelcomeTier = !!data.form.WelcomeTier;
+      data.form.WelcomeNew = data.form.WelcomeNew || [];
+      data.form.WelcomeBack = data.form.WelcomeBack || [];
+      data.form.WelcomeFan = data.form.WelcomeFan || [];
+      data.form.WelcomeFanMedalLevel = data.form.WelcomeFanMedalLevel || 0;
       if (!data.form.RoomId || data.form.RoomId == 3) {
         data.dialogVisible = true;
       }
@@ -233,6 +267,19 @@ onActivated(() => {
         <p>弹幕最大长度<span>{{ data.form.DanmuLen }}</span></p>
         <p>花花进入消息<span>{{ stringChange(data.form.EntryMsg, 6) }}</span></p>
         <p>礼物感谢频率<span>{{ data.form.ThanksGiftTimeout + '秒' }}</span></p>
+      </el-card>
+      <el-card shadow="hover">
+        <template #header>
+          <span>
+            <Menu class="icon" />诊断日志
+          </span>
+        </template>
+        <p>一键导出日志
+          <el-button size="small" type="primary" @click="exportLogs">导出</el-button>
+        </p>
+        <div style="font-size: 12px; color: #909399; line-height: 1.6;">
+          导出到 exe 同目录的 zip，可直接发给开发者；包含 logs 和脱敏配置。
+        </div>
       </el-card>
       <el-card shadow="hover">
         <template #header>
@@ -267,6 +314,14 @@ onActivated(() => {
             </router-link>
           </div>
         </template>
+        <p>三档欢迎
+          <span style="display: flex;">
+            <el-switch v-model="data.form.WelcomeTier" size="small" @click="saveConfig" />
+            <router-link to="/welcomebarrage">
+              <Setting class="icon2" />
+            </router-link>
+          </span>
+        </p>
         <p>分时间段欢迎
           <span style="display: flex;">
             <el-switch v-model="data.form.InteractWordByTime" size="small" @click="saveConfig" />
@@ -330,6 +385,9 @@ onActivated(() => {
             </router-link>
           </div>
         </template>
+        <p>AI 机器人
+          <el-switch v-model="data.form.RobotEnable" size="small" @click="saveConfig" />
+        </p>
         <p>机器人名称<span>{{ data.form.RobotName }}</span></p>
         <p>触发关键字<span>{{ data.form.TalkRobotCmd }}</span></p>
         <p>服务提供商<span>{{ data.form.RobotMode }}</span></p>

@@ -20,7 +20,8 @@ const data = reactive({
   keywordReplyDialogAction: false,
   dialogdata: {
     uid: "",
-    msg: ""
+    msg: "",
+    nickname: ""
   },
   dialogtitle: "",
   dialogVisible: false,
@@ -38,6 +39,7 @@ const data = reactive({
     WelcomeString: {
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
+    UserNicknames: {},
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
     RobotName: "花花",
     TalkRobotCmd: "花花",
@@ -311,14 +313,21 @@ const getWelcomeDanmuByTimeDescribe = key => {
 };
 
 function formatWelcomeString() {
-  const arr = Object.entries(data.form.WelcomeString);
-  data.tabledata = arr.map(([key, value]) => ({ key, value }));
+  const welcome = data.form.WelcomeString || {};
+  const nicknames = data.form.UserNicknames || {};
+  const keys = Array.from(new Set([...Object.keys(welcome), ...Object.keys(nicknames)]));
+  data.tabledata = keys.map(key => ({
+    key,
+    value: welcome[key] || "",
+    nickname: nicknames[key] || ""
+  }));
 }
 
 function addWelcomeString() {
   data.dialogdata = {
     uid: "",
-    msg: ""
+    msg: "",
+    nickname: ""
   };
   data.dialogtitle = "新增";
   data.dialogAction = false;
@@ -326,22 +335,36 @@ function addWelcomeString() {
 }
 
 function saveWelcomeString() {
-  data.form.WelcomeString[data.dialogdata.uid] = data.dialogdata.msg;
+  const uid = String(data.dialogdata.uid).trim();
+  if (!uid) return;
+  if (data.dialogdata.msg) {
+    data.form.WelcomeString[uid] = data.dialogdata.msg;
+  } else {
+    delete data.form.WelcomeString[uid];
+  }
+  if (data.dialogdata.nickname) {
+    data.form.UserNicknames[uid] = data.dialogdata.nickname;
+  } else {
+    delete data.form.UserNicknames[uid];
+  }
   formatWelcomeString();
   data.dialogVisible = false;
 }
 
 function deleteWelcomeString(item: string) {
-  // console.log(item)
-  if (data.form.WelcomeString.hasOwnProperty(item)) {
+  if (data.form.WelcomeString?.hasOwnProperty(item)) {
     delete data.form.WelcomeString[item];
+  }
+  if (data.form.UserNicknames?.hasOwnProperty(item)) {
+    delete data.form.UserNicknames[item];
   }
   formatWelcomeString();
 }
 
-function editWelcomeString(uid, msg) {
+function editWelcomeString(uid, msg, nickname) {
   data.dialogdata.uid = uid;
   data.dialogdata.msg = msg;
+  data.dialogdata.nickname = nickname || "";
   data.dialogAction = true;
   data.dialogVisible = true;
 }
@@ -485,6 +508,7 @@ onActivated(() => {
       });
     } else {
       data.form = res.Form;
+      data.form.UserNicknames = data.form.UserNicknames || {};
       formatWelcomeString();
       initWelcomeDanmuByTime();
       formatKeywordReply()
@@ -507,11 +531,12 @@ onActivated(() => {
           </div>
         </el-form-item>
         <el-table :data="data.tabledata" border>
-          <el-table-column prop="key" label="用户uid" width="200"/>
+          <el-table-column prop="key" label="用户uid" width="160"/>
+          <el-table-column prop="nickname" label="熟人昵称" width="160"/>
           <el-table-column prop="value" label="欢迎语" />
           <el-table-column label="操作" width="200">
             <template #default="scope">
-              <el-button type="primary" @click="editWelcomeString(scope.row.key, scope.row.value)">编辑</el-button>
+              <el-button type="primary" @click="editWelcomeString(scope.row.key, scope.row.value, scope.row.nickname)">编辑</el-button>
               <el-button type="danger" @click="deleteWelcomeString(scope.row.key)">删除</el-button>
             </template>
           </el-table-column>
@@ -527,8 +552,11 @@ onActivated(() => {
     <el-form-item label="用户uid">
       <el-input v-model.number="data.dialogdata.uid" :disabled="data.dialogAction" />
     </el-form-item>
+    <el-form-item label="熟人昵称">
+      <el-input v-model="data.dialogdata.nickname" placeholder="可选；填了后三档欢迎正文直接用昵称，不加@" />
+    </el-form-item>
     <el-form-item label="欢迎语">
-      <el-input v-model="data.dialogdata.msg" />
+      <el-input v-model="data.dialogdata.msg" placeholder="可选；留空则只使用昵称走三档欢迎" />
     </el-form-item>
     <template #footer>
       <span class="dialog-footer">

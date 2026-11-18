@@ -41,6 +41,7 @@ const data = reactive({
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
     RobotName: "花花",
     TalkRobotCmd: "花花",
+    RobotEnable: true,
     RobotMode: "QingYunKe",
     FuzzyMatchCmd: false,
     ChatGPT: {
@@ -508,6 +509,9 @@ onActivated(() => {
         </el-form-item>
         <el-form-item label="触发关键字">
           <el-input v-model.number="data.form.TalkRobotCmd" />
+        </el-form-item>
+        <el-form-item label="启用 AI 机器人">
+          <el-switch v-model="data.form.RobotEnable" />
         </el-form-item>
         <el-form-item label="关键词模糊匹配">
           <el-switch v-model="data.form.FuzzyMatchCmd" />

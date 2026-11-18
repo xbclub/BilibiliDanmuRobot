@@ -7,10 +7,10 @@ import (
 	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/handler"
-	"github.com/xbclub/BilibiliDanmuRobot-Core/http"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/biliapi"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/logic"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/svc"
-	"github.com/xbclub/BilibiliDanmuRobot-Core/utiles"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/qrcode"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"os"
@@ -50,10 +50,10 @@ func main() {
 			panic(fmt.Sprintf("无法创建数据库文件夹 请手动创建:%s", err))
 		}
 	}
-	http.InitHttpClient()
+	biliapi.InitHttpClient()
 	// 判断是否存在历史cookie
-	if http.FileExists("token/bili_token.txt") && http.FileExists("token/bili_token.json") {
-		err = http.SetHistoryCookie()
+	if biliapi.FileExists("token/bili_token.txt") && biliapi.FileExists("token/bili_token.json") {
+		err = biliapi.SetHistoryCookie()
 		if err != nil {
 			if err = userlogin(); err != nil {
 				logx.Errorf("用户登录失败：%v", err)
@@ -99,7 +99,7 @@ func main() {
 
 		// 每1分钟检查一次直播间是否开播
 		case <-t.C:
-			if info, err = http.RoomInit(ctx.Config.RoomId); err != nil {
+			if info, err = biliapi.RoomInit(ctx.Config.RoomId); err != nil {
 				logx.Infof("RoomInit错误：%v", err)
 				t.Reset(interval)
 				continue
@@ -134,19 +134,19 @@ END:
 }
 func userlogin() error {
 	var err error
-	http.InitHttpClient()
+	biliapi.InitHttpClient()
 	var loginUrl *entity.LoginUrl
-	if loginUrl, err = http.GetLoginUrl(); err != nil {
+	if loginUrl, err = biliapi.GetLoginUrl(); err != nil {
 		logx.Error(err)
 		return err
 	}
 
-	if err = utiles.GenerateQr(loginUrl.Data.Url); err != nil {
+	if err = qrcode.Generate(loginUrl.Data.Url); err != nil {
 		logx.Error(err)
 		return err
 	}
 
-	if _, err = http.GetLoginInfo(loginUrl.Data.OauthKey); err != nil {
+	if _, err = biliapi.GetLoginInfo(loginUrl.Data.OauthKey); err != nil {
 		logx.Error(err)
 		return err
 	}
