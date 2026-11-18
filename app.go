@@ -9,7 +9,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
-	"github.com/xbclub/BilibiliDanmuRobot-Core/http"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/biliapi"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
@@ -36,7 +36,7 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp(version string) *App {
-	http.InitHttpClient()
+	biliapi.InitHttpClient()
 	return &App{Vserion: version}
 }
 
@@ -59,7 +59,7 @@ func (l *App) Userlogin() *entity.LoginUrl {
 		l.Stopwork()
 	}
 	l.login = make(chan bool)
-	if l.loginurl, err = http.GetLoginUrl(); err != nil {
+	if l.loginurl, err = biliapi.GetLoginUrl(); err != nil {
 		logx.Error(err)
 		return nil
 	}
@@ -68,7 +68,7 @@ func (l *App) Userlogin() *entity.LoginUrl {
 	go l.work(l.loginCtx)
 	l.channelisrun = true
 	return l.loginurl
-	//if err = utiles.GenerateQr(loginUrl.Data.Url); err != nil {
+	//if err = qrcode.Generate(loginUrl.Data.Url); err != nil {
 	//	logx.Error(err)
 	//	return err
 	//}
@@ -173,13 +173,13 @@ func (l *App) Onstop() bool {
 	return true
 }
 func (l *App) GetloginStatus() bool {
-	if http.FileExists("token/bili_token.txt") && http.FileExists("token/bili_token.json") {
-		err := http.SetHistoryCookie()
+	if biliapi.FileExists("token/bili_token.txt") && biliapi.FileExists("token/bili_token.json") {
+		err := biliapi.SetHistoryCookie()
 		if err != nil {
 			logx.Error(err)
 			return false
 		}
-		status := http.GetUserInfo()
+		status := biliapi.GetUserInfo()
 		return status.Islogin
 	} else {
 		return false
@@ -187,7 +187,7 @@ func (l *App) GetloginStatus() bool {
 
 }
 func (l *App) GetUserInfo() *entity.UserinfoLite {
-	return http.GetUserInfo()
+	return biliapi.GetUserInfo()
 }
 func (l *App) WriteConfig(data string) *ConfigResponse {
 	var c config.Config
