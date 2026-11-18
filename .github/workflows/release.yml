@@ -65,8 +65,13 @@ jobs:
           if-no-files-found: error
 
   gui-windows:
+    # Wails windows 目标不强制 CGO（go-webview2 为纯 syscall 绑定），
+    # syso 资源由 wails CLI 用纯 Go 的 winres 库生成，
+    # 因此可在 ubuntu 上以 CGO_ENABLED=0 交叉编译（本机已实测，20s 出包）
     name: GUI Windows amd64
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: "0"
     steps:
       - uses: actions/checkout@v4
 
@@ -85,23 +90,20 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.1
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.15.0
 
-      - name: Build GUI
-        shell: bash
+      - name: Build GUI (cross-compile)
         run: wails build -platform windows/amd64 -ldflags "-X main.Version=${GITHUB_REF_NAME}"
 
       # 与旧产物保持一致：外层目录（与 zip 同名）内含 exe + etc
       - name: Package
-        shell: pwsh
         run: |
-          $tag = ${env:GITHUB_REF_NAME}
-          $name = "GUI-BilibiliDanmuRobot_Windows_amd64_$tag"
-          New-Item -ItemType Directory -Force -Path "build/pkg/$name/etc" | Out-Null
-          Copy-Item "build/bin/GUI-BilibiliDanmuRobot.exe" "build/pkg/$name/"
-          Copy-Item -Recurse "etc/*" "build/pkg/$name/etc/"
-          Get-FileHash "build/pkg/$name/GUI-BilibiliDanmuRobot.exe" -Algorithm MD5
-          Compress-Archive -Path "build/pkg/$name" -DestinationPath "build/$name.zip"
+          name="GUI-BilibiliDanmuRobot_Windows_amd64_${GITHUB_REF_NAME}"
+          mkdir -p "build/pkg/${name}/etc"
+          cp build/bin/GUI-BilibiliDanmuRobot.exe "build/pkg/${name}/"
+          cp -r etc/* "build/pkg/${name}/etc/"
+          md5sum "build/pkg/${name}/GUI-BilibiliDanmuRobot.exe"
+          (cd build/pkg && zip -qr "../${name}.zip" "${name}")
 
       - uses: actions/upload-artifact@v4
         with:
