@@ -3,7 +3,7 @@ import { onBeforeMount, reactive } from "vue";
 
 import { ref } from "vue";
 import type { FormInstance, FormRules, TabsPaneContext } from "element-plus";
-import { ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
+import { ExportLogs, ReadConfig, WriteConfig } from "../../../wailsjs/go/main/App";
 import { ElNotification } from "element-plus";
 import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
 import { Menu, Setting } from '@element-plus/icons-vue'
@@ -151,6 +151,25 @@ async function saveConfig() {
   }
 }
 
+async function exportLogs() {
+  try {
+    const path = await ExportLogs();
+    ElNotification({
+      title: "日志已导出",
+      message: "文件位置：" + path,
+      type: "success",
+      duration: 10000
+    });
+  } catch (e: any) {
+    ElNotification({
+      title: "导出失败",
+      message: e?.message || String(e),
+      type: "error",
+      duration: 10000
+    });
+  }
+}
+
 async function pgstart() {
   await Monitor().then(res => {
     data.isrunning = res;
@@ -243,6 +262,19 @@ onActivated(() => {
         <p>弹幕最大长度<span>{{ data.form.DanmuLen }}</span></p>
         <p>花花进入消息<span>{{ stringChange(data.form.EntryMsg, 6) }}</span></p>
         <p>礼物感谢频率<span>{{ data.form.ThanksGiftTimeout + '秒' }}</span></p>
+      </el-card>
+      <el-card shadow="hover">
+        <template #header>
+          <span>
+            <Menu class="icon" />诊断日志
+          </span>
+        </template>
+        <p>一键导出日志
+          <el-button size="small" type="primary" @click="exportLogs">导出</el-button>
+        </p>
+        <div style="font-size: 12px; color: #909399; line-height: 1.6;">
+          导出到 exe 同目录的 zip，可直接发给开发者；包含 logs 和脱敏配置。
+        </div>
       </el-card>
       <el-card shadow="hover">
         <template #header>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bili_danmaku/logexport"
 	"context"
 	"encoding/json"
 	"errors"
@@ -301,6 +302,14 @@ type UpdateResponse struct {
 
 func (l *App) GetVersion() string {
 	return l.Vserion
+}
+
+func (l *App) ExportLogs() (string, error) {
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	return logexport.Export(".", filepath.Dir(exe))
 }
 func (l *App) CheckUpdate() *VersionResponse {
 	versionresp := VersionResponse{Code: 2}
