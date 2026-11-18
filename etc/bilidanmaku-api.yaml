@@ -41,6 +41,8 @@ WelcomeString: {
 WelcomeSwitch: true
 # 机器人的名字
 RobotName: "花花"
+# 是否启用 AI 机器人（关闭后触发词不再回复，签到/抽签/关键词回复不受影响）
+RobotEnable: true
 #直播间调用机器人的昵称：例如 "花花今天你吃了吗"，此处填花花
 TalkRobotCmd: "花花"
 #直播间调用机器人的昵称模糊匹配，"花花今天你吃了吗"与"今天花花你吃了吗"都会触发机器人回答

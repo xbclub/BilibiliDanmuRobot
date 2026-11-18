@@ -59,6 +59,7 @@ const data = reactive({
     WelcomeFanMedalLevel: 0,
     RobotName: "花花",
     TalkRobotCmd: "花花",
+    RobotEnable: true,
     RobotMode: "QingYunKe",
     FuzzyMatchCmd: false,
     ChatGPT: {
@@ -383,6 +384,9 @@ onActivated(() => {
             </router-link>
           </div>
         </template>
+        <p>AI 机器人
+          <el-switch v-model="data.form.RobotEnable" size="small" @click="saveConfig" />
+        </p>
         <p>机器人名称<span>{{ data.form.RobotName }}</span></p>
         <p>触发关键字<span>{{ data.form.TalkRobotCmd }}</span></p>
         <p>服务提供商<span>{{ data.form.RobotMode }}</span></p>

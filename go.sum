@@ -17,8 +17,8 @@ github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkp
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
-github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118120347-ea0e2ffdb0d0 h1:tab9GVMi2+h3arrxahotfxTnuRoFMBjgdvaH74Axwtg=
-github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118120347-ea0e2ffdb0d0/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
+github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118121348-d13c3790449e h1:YRKbIJF1l8oTBCXl45g6j7M3AgKsk5WlxUz/NKfUnxo=
+github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118121348-d13c3790449e/go.mod h1:Oo0Ac1KHFW06OXeaVLrlzBBq8wvMAYbNAjTItTB4Qos=
 github.com/glebarez/go-sqlite v1.21.2 h1:3a6LFC4sKahUunAmynQKLZceZCOzUthkRkEAl9gAXWo=
 github.com/glebarez/go-sqlite v1.21.2/go.mod h1:sfxdZyhQjTM2Wry3gVYWaW072Ri1WMdWJi0k6+3382k=
 github.com/glebarez/sqlite v1.10.0 h1:u4gt8y7OND/cCei/NMHmfbLxF6xP2wgKcT/BJf2pYkc=
