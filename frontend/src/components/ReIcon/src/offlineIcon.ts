@@ -8,8 +8,10 @@ import { addIcon } from "@iconify/vue/dist/offline";
 import InformationLine from "@iconify-icons/ri/information-line";
 import Lollipop from "@iconify-icons/ep/lollipop";
 import HomeFilled from "@iconify-icons/ep/home-filled";
-import Notification from "@iconify-icons/ep/Notification";
-import Sunny from "@iconify-icons/ep/Sunny";
+// 注意：模块路径必须与包内文件名大小写完全一致（notification.js/sunny.js），
+// Linux 构建环境区分大小写，写成 Notification/Sunny 会导致 rollup 解析失败
+import Notification from "@iconify-icons/ep/notification";
+import Sunny from "@iconify-icons/ep/sunny";
 
 addIcon("Sunny", Sunny);
 addIcon("notification", Notification);
