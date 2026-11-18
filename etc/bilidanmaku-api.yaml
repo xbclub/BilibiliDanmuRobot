@@ -37,6 +37,8 @@ Log:
 WelcomeString: {
   123456: "欢迎宇宙无敌最帅的xxx进入直播间"
 }
+# 熟人昵称：UID -> 昵称；填了后三档欢迎正文直接用昵称，不再 @用户名
+UserNicknames: {}
 # 指定欢迎是否启用 true:开 false：关
 WelcomeSwitch: true
 # 机器人的名字

@@ -51,6 +51,7 @@ const data = reactive({
     WelcomeString: {
       "123456": "欢迎宇宙无敌最帅的xxx进入直播间"
     },
+    UserNicknames: {},
     WelcomeDanmu: ["欢迎 {user} ~", "欢迎 {user} 木嘛~", "欢迎 {user} 好诶~"],
     WelcomeTier: false,
     WelcomeNew: ["欢迎呀~{at}恭喜你发现了{anchor}"],
