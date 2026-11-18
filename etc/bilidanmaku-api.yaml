@@ -16,6 +16,16 @@ EntryEffect: true
 ThanksGift: true
 # 礼物感谢频率(秒)
 ThanksGiftTimeout: 3
+# 礼物感谢话术（可选，留空使用默认文案）
+# 占位符：{user} 用户名，{gift} 礼物列表，{num} 数量，{cost} 金额(元)
+ThanksGiftDanmu:
+  - "感谢{user}的{gift}~"
+# 盲盒感谢话术（{user}/{gift}）
+ThanksBlindBoxDanmu:
+  - "感谢{user}的{gift}~"
+# 舰长/提督/总督感谢话术（{user}/{gift}）
+ThanksGuardDanmu:
+  - "感谢{user}的{gift}~"
 # 手动发送弹幕开关
 CustomizeBullet: false
 #日志输出

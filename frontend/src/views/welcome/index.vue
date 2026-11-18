@@ -74,6 +74,9 @@ const data = reactive({
       "入股不亏哦~",
       "贴贴~"
     ],
+    ThanksGiftDanmu: ["感谢{user}的{gift}~"],
+    ThanksBlindBoxDanmu: ["感谢{user}的{gift}~"],
+    ThanksGuardDanmu: ["感谢{user}的{gift}~"],
     CronDanmu: false,
     CronDanmuList: [
       {

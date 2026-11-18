@@ -92,4 +92,4 @@ require (
 	modernc.org/sqlite v1.23.1 // indirect
 )
 
-replace github.com/xbclub/BilibiliDanmuRobot-Core => github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118115651-bb85d5775f5a
+replace github.com/xbclub/BilibiliDanmuRobot-Core => github.com/feifei2005/BilibiliDanmuRobot-Core v1.1.22-0.20261118120347-ea0e2ffdb0d0
