@@ -1,0 +1,20 @@
+# pnpm 10+ 项目设置（自 package.json 的 pnpm 字段与 .npmrc 迁移而来，
+# 见 https://pnpm.io/settings —— pnpm 11 起这两处的安装期设置不再被读取）
+# 注意：此文件存在后要求 pnpm >= 10；CI 与本地请勿再用 pnpm 9
+shamefullyHoist: true # 全量提升到顶层 node_modules（vite-plugin-cdn-import 按顶层路径读包版本）
+strictPeerDependencies: false
+shellEmulator: true
+onlyBuiltDependencies:
+  - esbuild
+  - vue-demi
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+peerDependencyRules:
+  ignoreMissing:
+    - rollup
+    - webpack
+    - core-js
+allowedDeprecatedVersions:
+  sourcemap-codec: "*"
+  stable: "*"

@@ -115,20 +115,8 @@
     "vue-eslint-parser": "^9.2.1",
     "vue-tsc": "^1.6.4"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "rollup",
-        "webpack",
-        "core-js"
-      ]
-    },
-    "allowedDeprecatedVersions": {
-      "sourcemap-codec": "*",
-      "stable": "*"
-    }
-  },
   "repository": "git@github.com:pure-admin/pure-admin-thin.git",
   "author": "xiaoxian521",
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "pnpm@11.9.0"
 }
