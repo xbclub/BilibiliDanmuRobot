@@ -53,6 +53,21 @@ WelcomeFanMedalLevel: 0
 - 同时支持旧版 JSON `INTERACT_WORD` 和新版 `INTERACT_WORD_V2`（protobuf）
 - 粉丝牌只有佩戴时才会出现在进场事件里；未佩戴但有牌的用户会被归为回头客
 
+### 本地 dry-run 调试（不真正发送弹幕）
+
+弹幕发送出口支持进程内 dry-run 开关（不进配置文件、不上 GUI 页面），开启后所有弹幕（欢迎/感谢/机器人/指令/告别）只打 `[dry-run]` 前缀日志，不请求 B 站，发送队列按正常 3.5s 节奏排空，可完整模拟运行时序：
+
+```bash
+# CLI 版：加 -dry-run 参数
+./BilibiliDanmuRobot -f etc/bilidanmaku-api.yaml -dry-run
+
+# GUI 本地开发：环境变量（wails dev 会透传给二进制）
+BILIDANMU_DRY_RUN=1 wails dev
+
+# GUI 构建产物（Windows PowerShell）
+$env:BILIDANMU_DRY_RUN="1"; .\GUI-BilibiliDanmuRobot.exe
+```
+
 ### Docker
 ```bash
 # 创建配置文件

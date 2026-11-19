@@ -4,6 +4,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"github.com/xbclub/BilibiliDanmuRobot-Core/biliapi"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -21,6 +22,11 @@ var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
 var Version string
 
 func init() {
+	// 本地调试开关：BILIDANMU_DRY_RUN=1 时弹幕发送出口切换 dry-run（只记日志不真发）。
+	// 刻意不做成配置项或 GUI 页面开关，仅通过环境变量显式开启，线上不会误开
+	if os.Getenv("BILIDANMU_DRY_RUN") == "1" {
+		biliapi.EnableDryRun()
+	}
 	dir := "./token"
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// Directory does not exist, create it

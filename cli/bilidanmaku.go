@@ -20,6 +20,7 @@ import (
 )
 
 var configFile = flag.String("f", "etc/bilidanmaku-api.yaml", "the config file")
+var dryRun = flag.Bool("dry-run", false, "dry-run 模式：弹幕只记日志不真正发送（本地调试用）")
 var Version string
 var cls handler.WsHandler
 
@@ -30,6 +31,11 @@ func main() {
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	logx.MustSetup(c.Log)
 	logx.DisableStat()
+
+	// 必须在 NewWsHandler 之前开启
+	if *dryRun {
+		biliapi.EnableDryRun()
+	}
 
 	logx.Infof("当前版本: %s", Version)
 	logx.Infof("监听直播间: %d", c.RoomId)
