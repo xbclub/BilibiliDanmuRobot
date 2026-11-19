@@ -35,6 +35,25 @@ func emitLoginRequired() {
 	}
 }
 
+// emitLoginExpired 登录态被服务端判定失效（开播校验发现），已自动本地注销，
+// 通知前端提示并回到扫码登录页
+func emitLoginExpired() {
+	if emitEvent != nil {
+		emitEvent("login:expired")
+	}
+}
+
+// loginValid 登录态两级校验：本地 cookie 齐备性快筛（完全没登录时不打请求），
+// 再调服务端 nav 接口确认真实有效——cookie 可能已在服务端过期，纯本地检查拦不住。
+// 每次调用产生一个网络请求，仅在低频时机使用（启动前 / 开播连接前各一次）
+func loginValid() bool {
+	if !biliapi.LoggedIn() {
+		return false
+	}
+	info := biliapi.GetUserInfo()
+	return info != nil && info.Islogin
+}
+
 func NewProgram() *Program {
 	return &Program{cls: handler.NewWsHandler(),
 		mutex: new(sync.Mutex),
@@ -47,10 +66,11 @@ func (p *Program) Start() bool {
 		logx.Info("已启动跳过")
 		return true
 	}
-	// 启动前登录检测：未登录直接拒绝。弹幕 WS 游客也能连上，但 EntryMsg 与
-	// 后续所有弹幕发送都需要 bili_jct 登录态，未登录时连上只是"看起来正常"空跑
-	if !biliapi.LoggedIn() {
-		logx.Error("启动失败：未登录（缺少有效 cookie），请先扫码登录")
+	// 启动前登录校验（服务端确认）：未登录/已过期直接拒绝。弹幕 WS 游客也能
+	// 连上，但 EntryMsg 与后续所有弹幕发送都需要 bili_jct 登录态，
+	// 未登录时连上只是"看起来正常"空跑
+	if !loginValid() {
+		logx.Error("启动失败：登录态无效（未登录或已过期），请先扫码登录")
 		emitLoginRequired()
 		return false
 	}
@@ -157,8 +177,6 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 	defer t.Stop()
 	var info *entity.RoomInitInfo
 	var preStatus int
-	// 未登录告警只发一次；登录态恢复（重扫）后自动重连并重置，可再次告警
-	var loginAlerted bool
 
 	logx.Info("正在检测直播间是否开播...")
 	l.cls = handler.NewWsHandler()
@@ -183,18 +201,21 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
-				// 开播连接前登录检测：WS 游客可连但发送全废，此处拦截并提示，
-				// 不置 preStatus——每 10s 重查，重新扫码登录后自动恢复连接
-				if !biliapi.LoggedIn() {
-					logx.Errorf("已开播但登录态缺失（bili_jct/SESSDATA），暂不连接 WS，重新登录后自动恢复")
-					if !loginAlerted {
-						emitLoginRequired()
-						loginAlerted = true
+				// 开播连接前登录校验（服务端确认，仅此一次，不轮询）。
+				// 能走到这里说明启动时登录有效，此刻失效即登录已过期——
+				// 直接走本地注销流程：停全部任务、清 cookie、删凭证、回登录页；
+				// 过期会话调服务端注销注定失败，跳过该接口（LogoutLocal）
+				if !loginValid() {
+					logx.Errorf("开播时校验登录态已失效，停止机器人并执行本地注销")
+					emitLoginExpired()
+					l.running = false
+					if l.cls != nil {
+						l.cls.StopChanel()
+						l.cls.StopWsClient()
 					}
-					t.Reset(interval)
-					continue
+					biliapi.LogoutLocal()
+					return
 				}
-				loginAlerted = false
 				logx.Infof("开播啦！%v", l.cls.GetSvc().Config.RoomId)
 				l.mutex.Lock()
 				l.cls.StopWsClient()

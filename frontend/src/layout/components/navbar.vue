@@ -126,7 +126,7 @@ function checkupdates(isbutton?) {
 const markdown = new MarkdownIt();
 onMounted(() => {
   getuserinfo();
-  // 后端「未登录但需要登录态」事件（启动被拒/开播无法连 WS），弹提示引导扫码
+  // 后端「未登录但需要登录态」事件（启动被拒），弹提示引导扫码
   EventsOn("login:required", () => {
     ElNotification({
       title: "未登录",
@@ -134,6 +134,17 @@ onMounted(() => {
       type: "warning",
       duration: 10000
     });
+  });
+  // 后端「登录已过期」事件（开播校验发现）：已自动本地注销并停止，回扫码页
+  EventsOn("login:expired", () => {
+    ElNotification({
+      title: "登录已过期",
+      message: "机器人已停止并自动注销，请重新扫码登录",
+      type: "warning",
+      duration: 15000
+    });
+    data.isrunning = false;
+    logout();
   });
   GetVersion().then(res => {
     data.version = res;

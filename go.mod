@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/go-resty/resty/v2 v2.9.1
 	github.com/wailsapp/wails/v2 v2.10.1
-	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.27
+	github.com/xbclub/BilibiliDanmuRobot-Core v1.1.28
 	github.com/zeromicro/go-zero v1.6.5
 	gopkg.in/yaml.v3 v3.0.1
 )
