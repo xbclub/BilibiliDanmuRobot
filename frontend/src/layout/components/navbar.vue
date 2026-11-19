@@ -18,6 +18,7 @@ import {
 } from "../../../wailsjs/go/main/App";
 import router from "@/router";
 import { Monitor, Start, Stop, Restart, Logout } from "../../../wailsjs/go/main/Program";
+import { EventsOn } from "../../../wailsjs/runtime/runtime";
 import { ElNotification, ElMessageBox } from "element-plus";
 
 const {
@@ -40,6 +41,7 @@ const data = reactive({
   },
   islogin: false,
   username: "",
+  uid: 0,
   avatars: "https://avatars.githubusercontent.com/u/44761321?v=4",
   isrunning: false,
   form: {
@@ -124,6 +126,15 @@ function checkupdates(isbutton?) {
 const markdown = new MarkdownIt();
 onMounted(() => {
   getuserinfo();
+  // 后端「未登录但需要登录态」事件（启动被拒/开播无法连 WS），弹提示引导扫码
+  EventsOn("login:required", () => {
+    ElNotification({
+      title: "未登录",
+      message: "当前操作需要登录态，请先扫码登录（机器人发送弹幕依赖登录 Cookie）",
+      type: "warning",
+      duration: 10000
+    });
+  });
   GetVersion().then(res => {
     data.version = res;
   });
@@ -165,6 +176,7 @@ async function getuserinfo() {
       console.log('res', res);
       data.avatars = res.Avactor;
       data.username = res.Username;
+      data.uid = res.Uid;
       if (!data.username) {
         data.username = '无'
       }
@@ -252,6 +264,9 @@ function sleep(ms) {
         </div>
         <p v-if="data.username" class="dark:text-white">
           {{ data.username }}
+          <span v-if="data.uid" style="font-size: 12px; color: #909399;">
+            UID:{{ data.uid }}
+          </span>
         </p>
       </div>
       <div class="el-dropdown-link">

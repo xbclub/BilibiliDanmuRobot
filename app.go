@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/config"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/entity"
 	"github.com/xbclub/BilibiliDanmuRobot-Core/biliapi"
@@ -44,6 +45,10 @@ func NewApp(version string) *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	// 注入 wails 事件发射器：Program 层（开播前登录检测等）借此通知前端弹提示
+	emitEvent = func(name string, data ...interface{}) {
+		runtime.EventsEmit(ctx, name, data...)
+	}
 }
 
 // Greet returns a greeting for the given name

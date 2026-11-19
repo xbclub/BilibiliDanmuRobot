@@ -24,6 +24,17 @@ type Program struct {
 	mutex      *sync.Mutex
 }
 
+// emitEvent 由 App.startup 注入的 wails 事件发射器；为 nil 时（无窗口环境）静默跳过
+var emitEvent func(name string, data ...interface{})
+
+// emitLoginRequired 后端检测到「未登录但需要登录态」时通知前端弹提示
+func emitLoginRequired() {
+	logx.Error("请先扫码登录后再启动机器人")
+	if emitEvent != nil {
+		emitEvent("login:required")
+	}
+}
+
 func NewProgram() *Program {
 	return &Program{cls: handler.NewWsHandler(),
 		mutex: new(sync.Mutex),
@@ -35,6 +46,13 @@ func (p *Program) Start() bool {
 	if p.running {
 		logx.Info("已启动跳过")
 		return true
+	}
+	// 启动前登录检测：未登录直接拒绝。弹幕 WS 游客也能连上，但 EntryMsg 与
+	// 后续所有弹幕发送都需要 bili_jct 登录态，未登录时连上只是"看起来正常"空跑
+	if !biliapi.LoggedIn() {
+		logx.Error("启动失败：未登录（缺少有效 cookie），请先扫码登录")
+		emitLoginRequired()
+		return false
 	}
 	var c config.Config
 	if err := Mustload(&c); err != nil {
@@ -139,6 +157,8 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 	defer t.Stop()
 	var info *entity.RoomInitInfo
 	var preStatus int
+	// 未登录告警只发一次；登录态恢复（重扫）后自动重连并重置，可再次告警
+	var loginAlerted bool
 
 	logx.Info("正在检测直播间是否开播...")
 	l.cls = handler.NewWsHandler()
@@ -163,6 +183,18 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
+				// 开播连接前登录检测：WS 游客可连但发送全废，此处拦截并提示，
+				// 不置 preStatus——每 10s 重查，重新扫码登录后自动恢复连接
+				if !biliapi.LoggedIn() {
+					logx.Errorf("已开播但登录态缺失（bili_jct/SESSDATA），暂不连接 WS，重新登录后自动恢复")
+					if !loginAlerted {
+						emitLoginRequired()
+						loginAlerted = true
+					}
+					t.Reset(interval)
+					continue
+				}
+				loginAlerted = false
 				logx.Infof("开播啦！%v", l.cls.GetSvc().Config.RoomId)
 				l.mutex.Lock()
 				l.cls.StopWsClient()
