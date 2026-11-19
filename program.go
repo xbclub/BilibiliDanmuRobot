@@ -58,18 +58,41 @@ func (p *Program) Start() bool {
 	return true
 }
 
+// Stop 手动停止：只停 WS 连接与监控循环（Done 分支即 StopWsClient 语义）。
+// 弹幕处理各模块/发送队列不回收——没有 WS 事件流入时它们空转待命，
+// 再次 Start 时无需整体重建
 func (p *Program) Stop() bool {
-	//p.locked.Lock()
-	//if p.workCancel != nil {
-	//	p.workCancel()
-	//}
-	//for p.running {
-	//	time.Sleep(1 * time.Second)
-	//	logx.Info("等待机器关闭中.....")
-	//}
-	logx.Info("手动停止已经不让用了 别请求了")
-	//p.locked.Unlock()
-	return false
+	p.mutex.Lock()
+	if p.workCancel != nil {
+		p.workCancel()
+		p.workCancel = nil
+		p.mutex.Unlock()
+		// 有界等待监控 goroutine 退出（无 token 早退路径不会置 running=false，不能死等）
+		deadline := time.Now().Add(5 * time.Second)
+		for p.running && time.Now().Before(deadline) {
+			time.Sleep(50 * time.Millisecond)
+		}
+		p.mutex.Lock()
+	}
+	p.running = false
+	p.mutex.Unlock()
+	logx.Info("弹幕姬已停止（WS 连接已断开）")
+	return true
+}
+
+// Logout 退出登录：与普通 Stop 不同，这里必须全面停止——
+// 1. Stop：断开 WS 连接（连接持有旧 cookie 快照，注销前必须先停）与监控循环
+// 2. StopChanel：停掉弹幕解析/欢迎/感谢/机器人等处理模块、中央发送队列、定时弹幕
+// 3. Core Logout：best-effort 服务端注销 → 清空进程内 cookie → 删除本地凭证
+// 完成后前端回到扫码登录页重新走登录流程
+func (p *Program) Logout() error {
+	p.Stop()
+	p.mutex.Lock()
+	if p.cls != nil {
+		p.cls.StopChanel()
+	}
+	p.mutex.Unlock()
+	return biliapi.Logout()
 }
 func (p *Program) Restart() bool {
 	p.mutex.Lock()

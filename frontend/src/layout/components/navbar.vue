@@ -17,7 +17,7 @@ import {
   ReadConfig
 } from "../../../wailsjs/go/main/App";
 import router from "@/router";
-import { Monitor, Start, Stop, Restart } from "../../../wailsjs/go/main/Program";
+import { Monitor, Start, Stop, Restart, Logout } from "../../../wailsjs/go/main/Program";
 import { ElNotification, ElMessageBox } from "element-plus";
 
 const {
@@ -207,6 +207,30 @@ async function restart() {
   await sleep(600);
   data.isrunning = true;
 }
+/** 退出登录：后端先停全部任务（WS/弹幕处理/发送队列）并清除登录态，再回到扫码登录页 */
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm(
+      "退出登录会停止机器人运行并清除登录凭证，需要重新扫码登录，确定退出？",
+      "退出登录",
+      { type: "warning", confirmButtonText: "退出", cancelButtonText: "取消" }
+    );
+  } catch {
+    return;
+  }
+  try {
+    await Logout();
+    data.isrunning = false;
+    logout();
+  } catch (e: any) {
+    ElNotification({
+      title: "退出失败",
+      message: e?.message || String(e),
+      type: "error",
+      duration: 10000
+    });
+  }
+}
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -247,6 +271,7 @@ function sleep(ms) {
       <el-button size="small" type="warning" plain @click="restart">重启</el-button>
 <!--      <el-button size="small" type="success" @click="pgstart" plain  v-if="data.isrunning==false">启动</el-button>-->
       <el-button size="small" type="primary" @click="checkupdates(true)" plain>更新</el-button>
+      <el-button size="small" type="danger" plain @click="handleLogout">退出登录</el-button>
 
       <span class="set-icon navbar-bg-hover" title="打开项目配置" @click="onPanel">
         <IconifyIconOffline :icon="Setting" />
