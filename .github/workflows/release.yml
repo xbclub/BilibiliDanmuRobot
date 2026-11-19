@@ -81,7 +81,8 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 11
+          # 版本读 frontend/package.json 的 packageManager 字段（单一事实来源）
+          package_json_file: frontend/package.json
 
       - uses: actions/setup-node@v4
         with:

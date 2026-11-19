@@ -72,6 +72,11 @@ func (p *Program) Stop() bool {
 		for p.running && time.Now().Before(deadline) {
 			time.Sleep(50 * time.Millisecond)
 		}
+		if p.running {
+			// 监控 goroutine 大概率卡在开播检测分支：此时强置 running=false，
+			// goroutine 会在下一次 select 命中 Done 自行退出，但期间 Start 会双跑，记日志备查
+			logx.Errorf("等待监控 goroutine 退出超时（5s），强制标记为已停止；期间请勿 Start（会双跑）")
+		}
 		p.mutex.Lock()
 	}
 	p.running = false
@@ -90,6 +95,10 @@ func (p *Program) Logout() error {
 	p.mutex.Lock()
 	if p.cls != nil {
 		p.cls.StopChanel()
+		// 兜底再停一次 WS：Stop() 走满 5s 超时路径时 Done 分支可能尚未执行，
+		// 而「注销前必须断开持有旧 cookie 的连接」是硬性顺序。
+		// client.Stop() 为 context cancel、corndanmu.Stop() 幂等，重复调用安全
+		p.cls.StopWsClient()
 	}
 	p.mutex.Unlock()
 	return biliapi.Logout()
