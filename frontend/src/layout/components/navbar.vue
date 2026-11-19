@@ -18,7 +18,7 @@ import {
 } from "../../../wailsjs/go/main/App";
 import router from "@/router";
 import { Monitor, Start, Stop, Restart, Logout } from "../../../wailsjs/go/main/Program";
-import { EventsOn } from "../../../wailsjs/runtime/runtime";
+import { EventsOn, EventsOff } from "../../../wailsjs/runtime/runtime";
 import { ElNotification, ElMessageBox } from "element-plus";
 
 const {
@@ -126,16 +126,19 @@ function checkupdates(isbutton?) {
 const markdown = new MarkdownIt();
 onMounted(() => {
   getuserinfo();
-  // 后端「未登录但需要登录态」事件（启动被拒），弹提示引导扫码
-  EventsOn("login:required", () => {
+  // 后端「需要登录态」事件（启动被拒），弹提示引导扫码。
+  // 先 EventsOff 再注册：navbar 随登出/登入反复挂载，避免监听器累积重复弹窗
+  EventsOff("login:required");
+  EventsOn("login:required", (msg?: string) => {
     ElNotification({
       title: "未登录",
-      message: "当前操作需要登录态，请先扫码登录（机器人发送弹幕依赖登录 Cookie）",
+      message: msg || "当前操作需要登录态，请先扫码登录（机器人发送弹幕依赖登录 Cookie）",
       type: "warning",
       duration: 10000
     });
   });
   // 后端「登录已过期」事件（开播校验发现）：已自动本地注销并停止，回扫码页
+  EventsOff("login:expired");
   EventsOn("login:expired", () => {
     ElNotification({
       title: "登录已过期",

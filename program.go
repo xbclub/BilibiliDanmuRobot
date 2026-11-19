@@ -27,11 +27,16 @@ type Program struct {
 // emitEvent 由 App.startup 注入的 wails 事件发射器；为 nil 时（无窗口环境）静默跳过
 var emitEvent func(name string, data ...interface{})
 
-// emitLoginRequired 后端检测到「未登录但需要登录态」时通知前端弹提示
-func emitLoginRequired() {
-	logx.Error("请先扫码登录后再启动机器人")
+// emitLoginRequired 后端检测到「需要登录态」时通知前端弹提示；
+// 可选参数携带具体原因（如网络异常无法确认），前端缺省显示扫码引导文案
+func emitLoginRequired(reason ...string) {
+	msg := "请先扫码登录后再启动机器人"
+	if len(reason) > 0 && reason[0] != "" {
+		msg = reason[0]
+	}
+	logx.Error(msg)
 	if emitEvent != nil {
-		emitEvent("login:required")
+		emitEvent("login:required", msg)
 	}
 }
 
@@ -43,15 +48,16 @@ func emitLoginExpired() {
 	}
 }
 
-// loginValid 登录态两级校验：本地 cookie 齐备性快筛（完全没登录时不打请求），
-// 再调服务端 nav 接口确认真实有效——cookie 可能已在服务端过期，纯本地检查拦不住。
-// 每次调用产生一个网络请求，仅在低频时机使用（启动前 / 开播连接前各一次）
-func loginValid() bool {
-	if !biliapi.LoggedIn() {
-		return false
+// loginValid 登录态校验（服务端确认，每次一个网络请求，仅低频时机使用）。
+// 返回 (有效, 无法确认)：「无法确认=true」表示网络/风控原因核实失败，
+// 此时不得执行注销类动作，调用方按瞬时故障处理
+func loginValid() (valid bool, unverified bool) {
+	ok, err := biliapi.LoginVerified()
+	if err != nil {
+		logx.Errorf("登录态核实失败：%v", err)
+		return false, true
 	}
-	info := biliapi.GetUserInfo()
-	return info != nil && info.Islogin
+	return ok, false
 }
 
 func NewProgram() *Program {
@@ -68,10 +74,16 @@ func (p *Program) Start() bool {
 	}
 	// 启动前登录校验（服务端确认）：未登录/已过期直接拒绝。弹幕 WS 游客也能
 	// 连上，但 EntryMsg 与后续所有弹幕发送都需要 bili_jct 登录态，
-	// 未登录时连上只是"看起来正常"空跑
-	if !loginValid() {
-		logx.Error("启动失败：登录态无效（未登录或已过期），请先扫码登录")
-		emitLoginRequired()
+	// 未登录时连上只是"看起来正常"空跑。网络原因无法确认时同样拒绝，
+	// 但提示不同且不动登录态
+	if ok, unverified := loginValid(); !ok {
+		if unverified {
+			logx.Error("启动失败：网络原因无法确认登录态，请检查网络后重试")
+			emitLoginRequired("网络异常，无法确认登录态，请检查网络后重试")
+		} else {
+			logx.Error("启动失败：登录态无效（未登录或已过期），请先扫码登录")
+			emitLoginRequired()
+		}
 		return false
 	}
 	var c config.Config
@@ -201,18 +213,28 @@ func (l *Program) Bili_danmaku_Start(workctx context.Context) {
 				continue
 			}
 			if info.Data.LiveStatus == entity.Live && preStatus == entity.NotStarted { // 由NotStarted到Live是开播
-				// 开播连接前登录校验（服务端确认，仅此一次，不轮询）。
-				// 能走到这里说明启动时登录有效，此刻失效即登录已过期——
-				// 直接走本地注销流程：停全部任务、清 cookie、删凭证、回登录页；
-				// 过期会话调服务端注销注定失败，跳过该接口（LogoutLocal）
-				if !loginValid() {
+				// 开播连接前登录校验（服务端确认）：
+				// - 网络原因无法确认：视为瞬时故障，本轮不连 WS 也不动登录态，
+				//   下个周期重查（与既有 RoomInit 每 10s 轮询节奏一致）
+				// - 服务端明确判定失效：启动时有效此刻失效=已过期，直接走本地
+				//   注销流程——停全部任务、清 cookie、删凭证、回登录页；
+				//   过期会话调服务端注销注定失败，跳过该接口（LogoutLocal）
+				ok, unverified := loginValid()
+				if unverified {
+					logx.Errorf("开播登录校验暂时无法确认（网络异常），10s 后重查")
+					t.Reset(interval)
+					continue
+				}
+				if !ok {
 					logx.Errorf("开播时校验登录态已失效，停止机器人并执行本地注销")
 					emitLoginExpired()
 					l.running = false
+					l.mutex.Lock()
 					if l.cls != nil {
 						l.cls.StopChanel()
 						l.cls.StopWsClient()
 					}
+					l.mutex.Unlock()
 					biliapi.LogoutLocal()
 					return
 				}
