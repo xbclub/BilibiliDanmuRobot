@@ -1,7 +1,7 @@
 # 房间号
 RoomId: 3
 # 弹幕长度上限（按账号权限设置，常见 20，部分账号 40）
-DanmuLen: 20
+DanmuLen: 40
 EntryMsg: "花花机器人进入直播间"
 #大乱斗与视频pk 机器人输出对手信息
 PKNotice: true

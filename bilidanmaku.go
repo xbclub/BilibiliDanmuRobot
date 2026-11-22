@@ -11,6 +11,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"os"
+	"runtime/debug"
 )
 
 //go:embed all:frontend/dist
@@ -86,10 +87,18 @@ func init() {
 func main() {
 	// Create an instance of the app structure
 	logx.Info("当前版本:", Version)
+	// 闪退诊断：主 goroutine 的 panic 与 wails.Run 失败都落盘，避免静默退出无处排查
+	defer func() {
+		if r := recover(); r != nil {
+			logx.Errorf("启动 panic：%v\n%s", r, debug.Stack())
+			_ = os.WriteFile("logs/applog/startup-error.txt", []byte(fmt.Sprintf("panic: %v\n%s", r, debug.Stack())), 0644)
+		}
+	}()
 	app := NewApp(Version)
 	program := NewProgram()
 	//test := NewTest()
 	// Create application with options
+	logx.Info("正在初始化窗口(wails.Run)...")
 	err := wails.Run(&options.App{
 		Title:  "弹幕机器人",
 		Width:  1024,
@@ -108,6 +117,8 @@ func main() {
 	})
 
 	if err != nil {
+		logx.Errorf("窗口启动失败(wails.Run)：%v", err)
+		_ = os.WriteFile("logs/applog/startup-error.txt", []byte("wails.Run: "+err.Error()), 0644)
 		println("Error:", err.Error())
 	}
 }
