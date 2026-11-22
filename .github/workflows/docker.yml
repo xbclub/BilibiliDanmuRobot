@@ -1,0 +1,59 @@
+name: Docker
+
+# 打 tag (v*) 触发：构建 linux/amd64 + linux/arm64 双架构镜像并推送 Docker Hub；
+# 也可在 Actions 页面手动触发（在分支上触发会推送 :<分支名> 标签，用于验证流水线）
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Docker Hub 仓库，与 readme 中 docker run 使用的镜像一致
+  IMAGE_NAME: xbclub/bilibilidanmurobot
+
+jobs:
+  build-push:
+    name: Build & Push (amd64 + arm64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dockerfile 里用 --platform=$BUILDPLATFORM + GOOS/GOARCH 交叉编译，
+      # arm64 目标也在 amd64 runner 上全速编译，无需 QEMU；
+      # buildx 会直接拉取目标架构的 alpine 基础镜像完成组装
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: docker.io/${{ env.IMAGE_NAME }}
+          # v1.2.3 → :v1.2.3、:1.2、:latest；手动触发 → :<分支名>
+          tags: |
+            type=semver,pattern={{raw}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.ref_name }}

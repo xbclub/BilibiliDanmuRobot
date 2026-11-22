@@ -1,0 +1,20 @@
+# 版本控制 / CI
+.git
+.github
+
+# 前端与 GUI 相关（CLI 镜像用不到，剔除可大幅缩小构建上下文）
+frontend
+build
+node_modules
+package.json
+package-lock.json
+wails.json
+
+# 本地运行产物 / 杂项
+logs
+token
+db
+cli/dist
+danmu-recoder
+login.jpg
+readme.md
